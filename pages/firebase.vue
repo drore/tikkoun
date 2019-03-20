@@ -45,9 +45,10 @@ export default {
       this.readSuccessful = true
     },
     async writeToFirestore() {
-      const ref = StoreDB.collection('test').doc('test')
+      const ref = StoreDB.collection('manuscripts').doc('tan')
       const document = {
-        text: 'This is a test message1.'
+        text: 'Hello Moshe',
+        trans: 'דרור'
       }
       try {
         await ref.set(document)

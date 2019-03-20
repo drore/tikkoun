@@ -4,7 +4,21 @@ import { auth, GoogleProvider } from '@/plugins/firebase.js'
 const createStore = () => {
   return new Vuex.Store({
     state: () => ({
-      user: null
+      user: null,
+      manuscript: {
+        attribution: '',
+        page: {
+          img_src: '',
+          line: {
+            polygon: {
+              top_left: { x: 0, y: 0 },
+              top_right: { x: 0, y: 0 },
+              bottom_left: { x: 0, y: 0 },
+              bottom_right: { x: 0, y: 0 }
+            }
+          }
+        }
+      }
     }),
     mutations: {
       setUser(state, payload) {

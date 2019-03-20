@@ -34,9 +34,9 @@ module.exports = {
           'sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM',
         crossorigin: 'anonymous'
       },
-      {
-        src: 'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js'
-      }
+      { src: 'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js' },
+      { src: 'https://unpkg.com/leaflet-draw@0.4.10/dist/leaflet.draw.js' },
+      { src: 'https://unpkg.com/leaflet-iiif@2.0.1/leaflet-iiif.js' }
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
@@ -70,7 +70,7 @@ module.exports = {
       {
         defaultLocale: 'en',
         vueI18n: {
-          fallbackLocale: 'en',
+          fallbackLocale: 'en'
         },
         locales: [
           {
