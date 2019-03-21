@@ -1,10 +1,12 @@
 import Vuex from 'vuex'
 import { auth, GoogleProvider } from '@/plugins/firebase.js'
+import api from '@/api.js'
 
 const createStore = () => {
   return new Vuex.Store({
     state: () => ({
       user: null,
+      translations: null,
       manuscript: {
         attribution: '',
         page: {
@@ -23,10 +25,41 @@ const createStore = () => {
     mutations: {
       setUser(state, payload) {
         state.user = payload
+      },
+      addTranslation(state, payload) {
+        if (state.translations) {
+          state.translations.push({
+            token: 'temp_' + new Date().getTime(),
+            value: null,
+            lang: payload
+          })
+        }
+      },
+      setTranslations(state, payload) {
+        state.translations = payload.docs.map(d => {
+          const data = d.data()
+          return {
+            id: d.id,
+            token: data.token,
+            lang: data.lang,
+            value: data.value
+          }
+        })
       }
     },
     actions: {
       nuxtServerInit({ commit }, { req }) {},
+      async getTranslations({ commit }, lang) {
+        commit('setTranslations', await api.getTranslations(lang))
+      },
+      addTranslation({ commit }, lang) {
+        commit('addTranslation', lang)
+      },
+      async updateTranslation({ commit, dispatch }, translation) {
+        await api.updateDocument('translations', translation.id, translation)
+
+        dispatch('getTranslations', translation.lang)
+      },
       autoSignIn({ commit }, payload) {
         commit('setUser', payload)
       },

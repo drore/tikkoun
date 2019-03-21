@@ -1,5 +1,10 @@
 <template>
-  <div class="footer">
-    <div class="container">Footer</div>
+  <div class="footer container">
+    Footer
   </div>
 </template>
+<style>
+.footer {
+  height: 60px;
+}
+</style>

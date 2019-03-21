@@ -30,7 +30,7 @@
                   id="imgline"
                   alt="Image of line in page"
                   width="100%"
-                  src="${transcribedlineimgsrc}"
+                  :src="transcribedLineImgSrc"
                   class="imageline"
                 >
 
@@ -41,9 +41,10 @@
                       type="text"
                       name="transcribed"
                       autocomplete="off"
-                      value="${transcribedline}"
+                      :value="line.GT01"
                       style="font-family: Corsiva"
                       class="w-100 p-2 rtl"
+                      v-if="line"
                     >
                     <input id="trwOrig" type="hidden" value="${transcribedline}">
                   </div>
@@ -86,7 +87,7 @@
                       >
                         <span style="font-size: larger;">{{$t('main.work_area.button_4')}}</span>
                       </button>
-                      
+
                       <button
                         :title="$t('main.work_area.hovers.over_upper')"
                         class="rounded-0 btn btn-secondary"
@@ -291,9 +292,13 @@
 </template>
 
 <script>
+import manuscriptsManager from '~/manuscriptsManager'
 export default {
   data() {
-    return {}
+    return {
+      transcribedLineImgSrc: null,
+      line: null
+    }
   },
   head() {
     return {
@@ -308,6 +313,20 @@ export default {
         }
       ]
     }
+  },
+  beforeMount() {
+    // get line
+    const self = this
+    manuscriptsManager.getRandomLine().then(res => {
+      self.line = res
+      const height = res.bottom_on_page - res.top_on_page
+      const width = res.right_on_page - res.left_on_page
+      this.transcribedLineImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
+        res.color_img_file_name
+      }/${res.left_on_page},${
+        res.top_on_page
+      },${width},${height}/full/0/default.jpg`
+    })
   },
   mounted() {
     const self = this
