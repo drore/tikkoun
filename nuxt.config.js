@@ -49,9 +49,9 @@ module.exports = {
   ** Global CSS
   */
   css: [],
-  // router: {
-  //   middleware: 'router-auth.js'
-  // },
+  router: {
+    middleware: ['router-auth']
+  },
   /*
   ** Plugins to load before mounting the App
   */

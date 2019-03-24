@@ -1,7 +1,7 @@
-// export default function({ store, redirect, route }) {
-//   store.state.user != null && route.name === 'login' ? redirect('/admin') : ''
-//   store.state.user === null && isAdminRoute(route) ? redirect('/login') : ''
-// }
+export default function({ store, redirect, route }) {
+  store.state.user != null && route.path === '/' ? redirect('/transcribe') : ''
+  store.state.user == null && route.path === '/transcribe' ? redirect('/') : ''
+}
 
 // function isAdminRoute(route) {
 //   if (route.matched.some(record => record.path === '/admin')) {

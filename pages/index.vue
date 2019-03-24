@@ -1,44 +1,18 @@
 <template>
   <div>
-    <div class="jumbotron jumbotron-fluid">
-      <div class="container">
-        <h1 class="title">tikkoun</h1>
-        <h2 class="subtitle">Tikkoun Sofrim V2</h2>
+    <div class="jumbotron jumbotron-fluid tsbackground">
+      <div class="container" style="background-color: rgba(255, 255, 255, 0.8);">
+        <h1 class="display-4">{{$t('login.center.welcome')}}</h1>
+        <p class="lead">
+          {{$t('login.center.intro_line_1')}}
+          {{$t('login.center.intro_line_2')}}
+        </p>
       </div>
     </div>
     <div class="container">
-      <ul id="myTab" class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-          <a
-            id="login-tab"
-            class="nav-link active"
-            data-toggle="tab"
-            href="#login"
-            role="tab"
-            aria-controls="login"
-            aria-selected="true"
-          >{{ $t("login") }}</a>
-        </li>
-        <li class="nav-item">
-          <a
-            id="register-tab"
-            class="nav-link"
-            data-toggle="tab"
-            href="#register"
-            role="tab"
-            aria-controls="register"
-            aria-selected="false"
-          >{{ $t("register") }}</a>
-        </li>
-      </ul>
-      <div id="myTabContent" class="tab-content">
-        <div id="login" class="tab-pane show active" role="tabpanel" aria-labelledby="login-tab">
-          <Login-form v-if="!$store.state.user" />
-        </div>
-        <div id="register" class="tab-pane" role="tabpanel" aria-labelledby="register-tab">
-          <Registration-form v-if="!$store.state.user && showRegistration" />
-        </div>
-      </div>
+      <LoginForm v-if="shownSection === 'login'"/>
+
+      <RegistrationForm v-if="shownSection === 'registration'"/>
     </div>
   </div>
 </template>
@@ -52,10 +26,17 @@ export default {
     LoginForm,
     RegistrationForm
   },
-  data() {
-    return {
-      showRegistration: false
+  computed: {
+    shownSection() {
+      return this.$store.state.login.shown_section
     }
   }
 }
 </script>
+<style>
+.tsbackground {
+  background-image: url(/img/Banner_1900_100.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+</style>

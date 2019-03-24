@@ -7,6 +7,9 @@ const createStore = () => {
     state: () => ({
       user: null,
       translations: null,
+      login: {
+        shown_section: 'login'
+      },
       manuscript: {
         attribution: '',
         page: {
@@ -25,6 +28,9 @@ const createStore = () => {
     mutations: {
       setUser(state, payload) {
         state.user = payload
+      },
+      loginShowSection(state, payload) {
+        state.login.shown_section = payload
       },
       addTranslation(state, payload) {
         if (state.translations) {
@@ -49,6 +55,14 @@ const createStore = () => {
     },
     actions: {
       nuxtServerInit({ commit }, { req }) {},
+      loginAnonymously({ commit }) {
+        auth.signInAnonymously().catch(function(error) {
+          commit('loginError', error)
+        })
+      },
+      loginShowSection({ commit }, section) {
+        commit('loginShowSection', section)
+      },
       async getTranslations({ commit }, lang) {
         commit('setTranslations', await api.getTranslations(lang))
       },
