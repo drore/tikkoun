@@ -13,6 +13,9 @@ export default {
       .where('manuscript', '==', 'geneva')
       .get()
   },
+  addTranscription(params) {
+    return this.updateDocument('transcriptions', null, params)
+  },
   updateMSContentItem(msContentItem) {
     return this.updateDocument(
       'manuscript_contents',
@@ -22,6 +25,11 @@ export default {
   },
   updateTranslation(translation) {
     return this.updateDocument('translations', translation.id, translation)
+  },
+  getUserLines(uid) {
+    return StoreDB.collection('transcriptions')
+      .where('uid', '==', uid)
+      .get()
   },
   updateDocument(collection, docId, doc) {
     if (!docId) {

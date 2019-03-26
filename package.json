@@ -19,6 +19,7 @@
     "cross-env": "^5.2.0",
     "express": "^4.16.4",
     "firebase": "^5.9.0",
+    "fs": "0.0.1-security",
     "nuxt": "^2.4.0",
     "nuxt-i18n": "^5.8.5",
     "vue-wysiwyg": "^1.7.2"

@@ -64,6 +64,18 @@ const createStore = () => {
           })
         }
       },
+      gotUserLines(state, payload) {
+        state.user.userLines = payload.docs.map(d => {
+          const data = d.data()
+          return {
+            id: d.id,
+            line: data.line,
+            page: data.page,
+            manuscript: data.manuscript,
+            transcription: data.transcription
+          }
+        })
+      },
       gotManuscriptContent(state, payload) {
         state.manuscript_content = payload.docs.map(d => {
           const data = d.data()
@@ -94,6 +106,20 @@ const createStore = () => {
         auth.signInAnonymously().catch(function(error) {
           commit('loginError', error)
         })
+      },
+      async getUserLines({ commit, state }) {
+        commit('gotUserLines', await api.getUserLines(state.user.uid))
+      },
+      async addTranscription({ commit, state, dispatch }, transcription) {
+        const params = {
+          uid: state.user.uid,
+          line: state.manuscript.selected_line.line,
+          page: state.manuscript.selected_line.page,
+          transcription: transcription,
+          manuscript: state.manuscript.name,
+          createdOn: new Date()
+        }
+        dispatch('getLine', await api.addTranscription(params))
       },
       async getManuscriptContent({ commit }, manuscript) {
         commit(

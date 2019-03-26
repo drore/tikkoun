@@ -41,9 +41,9 @@
                     type="text"
                     name="transcribed"
                     autocomplete="off"
-                    :value="line.GT01"
                     style="font-family: Corsiva"
                     class="w-100 p-2 rtl"
+                    v-model="transcription"
                     v-if="line"
                   >
                   <input id="trwOrig" type="hidden" value="${transcribedline}">
@@ -291,14 +291,14 @@ import manuscriptsManager from '~/manuscriptsManager'
 export default {
   data() {
     return {
+      transcription: null,
       transcribedLineImgSrc: null,
       map: null
     }
   },
   methods: {
     done() {
-      // Save and...
-      this.$store.dispatch('getLine') // Later add line params
+      this.$store.dispatch('addTranscription', this.transcription)
     },
     skip() {
       // Skip and...
@@ -346,11 +346,14 @@ export default {
   watch: {
     // whenever question changes, this function will run
     line: function(res) {
+      this.transcription = res.GT01
+
       const L = window.L
       const self = this
 
       const height = res.bottom_on_page - res.top_on_page
       const width = res.right_on_page - res.left_on_page
+
       // The scheme is left, top, width, height
       this.transcribedLineImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
         res.color_img_file_name
