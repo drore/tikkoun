@@ -20,7 +20,8 @@
     "express": "^4.16.4",
     "firebase": "^5.9.0",
     "nuxt": "^2.4.0",
-    "nuxt-i18n": "^5.8.5"
+    "nuxt-i18n": "^5.8.5",
+    "vue-wysiwyg": "^1.7.2"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^0.0.1",

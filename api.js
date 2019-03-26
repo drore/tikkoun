@@ -8,6 +8,21 @@ export default {
       .where('lang', '==', lang)
       .get()
   },
+  getManuscriptContent() {
+    return StoreDB.collection('manuscript_contents')
+      .where('manuscript', '==', 'geneva')
+      .get()
+  },
+  updateMSContentItem(msContentItem) {
+    return this.updateDocument(
+      'manuscript_contents',
+      msContentItem.id,
+      msContentItem
+    )
+  },
+  updateTranslation(translation) {
+    return this.updateDocument('translations', translation.id, translation)
+  },
   updateDocument(collection, docId, doc) {
     if (!docId) {
       return StoreDB.collection(collection).add(doc)

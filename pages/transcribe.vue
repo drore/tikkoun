@@ -32,149 +32,146 @@
                   width="100%"
                   :src="transcribedLineImgSrc"
                   class="imageline"
+                  v-if="transcribedLineImgSrc"
                 >
 
-                <form action="${pageContext.request.contextPath}/TranscribeServlet" method="post">
-                  <div class="mt-2">
-                    <input
-                      id="trw"
-                      type="text"
-                      name="transcribed"
-                      autocomplete="off"
-                      :value="line.GT01"
-                      style="font-family: Corsiva"
-                      class="w-100 p-2 rtl"
-                      v-if="line"
-                    >
-                    <input id="trwOrig" type="hidden" value="${transcribedline}">
-                  </div>
-                  <!-- Transcribe toolbar -->
-                  <div
-                    class="btn-toolbar justify-content-between d-flex mt-3 p-10"
-                    role="toolbar"
-                    dir="ltr"
+                <div class="mt-2">
+                  <input
+                    id="trw"
+                    type="text"
+                    name="transcribed"
+                    autocomplete="off"
+                    :value="line.GT01"
+                    style="font-family: Corsiva"
+                    class="w-100 p-2 rtl"
+                    v-if="line"
                   >
-                    <div class="btn-group" role="group" aria-label="First group" dir="rtl">
-                      <button
-                        :title="$t('main.work_area.hovers.over_additions')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myMark(']','[')"
-                      >
-                        <span style="font-size: larger;">{{$t('main.work_area.button_2')}}</span>
-                      </button>
-                      <button
-                        :title="$t('main.work_area.hovers.over_deletions')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myMark(')','(')"
-                      >
-                        <span style="font-size: larger;">{{$t('main.work_area.button_1')}}</span>
-                      </button>
-                      <button
-                        :title="$t('main.work_area.hovers.over_damaged')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myMark('>','<')"
-                      >
-                        <span style="font-size: larger;">{{$t('main.work_area.button_3')}}</span>
-                      </button>
-                      <button
-                        :title="$t('main.work_area.hovers.over_uncertain')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myMark('}','{')"
-                      >
-                        <span style="font-size: larger;">{{$t('main.work_area.button_4')}}</span>
-                      </button>
-
-                      <button
-                        :title="$t('main.work_area.hovers.over_upper')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myInsert('˙')"
-                      >
-                        <b>˙</b>
-                      </button>
-                      <button
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        :title="$t('main.work_area.hovers.over_ligature')"
-                        onclick="myInsert('ﭏ')"
-                      >
-                        <b>ﭏ</b>
-                      </button>
-                      <select
-                        id="filler"
-                        class="custom-select-sm btn-secondary"
-                        :title="$t('main.work_area.hovers.over_line_fillers')"
-                        onchange="myFill()"
-                      >
-                        <option value>&nbsp;</option>
-                        <option value="/">/</option>
-                        <option value="//">//</option>
-                        <option value="|">|</option>
-                        <option value="V">V</option>
-                        <option value="'">'</option>
-                      </select>
-                    </div>
-                    <!-- right part -->
-                    <div class="btn-group" role="group" aria-label="Second group" dir="rtl">
-                      <button
-                        :title="$t('main.work_area.hovers.over_reset')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myReset()"
-                      >
-                        <span style="font-size: larger;">{{$t('main.work_area.button_5')}}</span>
-                      </button>
-                      <button
-                        :title="$t('main.work_area.hovers.over_alef_plus')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myResize(1)"
-                      >
-                        <span style="font-size: larger;">
-                          <b>א+</b>
-                        </span>
-                      </button>
-                      <button
-                        :title="$t('main.work_area.hovers.over_alef_minus')"
-                        class="rounded-0 btn btn-secondary"
-                        type="button"
-                        onclick="myResize(-1)"
-                      >
-                        <span style="font-size: smaller;">
-                          <b>א-</b>
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div id="activity" class="mt-2 align-self-center w-60">
-                    <div>{{$t('main.work_area.finish_line_1')}}</div>
-                    <div>{{$t('main.work_area.finish_line_2')}}</div>
-
-                    <div
-                      id="activity-buttons"
-                      class="mt-2 d-flex justify-content-between"
-                      dir="rtl"
+                  <input id="trwOrig" type="hidden" value="${transcribedline}">
+                </div>
+                <!-- Transcribe toolbar -->
+                <div
+                  class="btn-toolbar justify-content-between d-flex mt-3 p-10"
+                  role="toolbar"
+                  dir="ltr"
+                >
+                  <div class="btn-group" role="group" aria-label="First group" dir="rtl">
+                    <button
+                      :title="$t('main.work_area.hovers.over_additions')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myMark(']','[')"
                     >
-                      <button
-                        type="submit"
-                        class="btn btn-warning"
-                        name="status"
-                        value="Skip"
-                      >{{$t('main.work_area.finish_button_2')}}</button>
-                      <button
-                        type="submit"
-                        class="btn btn-success"
-                        name="status"
-                        value="Done"
-                      >{{$t('main.work_area.finish_button_1')}}</button>
-                    </div>
+                      <span style="font-size: larger;">{{$t('main.work_area.button_2')}}</span>
+                    </button>
+                    <button
+                      :title="$t('main.work_area.hovers.over_deletions')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myMark(')','(')"
+                    >
+                      <span style="font-size: larger;">{{$t('main.work_area.button_1')}}</span>
+                    </button>
+                    <button
+                      :title="$t('main.work_area.hovers.over_damaged')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myMark('>','<')"
+                    >
+                      <span style="font-size: larger;">{{$t('main.work_area.button_3')}}</span>
+                    </button>
+                    <button
+                      :title="$t('main.work_area.hovers.over_uncertain')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myMark('}','{')"
+                    >
+                      <span style="font-size: larger;">{{$t('main.work_area.button_4')}}</span>
+                    </button>
+
+                    <button
+                      :title="$t('main.work_area.hovers.over_upper')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myInsert('˙')"
+                    >
+                      <b>˙</b>
+                    </button>
+                    <button
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      :title="$t('main.work_area.hovers.over_ligature')"
+                      onclick="myInsert('ﭏ')"
+                    >
+                      <b>ﭏ</b>
+                    </button>
+                    <select
+                      id="filler"
+                      class="custom-select-sm btn-secondary"
+                      :title="$t('main.work_area.hovers.over_line_fillers')"
+                      onchange="myFill()"
+                    >
+                      <option value>&nbsp;</option>
+                      <option value="/">/</option>
+                      <option value="//">//</option>
+                      <option value="|">|</option>
+                      <option value="V">V</option>
+                      <option value="'">'</option>
+                    </select>
                   </div>
-                </form>
+                  <!-- right part -->
+                  <div class="btn-group" role="group" aria-label="Second group" dir="rtl">
+                    <button
+                      :title="$t('main.work_area.hovers.over_reset')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myReset()"
+                    >
+                      <span style="font-size: larger;">{{$t('main.work_area.button_5')}}</span>
+                    </button>
+                    <button
+                      :title="$t('main.work_area.hovers.over_alef_plus')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myResize(1)"
+                    >
+                      <span style="font-size: larger;">
+                        <b>א+</b>
+                      </span>
+                    </button>
+                    <button
+                      :title="$t('main.work_area.hovers.over_alef_minus')"
+                      class="rounded-0 btn btn-secondary"
+                      type="button"
+                      onclick="myResize(-1)"
+                    >
+                      <span style="font-size: smaller;">
+                        <b>א-</b>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div id="activity" class="mt-2 align-self-center w-60">
+                  <div>{{$t('main.work_area.finish_line_1')}}</div>
+                  <div>{{$t('main.work_area.finish_line_2')}}</div>
+
+                  <div id="activity-buttons" class="mt-2 d-flex justify-content-between" dir="rtl">
+                    <button
+                      type="submit"
+                      class="btn btn-warning"
+                      name="status"
+                      value="Skip"
+                      @click="skip"
+                    >{{$t('main.work_area.finish_button_2')}}</button>
+                    <button
+                      type="submit"
+                      class="btn btn-success"
+                      name="status"
+                      value="Done"
+                      @click="done"
+                    >{{$t('main.work_area.finish_button_1')}}</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -202,7 +199,7 @@
                   role="tab"
                   href="#special"
                   aria-controls="special"
-                >{{$t('main.data_area.Issues')}}</a>
+                >{{$t('main.data_area.issues')}}</a>
               </li>
 
               <li class="nav-item">
@@ -213,7 +210,7 @@
                   role="tab"
                   href="#ab"
                   aria-controls="ab"
-                >{{$t('main.data_area.Alphabet')}}</a>
+                >{{$t('main.data_area.alphabet')}}</a>
               </li>
 
               <li class="nav-item sfont">
@@ -249,16 +246,16 @@
               aria-labelledby="page-tab"
             >
               <div id="imgPage">
-                <a href="${manuscriptDescLink}" target="_blank">
+                <a :href="manuscript.descLink" target="_blank">
                   <label
                     style="clear: both; color: blue;"
-                    title="${manuscriptShortDesc}"
-                  >${manuscriptName}</label>
-                </a>
-                <label>
-                  - Page ${manuscriptPage} /
-                  ${manuscriptTotalPages}, Line ${manuscriptLine} /
-                  ${manuscriptTotalLines}
+                    :title="manuscript.short_desc"
+                  >{{manuscript.name}}</label>
+                </a>-->
+                <label v-if="line">
+                  - Page {{line.page}} /
+                  {{manuscript.total_pages}}, Line {{line.line}} /
+                  {{manuscript.total_lines}}
                 </label>
               </div>
 
@@ -280,9 +277,7 @@
               </div>
             </div>
             <div id="help" class="tab-pane fade" role="tabpanel" aria-labelledby="help-tab">
-              <div class="tabcontent">
-                <!-- <jsp:include page="parts/${lang}/transcribe/help.jspf"/> -->
-              </div>
+              <div class="tabcontent" v-html="content.help" v-if="content.help"></div>
             </div>
           </div>
         </div>
@@ -297,7 +292,41 @@ export default {
   data() {
     return {
       transcribedLineImgSrc: null,
-      line: null
+      map: null
+    }
+  },
+  methods: {
+    done() {
+      // Save and...
+      this.$store.dispatch('getLine') // Later add line params
+    },
+    skip() {
+      // Skip and...
+      this.$store.dispatch('getLine') // Later add line params
+    }
+  },
+  computed: {
+    content() {
+      const content = {}
+      if (this.$store.state.manuscript_content.length) {
+        this.$store.state.manuscript_content.forEach(i => {
+          content[i.token] = i.value
+        })
+      }
+
+      return content
+    },
+    manuscript() {
+      return this.$store.state.manuscript
+    },
+    manuscriptName() {
+      return this.$store.state.manuscript.name
+    },
+    manuscriptShortDesc() {
+      return this.$store.state.manuscript.short_desc
+    },
+    line() {
+      return this.$store.state.manuscript.selected_line
     }
   },
   head() {
@@ -314,25 +343,70 @@ export default {
       ]
     }
   },
-  beforeMount() {
-    // get line
-    const self = this
-    manuscriptsManager.getRandomLine().then(res => {
-      self.line = res
+  watch: {
+    // whenever question changes, this function will run
+    line: function(res) {
+      const L = window.L
+      const self = this
+
       const height = res.bottom_on_page - res.top_on_page
       const width = res.right_on_page - res.left_on_page
+      // The scheme is left, top, width, height
       this.transcribedLineImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
         res.color_img_file_name
       }/${res.left_on_page},${
         res.top_on_page
       },${width},${height}/full/0/default.jpg`
-    })
+
+      // Now the full image
+      // https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/bge-cl0146_195.jpg/0,0,6132,8176/384,/0/default.jpg
+      const fullPageImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
+        res.color_img_file_name
+      }/info.json`
+
+      const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)
+      const imageLayer = pageTileLayer.addTo(this.map)
+
+      const linePolygonLayer = L.polygon(
+        [
+          [
+            self.$store.state.manuscript.page.line.polygon.top_left.y,
+            self.$store.state.manuscript.page.line.polygon.top_left.x
+          ], // top_left
+          [
+            self.$store.state.manuscript.page.line.polygon.top_right.y,
+            self.$store.state.manuscript.page.line.polygon.top_right.x
+          ], // top_right
+          [
+            self.$store.state.manuscript.page.line.polygon.bottom_right.y,
+            self.$store.state.manuscript.page.line.polygon.bottom_right.x
+          ], // bottom_right
+          [
+            self.$store.state.manuscript.page.line.polygon.bottom_left.y,
+            self.$store.state.manuscript.page.line.polygon.bottom_left.x
+          ] // bottom_left
+        ],
+        {
+          color: 'blue',
+          fillColor: '#f03',
+          fillOpacity: 0.1,
+          weight: 1
+        }
+      )
+
+      linePolygonLayer.addTo(this.map)
+    }
   },
+  // Maybe watch on line from store
   mounted() {
+    this.$store.dispatch('getLine') // Later add line params
+    this.$store.dispatch('getManuscriptContent')
+    // get line
     const self = this
+
     const L = window.L
 
-    const map = L.map('map', {
+    this.map = L.map('map', {
       center: [0, 0],
       minZoom: 0,
       zoom: 0,
@@ -341,39 +415,58 @@ export default {
       crs: L.CRS.Simple,
       dragging: !L.Browser.mobile
     })
-    const linePolygonLayer = L.polygon(
-      [
-        [
-          self.$store.state.manuscript.page.line.polygon.top_left.y,
-          self.$store.state.manuscript.page.line.polygon.top_left.x
-        ], // top_left
-        [
-          self.$store.state.manuscript.page.line.polygon.top_right.y,
-          self.$store.state.manuscript.page.line.polygon.top_right.x
-        ], // top_right
-        [
-          self.$store.state.manuscript.page.line.polygon.bottom_right.y,
-          self.$store.state.manuscript.page.line.polygon.bottom_right.x
-        ], // bottom_right
-        [
-          self.$store.state.manuscript.page.line.polygon.bottom_left.y,
-          self.$store.state.manuscript.page.line.polygon.bottom_left.x
-        ] // bottom_left
-      ],
-      {
-        color: 'blue',
-        fillColor: '#f03',
-        fillOpacity: 0.1,
-        weight: 1
-      }
-    )
 
-    linePolygonLayer.addTo(map)
-
-    map.attributionControl.setPrefix('')
-    map.attributionControl.addAttribution(
+    this.map.attributionControl.setPrefix('')
+    this.map.attributionControl.addAttribution(
       self.$store.state.manuscript.attribution
     )
   }
 }
 </script>
+<style lang="scss">
+.show {
+  #map {
+    min-height: 500px;
+  }
+}
+.video_tut {
+  a {
+    img {
+      width: 100%;
+      border: 1px solid black;
+    }
+  }
+}
+.tab-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+@media (min-width: 500px) {
+  body {
+    .tab-content {
+      width: 450px;
+    }
+  }
+}
+@media (min-width: 768px) {
+  body {
+    .tab-content {
+      width: 250px;
+    }
+  }
+}
+@media (min-width: 1100px) {
+  body {
+    .tab-content {
+      width: 350px;
+    }
+  }
+}
+@media (min-width: 1280px) {
+  body {
+    .tab-content {
+      width: 450px;
+    }
+  }
+}
+</style>

@@ -15,9 +15,8 @@ module.exports = {
     ],
     script: [
       {
-        src: 'https://code.jquery.com/jquery-3.3.1.slim.min.js',
-        integrity:
-          'sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo',
+        src: 'http://code.jquery.com/jquery-3.3.1.min.js',
+        integrity: 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=',
         crossorigin: 'anonymous'
       },
       {
@@ -48,7 +47,7 @@ module.exports = {
   /*
   ** Global CSS
   */
-  css: [],
+  css: [{ src: 'vue-wysiwyg/dist/vueWysiwyg.css', lang: 'css' }],
   router: {
     middleware: ['router-auth']
   },
@@ -56,6 +55,7 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '~/plugins/vue-wysiwyg',
     '~/plugins/bootstrap-vue',
     '~/plugins/firebase.js',
     '~/plugins/fireauth.js'

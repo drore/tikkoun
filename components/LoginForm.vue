@@ -6,62 +6,54 @@
         {{$t('banner.encourgement.line_2')}}
       </div>
       <div class="col-sm-4">
-        <form
-          autocomplete="on"
-          id="loginForm"
-          action="${pageContext.request.contextPath}/LoginServlet"
-          method="post"
-        >
-          <div class="login-form">
-            <div>
-              <input
-                id="username"
-                name="username"
-                required="required"
-                type="text"
-                placeholder="myusername or mymail@mail.com"
-                v-model="username"
-              >
-            </div>
-            <div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="password"
-                v-model="password"
-              >
-            </div>
-            <div>
-              <input
-                id="loginButton"
-                name="login"
-                class="btn-primary"
-                type="submit"
-                :value="$t('toolbar.right.start')"
-              >
-            </div>
-            <div class="d-flex justify-content-between">
-              <div>
-                <a href="#" @click="showRegistration">{{$t('login.login_area.register')}}</a>
-              </div>
-              <a href="#" @click="enterAsGuest">{{$t('login.login_area.geust')}}</a>
-            </div>
+        <div class="login-form">
+          <div>
+            <input
+              id="username"
+              name="username"
+              required="required"
+              type="text"
+              placeholder="myusername or mymail@mail.com"
+              v-model="username"
+            >
           </div>
+          <div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="password"
+              v-model="password"
+            >
+          </div>
+          <div>
+            <input
+              id="loginButton"
+              name="login"
+              class="btn-primary"
+              type="submit"
+              :value="$t('toolbar.right.start')"
+            >
+          </div>
+          <div class="d-flex justify-content-between">
+            <div>
+              <a href="#" @click="showRegistration">{{$t('login.login_area.register')}}</a>
+            </div>
+            <a href="#" @click="enterAsGuest">{{$t('login.login_area.geust')}}</a>
+          </div>
+        </div>
 
-          <!-- <c:if test="${errorMessageLogin != null}">
+        <!-- <c:if test="${errorMessageLogin != null}">
             <p
               style="font-weight: bold; font-size: large; color: red;"
             >{{$t('login.login_area.invalid')}}</p>
-          </c:if>-->
-        </form>
+        </c:if>-->
       </div>
     </div>
+    <div>
+      <button @click="googleSignUp">Google Sign In</button>
+    </div>
   </div>
-  <!-- <div>
-    <h2 class="title">Sign In with Google</h2>
-    <button @click="googleSignUp">Google Sign In</button>
-  </div>-->
 </template>
 
 <script>
@@ -107,7 +99,14 @@ export default {
 }
 </script>
 
-<style lang="css">
-.signIn {
+<style lang="scss" scoped>
+.login-form {
+  & > div {
+    margin-bottom: 10px;
+    input {
+      padding: 5px;
+      width: 100%;
+    }
+  }
 }
 </style>
