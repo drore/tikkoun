@@ -30,9 +30,9 @@
             aria-expanded="false"
           >{{ $t('nav.about') }}</a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="/project">{{ $t('nav.project') }}</a>
-            <a class="dropdown-item" href="/htr">{{ $t('nav.htr') }}</a>
-            <a class="dropdown-item" href="/team">{{ $t('nav.team') }}</a>
+            <nuxt-link class="dropdown-item" to="/about/project">{{ $t('nav.project') }}</nuxt-link>
+            <nuxt-link class="dropdown-item" to="/about/htr">{{ $t('nav.htr') }}</nuxt-link>
+            <nuxt-link class="dropdown-item" to="/about/team">{{ $t('nav.team') }}</nuxt-link>
           </div>
         </li>
 
@@ -70,14 +70,23 @@
             aria-haspopup="true"
             aria-expanded="false"
           >
-            <img :src="$store.state.user.photoURL" alt v-if="!$store.state.user.isAnonymous" style="height:30px;width:30px;">
+            <img
+              :src="$store.state.user.photoURL"
+              alt
+              v-if="!$store.state.user.isAnonymous"
+              style="height:30px;width:30px;"
+            >
             <span v-if="!$store.state.user.isAnonymous">{{$store.state.user.displayName}}</span>
             <span v-if="$store.state.user.isAnonymous">{{$t('anonymous')}}</span>
           </a>
 
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="/profile">{{ $t('nav.profile') }}</a>
-            <a class="dropdown-item" href="#" @click="logout">{{ $t('nav.logout') }}</a>
+            <a
+              class="dropdown-item"
+              href="/profile"
+              v-if="!$store.state.user.isAnonymous"
+            >{{ $t('nav.profile') }}</a>
+            <a class="dropdown-item" href="/" @click="logout">{{ $t('nav.logout') }}</a>
           </div>
         </li>
       </ul>

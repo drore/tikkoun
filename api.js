@@ -8,20 +8,31 @@ export default {
       .where('lang', '==', lang)
       .get()
   },
-  getManuscriptContent() {
-    return StoreDB.collection('manuscript_contents')
-      .where('manuscript', '==', 'geneva')
+  // General content
+  getContent(lang) {
+    return StoreDB.collection('content')
+      .where('lang', '==', lang)
       .get()
   },
-  addTranscription(params) {
-    return this.updateDocument('transcriptions', null, params)
+  updateContentItem(contentItem) {
+    return this.updateDocument('content', contentItem.id, contentItem)
+  },
+  // Manuscript content
+  getManuscriptContent(lang, manuscriptName) {
+    return StoreDB.collection('manuscript_content')
+      .where('manuscript', '==', manuscriptName)
+      .where('lang', '==', lang)
+      .get()
   },
   updateMSContentItem(msContentItem) {
     return this.updateDocument(
-      'manuscript_contents',
+      'manuscript_content',
       msContentItem.id,
       msContentItem
     )
+  },
+  addTranscription(params) {
+    return this.updateDocument('transcriptions', null, params)
   },
   updateTranslation(translation) {
     return this.updateDocument('translations', translation.id, translation)

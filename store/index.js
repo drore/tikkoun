@@ -8,7 +8,8 @@ const createStore = () => {
     state: () => ({
       user: null,
       translations: null,
-      manuscript_content: {},
+      manuscript_content: [],
+      content: [],
       login: {
         shown_section: 'login'
       },
@@ -45,13 +46,56 @@ const createStore = () => {
       loginShowSection(state, payload) {
         state.login.shown_section = payload
       },
+      // General content
+      gotContent(state, payload) {
+        state.content = payload.docs.map(d => {
+          const data = d.data()
+          return {
+            id: d.id,
+            token: data.token,
+            lang: data.lang,
+            value: data.value
+          }
+        })
+      },
+      addContentItem(state, payload) {
+        if (state.content) {
+          state.content.push({
+            token: 'temp_' + new Date().getTime(),
+            value: null,
+            lang: payload.lang
+          })
+        }
+      },
+      // Manuscript content
+      gotManuscriptContent(state, payload) {
+        state.manuscript_content = payload.docs.map(d => {
+          const data = d.data()
+          return {
+            id: d.id,
+            token: data.token,
+            lang: data.lang,
+            manuscript: data.manuscript,
+            value: data.value
+          }
+        })
+      },
       addMSContentItem(state, payload) {
-        if (state.manuscript_contents) {
-          state.manuscript_contents.push({
+        if (state.manuscript_content) {
+          state.manuscript_content.push({
             token: 'temp_' + new Date().getTime(),
             value: null,
             lang: payload.lang,
             manuscript: payload.manuscript
+          })
+        }
+      },
+      duplicateTranslation(state, payload) {
+        if (state.translations) {
+          state.translations.push({
+            token: `[temp] ${payload.token}`,
+            value: payload.value,
+            lang: payload.lang
           })
         }
       },
@@ -76,18 +120,7 @@ const createStore = () => {
           }
         })
       },
-      gotManuscriptContent(state, payload) {
-        state.manuscript_content = payload.docs.map(d => {
-          const data = d.data()
-          return {
-            id: d.id,
-            token: data.token,
-            lang: data.lang,
-            manuscript: data.manuscript,
-            value: data.value
-          }
-        })
-      },
+
       gotTranslations(state, payload) {
         state.translations = payload.docs.map(d => {
           const data = d.data()
@@ -98,6 +131,30 @@ const createStore = () => {
             value: data.value
           }
         })
+      },
+      updatedContentItem(state, payload) {
+        const mc = state.content.find(mc => {
+          return mc.id === payload.id
+        })
+
+        const indexToUpdate = state.content.indexOf(mc)
+
+        state.content[indexToUpdate] = Object.assign(
+          state.content[indexToUpdate],
+          payload
+        )
+      },
+      updatedMSContentItem(state, payload) {
+        const mc = state.manuscript_content.find(mc => {
+          return mc.id === payload.id
+        })
+
+        const indexToUpdate = state.manuscript_content.indexOf(mc)
+
+        state.manuscript_content[indexToUpdate] = Object.assign(
+          state.manuscript_content[indexToUpdate],
+          payload
+        )
       }
     },
     actions: {
@@ -121,17 +178,30 @@ const createStore = () => {
         }
         dispatch('getLine', await api.addTranscription(params))
       },
-      async getManuscriptContent({ commit }, manuscript) {
+      // General content
+      async getContent({ commit }, lang) {
+        commit('gotContent', await api.getContent(lang))
+      },
+      addContentItem({ commit }, lang) {
+        commit('addContentItem', { lang: lang })
+      },
+      async updateContentItem({ commit, dispatch }, content) {
+        await api.updateContentItem(content)
+        commit('updatedContentItem', content)
+      },
+      // Manuscript content
+      async getManuscriptContent({ commit }, params) {
         commit(
           'gotManuscriptContent',
-          await api.getManuscriptContent(manuscript)
+          await api.getManuscriptContent(params.lang, params.manuscript)
         )
       },
-      addMSContentItem({ commit }, lang) {
-        commit('addMSContentItem', { lang: lang, manuscript: 'geneva' })
+      addMSContentItem({ commit }, params) {
+        commit('addMSContentItem', params)
       },
-      async updateMSContentItem({ dispatch }, content) {
-        dispatch('getManuscriptContent', await api.updateMSContentItem(content))
+      async updateMSContentItem({ commit, dispatch }, content) {
+        await api.updateMSContentItem(content)
+        commit('updatedMSContentItem', content)
       },
       getLine({ commit }, params) {
         manuscriptsManager.getRandomLine().then(res => {
@@ -146,6 +216,9 @@ const createStore = () => {
       },
       addTranslation({ commit }, lang) {
         commit('addTranslation', lang)
+      },
+      duplicateTranslation({ commit }, translation) {
+        commit('duplicateTranslation', translation)
       },
       async updateTranslation({ dispatch }, translation) {
         dispatch('getTranslations', await api.updateTranslation(translation))
@@ -165,7 +238,6 @@ const createStore = () => {
           .signOut()
           .then(() => {
             commit('setUser', null)
-            window.location.reload()
           })
           .catch(err => console.log(err))
       }

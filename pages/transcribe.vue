@@ -19,7 +19,7 @@
                       :title="$t('main.work_area.video_hover')"
                       target="_blank"
                     >
-                      <img src="/img/video_thumb.png">
+                      <img src="/images/video_thumb.png">
                       {{ $t('main.work_area.video_hover') }}
                     </a>
                   </div>
@@ -263,17 +263,17 @@
             </div>
             <div id="special" class="tab-pane fade" role="tabpanel" aria-labelledby="profile-tab">
               <div class="tabcontent">
-                <!-- <jsp:include page="parts/${lang}/transcribe/special.jspf"/> -->
+                <div class="tabcontent" v-html="content.special" v-if="content.special"></div>
               </div>
             </div>
             <div id="ab" class="tab-pane fade" role="tabpanel" aria-labelledby="ab-tab">
               <div class="tabcontent">
-                <!-- <jsp:include page="parts/${lang}/transcribe/abc.jspf"/> -->
+                <div class="tabcontent" v-html="content.alphabet" v-if="content.alphabet"></div>
               </div>
             </div>
             <div id="marked" class="tab-pane fade" role="tabpanel" aria-labelledby="marked-tab">
               <div class="tabcontent">
-                <!-- <jsp:include page="parts/${lang}/transcribe/marked.jspf"/> -->
+                <div class="tabcontent" v-html="content.marked" v-if="content.marked"></div>
               </div>
             </div>
             <div id="help" class="tab-pane fade" role="tabpanel" aria-labelledby="help-tab">
@@ -403,7 +403,10 @@ export default {
   // Maybe watch on line from store
   mounted() {
     this.$store.dispatch('getLine') // Later add line params
-    this.$store.dispatch('getManuscriptContent')
+    this.$store.dispatch('getManuscriptContent', {
+      manuscript: this.manuscript.name.toLowerCase(),
+      lang: this.$i18n.locale
+    })
     // get line
     const self = this
 

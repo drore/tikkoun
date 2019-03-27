@@ -1,19 +1,19 @@
 <template>
   <div>
-    <div class="row login-form-wrapper justify-content-between">
-      <div class="col-sm-4">
+    <div class="row login-form-wrapper">
+      <div class="col-sm-6">
         <p>{{$t('banner.encourgement.line_1')}}</p>
         {{$t('banner.encourgement.line_2')}}
       </div>
-      <div class="col-sm-4">
-        <div class="login-form">
+      <div class="col-sm-6 row">
+        <div class="login-form col-sm-6 col-6">
           <div>
             <input
               id="username"
               name="username"
               required="required"
               type="text"
-              placeholder="myusername or mymail@mail.com"
+              placeholder="username"
               v-model="username"
             >
           </div>
@@ -35,6 +35,12 @@
               :value="$t('toolbar.right.start')"
             >
           </div>
+          
+        </div>
+        <div class="border-left col-sm-6 col-6">
+          <a href="javascript:;" @click="googleSignUp">
+            <img src="images/btn_google_signin_dark_normal_web.png" alt>
+          </a>
           <div class="d-flex justify-content-between">
             <div>
               <a href="#" @click="showRegistration">{{$t('login.login_area.register')}}</a>
@@ -49,9 +55,6 @@
             >{{$t('login.login_area.invalid')}}</p>
         </c:if>-->
       </div>
-    </div>
-    <div>
-      <button @click="googleSignUp">Google Sign In</button>
     </div>
   </div>
 </template>

@@ -35,7 +35,7 @@ export default {
 </script>
 <style>
 .tsbackground {
-  background-image: url(/img/Banner_1900_100.png);
+  background-image: url(/images/Banner_1900_100.png);
   background-repeat: no-repeat;
   background-size: cover;
 }

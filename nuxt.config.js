@@ -15,7 +15,7 @@ module.exports = {
     ],
     script: [
       {
-        src: 'http://code.jquery.com/jquery-3.3.1.min.js',
+        src: 'https://code.jquery.com/jquery-3.3.1.min.js',
         integrity: 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=',
         crossorigin: 'anonymous'
       },
@@ -68,27 +68,24 @@ module.exports = {
     [
       'nuxt-i18n',
       {
-        defaultLocale: 'en',
-        vueI18n: {
-          fallbackLocale: 'en'
-        },
         locales: [
           {
-            code: 'en',
+            code: 'en-US',
             iso: 'en-US',
             file: 'en-US.js'
           },
           {
-            code: 'he',
+            code: 'he-IL',
             iso: 'he-IL',
             file: 'he-IL.js'
           },
           {
-            code: 'fr',
+            code: 'fr-FR',
             iso: 'fr-FR',
             file: 'fr-FR.js'
           }
         ],
+        defaultLocale: 'en-US',
         lazy: true,
         langDir: 'lang/'
       }
