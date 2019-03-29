@@ -1,17 +1,15 @@
 <template>
   <div>
-    <Topbar />
-    <nuxt />
-    <Footer />
+    <Topbar/>
+    <nuxt/>
   </div>
 </template>
 <script>
 import Topbar from '~/components/Topbar'
-import Footer from '~/components/Footer'
+
 export default {
   components: {
-    Topbar,
-    Footer
+    Topbar
   }
 }
 </script>

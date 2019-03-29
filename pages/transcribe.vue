@@ -289,6 +289,7 @@
 <script>
 import manuscriptsManager from '~/manuscriptsManager'
 export default {
+  layout: 'inner',
   data() {
     return {
       transcription: null,
@@ -327,6 +328,11 @@ export default {
     },
     line() {
       return this.$store.state.manuscript.selected_line
+    }
+  },
+  body() {
+    return {
+      class: 'h-100'
     }
   },
   head() {

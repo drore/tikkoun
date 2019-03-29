@@ -11,7 +11,8 @@ const createStore = () => {
       manuscript_content: [],
       content: [],
       login: {
-        shown_section: 'login'
+        shown_section: 'login',
+        error: null
       },
       manuscript: {
         name: 'Geneva',
@@ -107,6 +108,9 @@ const createStore = () => {
             lang: payload
           })
         }
+      },
+      loginError(state, payload) {
+        state.login.error = payload.message
       },
       gotUserLines(state, payload) {
         state.user.userLines = payload.docs.map(d => {
@@ -231,6 +235,28 @@ const createStore = () => {
           auth.signInWithRedirect(GoogleProvider)
           resolve()
         })
+      },
+      signInWithEmail({ commit }, params) {
+        return new Promise((resolve, reject) => {
+          auth
+            .createUserWithEmailAndPassword(params.email, params.password)
+            .catch(err => {
+              commit('loginError', err)
+            })
+
+          resolve()
+        })
+      },
+      createUserWithEmailAndPassword({ commit }, params) {
+        auth
+          .createUserWithEmailAndPassword(params.email, params.password)
+          .catch(function(error) {
+            debugger
+            // Handle Errors here.
+            const errorCode = error.code
+            const errorMessage = error.message
+            // ...
+          })
       },
 
       signOut({ commit }) {

@@ -32,10 +32,10 @@
               name="login"
               class="btn-primary"
               type="submit"
+              @click="emailLogin"
               :value="$t('toolbar.right.start')"
             >
           </div>
-          
         </div>
         <div class="border-left col-sm-6 col-6">
           <a href="javascript:;" @click="googleSignUp">
@@ -49,11 +49,10 @@
           </div>
         </div>
 
-        <!-- <c:if test="${errorMessageLogin != null}">
-            <p
-              style="font-weight: bold; font-size: large; color: red;"
-            >{{$t('login.login_area.invalid')}}</p>
-        </c:if>-->
+        <p
+          style="font-weight: bold; color: red;"
+          v-if="loginError"
+        >{{$t(loginError)}}</p>
       </div>
     </div>
   </div>
@@ -65,6 +64,11 @@ export default {
     return {
       username: '',
       password: ''
+    }
+  },
+  computed: {
+    loginError() {
+      return this.$store.state.login.error
     }
   },
   methods: {
@@ -83,9 +87,6 @@ export default {
         .then(() => {
           this.username = ''
           this.password = ''
-        })
-        .catch(e => {
-          console.log(e.message)
         })
     },
     googleSignUp() {
