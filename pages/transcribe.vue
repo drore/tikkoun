@@ -297,6 +297,9 @@ export default {
       map: null
     }
   },
+  async fetch({ store, params }) {
+    await store.dispatch('GET_MANUSCRIPT')
+  },
   methods: {
     done() {
       this.$store.dispatch('addTranscription', this.transcription)
@@ -320,19 +323,8 @@ export default {
     manuscript() {
       return this.$store.state.manuscript
     },
-    manuscriptName() {
-      return this.$store.state.manuscript.name
-    },
-    manuscriptShortDesc() {
-      return this.$store.state.manuscript.short_desc
-    },
     line() {
-      return this.$store.state.manuscript.selected_line
-    }
-  },
-  body() {
-    return {
-      class: 'h-100'
+      return this.$store.state.selected_line
     }
   },
   head() {
@@ -352,48 +344,39 @@ export default {
   watch: {
     // whenever question changes, this function will run
     line: function(res) {
-      this.transcription = res.GT01
+      this.transcription = res.AT
 
       const L = window.L
       const self = this
 
-      const height = res.bottom_on_page - res.top_on_page
-      const width = res.right_on_page - res.left_on_page
+      const top = res.top_on_page
+      const bottom = res.bottom_on_page
+      const left = res.left_on_page
+      const right = res.right_on_page
+
+      const height = bottom - top
+      const width = right - left
 
       // The scheme is left, top, width, height
       this.transcribedLineImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
         res.color_img_file_name
-      }/${res.left_on_page},${
-        res.top_on_page
-      },${width},${height}/full/0/default.jpg`
+      }/${left},${top},${width},${height}/full/0/default.jpg`
 
       // Now the full image
-      // https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/bge-cl0146_195.jpg/0,0,6132,8176/384,/0/default.jpg
       const fullPageImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
         res.color_img_file_name
       }/info.json`
 
       const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)
+      
       const imageLayer = pageTileLayer.addTo(this.map)
 
       const linePolygonLayer = L.polygon(
         [
-          [
-            self.$store.state.manuscript.page.line.polygon.top_left.y,
-            self.$store.state.manuscript.page.line.polygon.top_left.x
-          ], // top_left
-          [
-            self.$store.state.manuscript.page.line.polygon.top_right.y,
-            self.$store.state.manuscript.page.line.polygon.top_right.x
-          ], // top_right
-          [
-            self.$store.state.manuscript.page.line.polygon.bottom_right.y,
-            self.$store.state.manuscript.page.line.polygon.bottom_right.x
-          ], // bottom_right
-          [
-            self.$store.state.manuscript.page.line.polygon.bottom_left.y,
-            self.$store.state.manuscript.page.line.polygon.bottom_left.x
-          ] // bottom_left
+          [-top/16, left/16], // top_left
+          [-top/16, right/16], // top_right
+          [-bottom/16, right/16], // bottom_right
+          [-bottom/16, left/16] // bottom_left
         ],
         {
           color: 'blue',
@@ -401,9 +384,7 @@ export default {
           fillOpacity: 0.1,
           weight: 1
         }
-      )
-
-      linePolygonLayer.addTo(this.map)
+      ).addTo(this.map)
     }
   },
   // Maybe watch on line from store

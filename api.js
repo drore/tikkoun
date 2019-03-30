@@ -1,4 +1,5 @@
 import { StoreDB } from '~/plugins/firebase.js'
+
 export default {
   getCollection(collection) {
     return StoreDB.collection(collection).get()
@@ -16,6 +17,12 @@ export default {
   },
   updateContentItem(contentItem) {
     return this.updateDocument('content', contentItem.id, contentItem)
+  },
+  getManuscript(params){
+    return StoreDB.collection('manuscripts')
+      .where('name', '==', 'Geneva')
+      .limit(1)
+      .get()
   },
   // Manuscript content
   getManuscriptContent(lang, manuscriptName) {

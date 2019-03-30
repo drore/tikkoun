@@ -129,6 +129,32 @@
             </div>
           </div>
         </div>
+        <div class="card">
+          <div class="card-header" id="utilitiesHeading">
+            <h5 class="mb-0">
+              <button
+                class="btn btn-link"
+                type="button"
+                data-toggle="collapse"
+                data-target="#utilities"
+                aria-expanded="true"
+                aria-controls="utilities"
+              >{{$t('utilities')}}</button>
+            </h5>
+          </div>
+
+          <div
+            id="utilities"
+            class="collapse"
+            aria-labelledby="utilitiesHeading"
+            data-parent="#sidebarAccordion"
+          >
+            <div class="card-body">
+              <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>
+              <hr>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="content col-9">
@@ -228,6 +254,7 @@
 </template>
 <script>
 import { StoreDB } from '~/plugins/firebase.js'
+import manuscriptsManager from '~/manuscriptsManager'
 export default {
   data() {
     return {
@@ -282,6 +309,33 @@ export default {
         lang: this.lang,
         manuscript: this.manuscript
       })
+    },
+    //var tsv is the TSV file with headers
+    async tsvJSON() {
+      const tsv = await manuscriptsManager.getManuscriptTSV('BNF150_all_data_for_alan')
+      debugger
+      if(tsv){
+        const lines = tsv.split('\n')
+
+      const result = []
+
+      const headers = lines[0].split('\t')
+
+      for (var i = 1; i < lines.length; i++) {
+          const obj = {}
+          const currentline = lines[i].split('\t')
+
+          for (var j = 0; j < headers.length; j++) {
+            obj[headers[j]] = currentline[j]
+          }
+
+          result.push(obj)
+          }
+       debugger
+       //return result; //JavaScript object
+        return JSON.stringify(result) //JSON
+      }
+      
     },
     updateMSContentItem() {
       this.$store.dispatch('updateMSContentItem', this.msContentItem)

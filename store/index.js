@@ -14,35 +14,15 @@ const createStore = () => {
         shown_section: 'login',
         error: null
       },
-      manuscript: {
-        name: 'Geneva',
-        short_desc: 'sd',
-        desc_link: 'dl',
-        attribution: '',
-        selected_line: null,
-        total_pages: 'xx',
-        total_lines: 'xx',
-        line_num: 'xx',
-        page_num: 'xx',
-        page: {
-          img_src: '',
-          line: {
-            polygon: {
-              top_left: { x: 0, y: 0 },
-              top_right: { x: 0, y: 0 },
-              bottom_left: { x: 0, y: 0 },
-              bottom_right: { x: 0, y: 0 }
-            }
-          }
-        }
-      }
+      selected_line: null,
+      manuscript: null
     }),
     mutations: {
       setUser(state, payload) {
         state.user = payload
       },
       gotLine(state, payload) {
-        state.manuscript.selected_line = payload
+        state.selected_line = payload
       },
       loginShowSection(state, payload) {
         state.login.shown_section = payload
@@ -124,7 +104,9 @@ const createStore = () => {
           }
         })
       },
-
+      gotManuscript(state, payload) {
+        state.manuscript = payload.docs.map(d => d.data())[0]
+      },
       gotTranslations(state, payload) {
         state.translations = payload.docs.map(d => {
           const data = d.data()
@@ -200,6 +182,12 @@ const createStore = () => {
           await api.getManuscriptContent(params.lang, params.manuscript)
         )
       },
+      async GET_MANUSCRIPT({ commit }, params) {
+        commit(
+          'gotManuscript',
+          await api.getManuscript(params)
+        )
+      },
       addMSContentItem({ commit }, params) {
         commit('addMSContentItem', params)
       },
@@ -207,10 +195,12 @@ const createStore = () => {
         await api.updateMSContentItem(content)
         commit('updatedMSContentItem', content)
       },
-      getLine({ commit }, params) {
-        manuscriptsManager.getRandomLine().then(res => {
-          commit('gotLine', res)
-        })
+      getLine({ commit, state }) {
+        manuscriptsManager
+          .getRandomLine(state.manuscript.name)
+          .then(res => {
+            commit('gotLine', res)
+          })
       },
       loginShowSection({ commit }, section) {
         commit('loginShowSection', section)
