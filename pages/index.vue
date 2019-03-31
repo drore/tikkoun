@@ -26,6 +26,12 @@ export default {
     LoginForm,
     RegistrationForm
   },
+  beforeMount(){
+    const locale = localStorage.getItem('locale')
+    if(locale){
+      this.switchLocalePath(locale)
+    }
+  },
   computed: {
     shownSection() {
       return this.$store.state.login.shown_section

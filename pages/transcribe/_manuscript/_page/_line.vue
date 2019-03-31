@@ -55,15 +55,30 @@ export default {
   },
   watch: {
     line: function(res) {
-      this.$router.push(`/transcribe/${this.$store.state.manuscript.name}/${res.page}/${res.line}`)
+      if (this.$i18n.locale === this.$i18n.defaultLocale) {
+        this.$router.push(
+          `/transcribe/${this.$store.state.manuscript.name}/${res.page}/${
+            res.line
+          }`
+        )
+      } else {
+        this.$router.push(
+          `/${this.$i18n.locale}/transcribe/${
+            this.$store.state.manuscript.name
+          }/${res.page}/${res.line}`
+        )
+      }
     }
   },
   // Maybe watch on line from store
   mounted() {
     this.$store.dispatch('getLine') // Later add line params
+    const currentLang = this.$i18n.locales.find(l => {
+      return l.code === this.$i18n.locale
+    })
     this.$store.dispatch('getManuscriptContent', {
       manuscript: this.$store.state.manuscript.name.toLowerCase(),
-      lang: this.$i18n.locale
+      lang:currentLang.iso
     })
   }
 }

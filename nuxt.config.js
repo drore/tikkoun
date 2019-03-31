@@ -47,7 +47,10 @@ module.exports = {
   /*
   ** Global CSS
   */
-  css: [{ src: 'vue-wysiwyg/dist/vueWysiwyg.css', lang: 'css' }],
+  css: [
+    { src: 'assets/styles.css', lang: 'css' },
+    { src: 'vue-wysiwyg/dist/vueWysiwyg.css', lang: 'css' }
+  ],
   router: {
     middleware: ['router-auth']
   },
@@ -55,10 +58,11 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~/plugins/vue-wysiwyg',
-    '~/plugins/bootstrap-vue',
-    '~/plugins/firebase.js',
-    '~/plugins/fireauth.js'
+    '~plugins/i18n.js',
+    '~plugins/vue-wysiwyg',
+    '~plugins/bootstrap-vue',
+    '~plugins/firebase.js',
+    '~plugins/fireauth.js'
   ],
 
   /*
@@ -70,22 +74,23 @@ module.exports = {
       {
         locales: [
           {
-            code: 'en-US',
+            code: 'en',
             iso: 'en-US',
             file: 'en-US.js'
           },
           {
-            code: 'he-IL',
+            code: 'he',
             iso: 'he-IL',
             file: 'he-IL.js'
           },
           {
-            code: 'fr-FR',
+            code: 'fr',
             iso: 'fr-FR',
             file: 'fr-FR.js'
           }
         ],
-        defaultLocale: 'en-US',
+        strategy: 'prefix_except_default',
+        defaultLocale: 'en',
         lazy: true,
         langDir: 'lang/'
       }

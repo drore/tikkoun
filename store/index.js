@@ -242,7 +242,7 @@ const createStore = () => {
           line: state.manuscript.selected_line.line,
           page: state.manuscript.selected_line.page,
           transcription: transcription,
-          manuscript: state.manuscript.name,
+          manuscript: state.manuscript.id,
           createdOn: new Date()
         }
         dispatch('getLine', await api.addTranscription(params))
@@ -340,7 +340,7 @@ const createStore = () => {
           })
       },
 
-      signOut({ commit }) {
+      signOut({ commit, redirect}) {
         auth
           .signOut()
           .then(() => {

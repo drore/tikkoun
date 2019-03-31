@@ -49,7 +49,7 @@ export default {
     ).update({ views: params.viewCounter + 1 })
   },
   addTranscription(params) {
-    return this.updateDocument('transcriptions', null, params)
+    return this.updateDocument(`transcriptions`, null, params)
   },
   updateTranslation(translation) {
     return this.updateDocument('translations', translation.id, translation)

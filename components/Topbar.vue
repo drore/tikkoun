@@ -16,7 +16,7 @@
     <div id="navbarSupportedContent" class="collapse navbar-collapse justify-content-between">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <nuxt-link class="nav-link" to="/transcribe">{{ $t('nav.start') }}</nuxt-link>
+          <nuxt-link class="nav-link" to="/transcribe" v-if="$store.state.user">{{ $t('nav.start') }}</nuxt-link>
         </li>
 
         <li class="nav-item dropdown">
@@ -98,6 +98,7 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('signOut')
+      this.$router.push('/')
     }
   },
   computed: {
