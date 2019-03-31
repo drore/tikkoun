@@ -15,7 +15,8 @@ const createStore = () => {
         error: null
       },
       selected_line: null,
-      manuscript: null
+      manuscript: null,
+      transcription: null
     }),
     mutations: {
       setUser(state, payload) {
@@ -104,6 +105,56 @@ const createStore = () => {
           }
         })
       },
+      manipulateLineByAdding(state, mark) {
+        let transcription = state.transcription
+        const range = state.selected_line.selected_range
+        const pre = transcription.substring(0, range.end)
+        const post = transcription.substring(
+          range.end,
+          state.transcription.length
+        )
+
+        state.transcription = `${pre}${mark}${post}`
+      },
+      manipulateLine(state, action) {
+        let transcription = state.transcription
+        const range = state.selected_line.selected_range
+        const pre = transcription.substring(0, range.start)
+        const post = transcription.substring(
+          range.end,
+          state.transcription.length
+        )
+        const selection = transcription.substring(range.start, range.end)
+
+        switch (action) {
+          case 'additions':
+            transcription = `${pre}[${selection}]${post}`
+            break
+          case 'deletions':
+            transcription = `${pre}(${selection})${post}`
+            break
+          case 'damaged':
+            transcription = `${pre}<${selection}>${post}`
+            break
+          case 'uncertain':
+            transcription = `${pre}{${selection}}${post}`
+            break
+          case 'upper':
+            transcription = `${pre}${selection}˙${post}`
+            break
+          case 'ligature':
+            transcription = `${pre}${selection}ﭏ${post}`
+            break
+        }
+
+        state.transcription = transcription
+      },
+      updateTranscription(state, payload) {
+        state.transcription = payload
+      },
+      setSelectedTextRange(state, payload) {
+        state.selected_line.selected_range = payload
+      },
       gotManuscript(state, payload) {
         state.manuscript = payload.docs.map(d => d.data())[0]
       },
@@ -150,6 +201,19 @@ const createStore = () => {
           commit('loginError', error)
         })
       },
+      setSelectedTextRange({ commit }, range) {
+        commit('setSelectedTextRange', range)
+      },
+      updateTranscription({ commit }, value) {
+        commit('updateTranscription', value)
+      },
+      manipulateLine({ commit }, action) {
+        commit('manipulateLine', action)
+      },
+      manipulateLineByAdding({ commit }, mark) {
+        commit('manipulateLineByAdding', mark)
+      },
+
       async getUserLines({ commit, state }) {
         commit('gotUserLines', await api.getUserLines(state.user.uid))
       },
@@ -183,10 +247,7 @@ const createStore = () => {
         )
       },
       async GET_MANUSCRIPT({ commit }, params) {
-        commit(
-          'gotManuscript',
-          await api.getManuscript(params)
-        )
+        commit('gotManuscript', await api.getManuscript(params))
       },
       addMSContentItem({ commit }, params) {
         commit('addMSContentItem', params)
@@ -196,11 +257,9 @@ const createStore = () => {
         commit('updatedMSContentItem', content)
       },
       getLine({ commit, state }) {
-        manuscriptsManager
-          .getRandomLine(state.manuscript.name)
-          .then(res => {
-            commit('gotLine', res)
-          })
+        manuscriptsManager.getRandomLine(state.manuscript.name).then(res => {
+          commit('gotLine', res)
+        })
       },
       loginShowSection({ commit }, section) {
         commit('loginShowSection', section)
