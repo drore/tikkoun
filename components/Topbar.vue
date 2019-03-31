@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="/">{{ $t('main.site_name') }}</a>
+    <nuxt-link class="navbar-brand" :to="localePath('index')">{{ $t('main.site_name') }}</nuxt-link>
     <button
       class="navbar-toggler"
       type="button"
@@ -16,7 +16,11 @@
     <div id="navbarSupportedContent" class="collapse navbar-collapse justify-content-between">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <nuxt-link class="nav-link" to="/transcribe" v-if="$store.state.user">{{ $t('nav.start') }}</nuxt-link>
+          <nuxt-link
+            class="nav-link"
+            :to="getTranscribePath()"
+            v-if="$store.state.user"
+          >{{ $t('nav.start') }}</nuxt-link>
         </li>
 
         <li class="nav-item dropdown">
@@ -30,14 +34,14 @@
             aria-expanded="false"
           >{{ $t('nav.about') }}</a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <nuxt-link class="dropdown-item" to="/about/project">{{ $t('nav.project') }}</nuxt-link>
-            <nuxt-link class="dropdown-item" to="/about/htr">{{ $t('nav.htr') }}</nuxt-link>
-            <nuxt-link class="dropdown-item" to="/about/team">{{ $t('nav.team') }}</nuxt-link>
+            <nuxt-link class="dropdown-item" :to="localePath('project')">{{ $t('nav.project') }}</nuxt-link>
+            <nuxt-link class="dropdown-item" :to="localePath('htr')">{{ $t('nav.htr') }}</nuxt-link>
+            <nuxt-link class="dropdown-item" :to="localePath('team')">{{ $t('nav.team') }}</nuxt-link>
           </div>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="/conversation">{{ $t('nav.conversation') }}</a>
+          <nuxt-link class="nav-link" :to="localePath('conversation')">{{ $t('nav.conversation') }}</nuxt-link>
         </li>
       </ul>
       <ul class="navbar-nav">
@@ -99,6 +103,21 @@ export default {
     logout() {
       this.$store.dispatch('signOut')
       this.$router.push('/')
+    },
+    getTranscribePath() {
+      if (this.$store.state.manuscript  && this.$store.state.selected_liמק) {
+        if (this.$i18n.locale === this.$i18n.defaultLocale) {
+          return `/transcribe`
+        } else {
+          return `/${this.$i18n.locale}/transcribe/${
+            this.$store.state.manuscript.name
+          }/${this.$store.state.selected_line.page}/${
+            this.$store.state.selected_line.line
+          }`
+        }
+      } else {
+        return '/transcribe'
+      }
     }
   },
   computed: {
