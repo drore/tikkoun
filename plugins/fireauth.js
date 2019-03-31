@@ -7,7 +7,7 @@ export default context => {
     auth.onAuthStateChanged(user => {
       if (user) {
         store.commit('setUser', user)
-        redirect('/transcribe')
+        store.dispatch('INIT', user.default_manuscript)
         return resolve()
       }
       redirect('/')

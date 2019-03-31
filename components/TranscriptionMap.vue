@@ -51,47 +51,49 @@ export default {
   watch: {
     // whenever question changes, this function will run
     line: function(res) {
-      const self = this
-      const L = window.L
+      if (res) {
+        const self = this
+        const L = window.L
 
-      // Clear map
-      this.map.eachLayer(function(layer) {
-        self.map.removeLayer(layer)
-      })
+        // Clear map
+        this.map.eachLayer(function(layer) {
+          self.map.removeLayer(layer)
+        })
 
-      // No let's do this!
-      const top = res.top_on_page
-      const bottom = res.bottom_on_page
-      const left = res.left_on_page
-      const right = res.right_on_page
+        // No let's do this!
+        const top = res.top_on_page
+        const bottom = res.bottom_on_page
+        const left = res.left_on_page
+        const right = res.right_on_page
 
-      const height = bottom - top
-      const width = right - left
+        const height = bottom - top
+        const width = right - left
 
-      // Now the full image
-      const fullPageImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
-        res.color_img_file_name
-      }/info.json`
+        // Now the full image
+        const fullPageImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
+          res.color_img_file_name
+        }/info.json`
 
-      const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)
-      // TODO: move to store? is this MS specific?
-      const factor = 15.9
-      const imageLayer = pageTileLayer.addTo(this.map)
+        const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)
+        // TODO: move to store? is this MS specific?
+        const factor = 15.9
+        const imageLayer = pageTileLayer.addTo(this.map)
 
-      const linePolygonLayer = L.polygon(
-        [
-          [-top / factor, left / factor], // top_left
-          [-top / factor, right / factor], // top_right
-          [-bottom / factor, right / factor], // bottom_right
-          [-bottom / factor, left / factor] // bottom_left
-        ],
-        {
-          color: 'blue',
-          fillColor: '#f03',
-          fillOpacity: 0.1,
-          weight: 1
-        }
-      ).addTo(this.map)
+        const linePolygonLayer = L.polygon(
+          [
+            [-top / factor, left / factor], // top_left
+            [-top / factor, right / factor], // top_right
+            [-bottom / factor, right / factor], // bottom_right
+            [-bottom / factor, left / factor] // bottom_left
+          ],
+          {
+            color: 'blue',
+            fillColor: '#f03',
+            fillOpacity: 0.1,
+            weight: 1
+          }
+        ).addTo(this.map)
+      }
     }
   }
 }

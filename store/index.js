@@ -156,7 +156,16 @@ const createStore = () => {
         state.selected_line.selected_range = payload
       },
       gotManuscript(state, payload) {
-        state.manuscript = payload.docs.map(d => d.data())[0]
+        const msData = payload.docs.map(d => {
+          const obj = d.data()
+          return Object.assign({ id: d.id }, obj)
+        })[0]
+        if (msData) {
+          state.manuscript = msData
+        }
+      },
+      resetTranscription(state) {
+        state.transcription = state.selected_line.AT
       },
       gotTranslations(state, payload) {
         state.translations = payload.docs.map(d => {
@@ -196,10 +205,20 @@ const createStore = () => {
     },
     actions: {
       nuxtServerInit({ commit }, { req }) {},
+      INIT({ commit, dispatch }, manuscriptName) {
+        dispatch('GET_MANUSCRIPT', manuscriptName)
+      },
       loginAnonymously({ commit }) {
         auth.signInAnonymously().catch(function(error) {
           commit('loginError', error)
         })
+      },
+      async INIT_TRANSCRIBE({ commit, dispatch }) {
+        //await dispatch('GET_MANUSCRIPT')
+        //debugger
+      },
+      resetTranscription({ commit }) {
+        commit('resetTranscription')
       },
       setSelectedTextRange({ commit }, range) {
         commit('setSelectedTextRange', range)
@@ -246,8 +265,8 @@ const createStore = () => {
           await api.getManuscriptContent(params.lang, params.manuscript)
         )
       },
-      async GET_MANUSCRIPT({ commit }, params) {
-        commit('gotManuscript', await api.getManuscript(params))
+      async GET_MANUSCRIPT({ commit }, name) {
+        commit('gotManuscript', await api.getManuscript(name))
       },
       addMSContentItem({ commit }, params) {
         commit('addMSContentItem', params)
@@ -256,10 +275,23 @@ const createStore = () => {
         await api.updateMSContentItem(content)
         commit('updatedMSContentItem', content)
       },
-      getLine({ commit, state }) {
-        manuscriptsManager.getRandomLine(state.manuscript.name).then(res => {
-          commit('gotLine', res)
-        })
+      updateLineViewing({ commit, state }, params) {
+        api.updateLineViewing(state.manuscript.id, params)
+      },
+      getLine({ commit, dispatch, state }) {
+        manuscriptsManager
+          .getNextLine(
+            state.manuscript.id,
+            state.manuscript.next_page,
+            state.manuscript.next_line
+          )
+          .then(res => {
+            dispatch('updateLineViewing', {
+              lineId: res.id,
+              viewCounter: res.data.views || 0
+            })
+            commit('gotLine', res.data)
+          })
       },
       loginShowSection({ commit }, section) {
         commit('loginShowSection', section)
@@ -300,7 +332,7 @@ const createStore = () => {
         auth
           .createUserWithEmailAndPassword(params.email, params.password)
           .catch(function(error) {
-            debugger
+            //debugger
             // Handle Errors here.
             const errorCode = error.code
             const errorMessage = error.message

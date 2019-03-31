@@ -1,0 +1,1 @@
+<template><nuxt-child/></template>

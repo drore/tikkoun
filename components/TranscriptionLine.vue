@@ -15,7 +15,7 @@
         type="text"
         name="transcribed"
         autocomplete="off"
-        style="font-family: Corsiva"
+        :style="inputStyle"
         class="w-100 p-2 rtl"
         :value="transcription"
         @keyup="change"
@@ -25,8 +25,8 @@
       >
     </div>
     <!-- Transcribe toolbar -->
-    <div class="justify-content-between d-flex mt-3 p-10" dir="ltr">
-      <div class="btn-group" role="group" aria-label="First group" dir="ltr">
+    <div class="mt-3 p-10 row" dir="ltr">
+      <div class="btn-group col" role="group" aria-label="First group" dir="ltr">
         <button type="button" class="btn btn-secondary">
           <div class="dropdown">
             <button
@@ -75,33 +75,34 @@
         />
       </div>
       <!-- right part -->
-      <div class="btn-group" role="group" aria-label="Second group" dir="ltr">
+      <div class="btn-group col" role="group" aria-label="Second group" dir="ltr">
         <button
           :title="$t('main.work_area.hovers.over_reset')"
-          class="rounded-0 btn btn-secondary"
+          class="btn btn-secondary"
           type="button"
-          onclick="myReset()"
+          @click="reset"
         >
           <span style="font-size: larger;">{{$t('main.work_area.button_5')}}</span>
         </button>
-        <button
-          :title="$t('main.work_area.hovers.over_alef_plus')"
-          class="rounded-0 btn btn-secondary"
-          type="button"
-          onclick="myResize(1)"
-        >
-          <span style="font-size: larger;">
-            <b>א+</b>
-          </span>
-        </button>
+
         <button
           :title="$t('main.work_area.hovers.over_alef_minus')"
-          class="rounded-0 btn btn-secondary"
+          class="btn btn-secondary"
           type="button"
-          onclick="myResize(-1)"
+          @click="changeFontSize(-1)"
         >
           <span style="font-size: smaller;">
             <b>א-</b>
+          </span>
+        </button>
+        <button
+          :title="$t('main.work_area.hovers.over_alef_plus')"
+          class="btn btn-secondary"
+          type="button"
+          @click="changeFontSize(1)"
+        >
+          <span style="font-size: larger;">
+            <b>א+</b>
           </span>
         </button>
       </div>
@@ -135,7 +136,8 @@ import ManipulationButton from '~/components/ManipulationButton'
 export default {
   data() {
     return {
-      transcribedLineImgSrc: null
+      transcribedLineImgSrc: null,
+      fontSize: 16
     }
   },
   components: {
@@ -147,29 +149,40 @@ export default {
     },
     transcription() {
       return this.$store.state.transcription
+    },
+    inputStyle() {
+      return `font-family:Corsive;font-size:${this.fontSize}px`
     }
   },
   watch: {
     // whenever question changes, this function will run
     line: function(res) {
-      this.$store.dispatch('updateTranscription', res.AT)
-      const top = res.top_on_page
-      const bottom = res.bottom_on_page
-      const left = res.left_on_page
-      const right = res.right_on_page
+      if (res) {
+        this.$store.dispatch('updateTranscription', res.AT)
+        const top = res.top_on_page
+        const bottom = res.bottom_on_page
+        const left = res.left_on_page
+        const right = res.right_on_page
 
-      const height = bottom - top
-      const width = right - left
+        const height = bottom - top
+        const width = right - left
 
-      // The scheme is left, top, width, height
-      this.transcribedLineImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
-        res.color_img_file_name
-      }/${left},${top},${width},${height}/full/0/default.jpg`
+        // The scheme is left, top, width, height
+        this.transcribedLineImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
+          res.color_img_file_name
+        }/${left},${top},${width},${height}/full/0/default.jpg`
+      }
     }
   },
   methods: {
     manipulateLineByAdding(mark) {
       this.$store.dispatch('manipulateLineByAdding', mark)
+    },
+    reset() {
+      this.$store.dispatch('resetTranscription')
+    },
+    changeFontSize(change) {
+      this.fontSize += change
     },
     select(e) {
       this.$store.dispatch('setSelectedTextRange', {

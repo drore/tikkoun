@@ -18,11 +18,16 @@ export default {
   updateContentItem(contentItem) {
     return this.updateDocument('content', contentItem.id, contentItem)
   },
-  getManuscript(params){
-    return StoreDB.collection('manuscripts')
-      .where('name', '==', 'Geneva')
-      .limit(1)
-      .get()
+  getManuscript(name) {
+    let query = null
+    if (!name) {
+      query = StoreDB.collection('manuscripts').limit(1)
+    } else {
+      query = StoreDB.collection('manuscripts')
+        .where('name', '==', name)
+        .limit(1)
+    }
+    return query.get()
   },
   // Manuscript content
   getManuscriptContent(lang, manuscriptName) {
@@ -37,6 +42,11 @@ export default {
       msContentItem.id,
       msContentItem
     )
+  },
+  updateLineViewing(manuscriptId, params) {
+    return StoreDB.doc(
+      `manuscripts/${manuscriptId}/lines/${params.lineId}`
+    ).update({ views: params.viewCounter + 1 })
   },
   addTranscription(params) {
     return this.updateDocument('transcriptions', null, params)

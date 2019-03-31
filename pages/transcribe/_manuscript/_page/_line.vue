@@ -48,10 +48,16 @@ export default {
     TranscriptionLine,
     InfoTabs
   },
-  async fetch({ store, params }) {
-    await store.dispatch('GET_MANUSCRIPT')
+  computed: {
+    line() {
+      return this.$store.state.selected_line
+    }
   },
-
+  watch: {
+    line: function(res) {
+      this.$router.push(`/transcribe/${this.$store.state.manuscript.name}/${res.page}/${res.line}`)
+    }
+  },
   // Maybe watch on line from store
   mounted() {
     this.$store.dispatch('getLine') // Later add line params

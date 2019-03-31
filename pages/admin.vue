@@ -150,7 +150,8 @@
             data-parent="#sidebarAccordion"
           >
             <div class="card-body">
-              <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>
+              <!-- <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a> -->
+              <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
               <hr>
             </div>
           </div>
@@ -311,31 +312,45 @@ export default {
       })
     },
     //var tsv is the TSV file with headers
+    loadIntoFB() {
+      manuscriptsManager.getManuscriptJSON('geneva').then(res => {
+        const json = res.data
+        let obj = {}
+        json.forEach((item, index) => {
+          if (index < 5) {
+            obj = { views: 0, transcriptions: 0, general_index: index }
+            Object.keys(item).forEach(key => {
+              if (key) {
+                obj[key] = item[key]
+              }
+            })
+            StoreDB.collection('manuscripts/woNEyuFHMZUaKNYclE8a/lines').add(
+              obj
+            )
+            console.log(index)
+          }
+        })
+      })
+    },
     async tsvJSON() {
-      const tsv = await manuscriptsManager.getManuscriptTSV('BNF150_all_data_for_alan')
-      debugger
-      if(tsv){
-        const lines = tsv.split('\n')
-
-      const result = []
-
-      const headers = lines[0].split('\t')
-
-      for (var i = 1; i < lines.length; i++) {
-          const obj = {}
-          const currentline = lines[i].split('\t')
-
-          for (var j = 0; j < headers.length; j++) {
-            obj[headers[j]] = currentline[j]
-          }
-
-          result.push(obj)
-          }
-       debugger
-       //return result; //JavaScript object
-        return JSON.stringify(result) //JSON
-      }
-      
+      // const tsv = await manuscriptsManager.getManuscriptTSV('BNF150_all_data_for_alan')
+      // debugger
+      // if(tsv){
+      //   const lines = tsv.split('\n')
+      // const result = []
+      // const headers = lines[0].split('\t')
+      // for (var i = 1; i < lines.length; i++) {
+      //     const obj = {}
+      //     const currentline = lines[i].split('\t')
+      //     for (var j = 0; j < headers.length; j++) {
+      //       obj[headers[j]] = currentline[j]
+      //     }
+      //     result.push(obj)
+      //     }
+      //  debugger
+      //  //return result; //JavaScript object
+      //   return JSON.stringify(result) //JSON
+      // }
     },
     updateMSContentItem() {
       this.$store.dispatch('updateMSContentItem', this.msContentItem)
