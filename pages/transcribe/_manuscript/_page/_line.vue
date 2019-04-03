@@ -72,12 +72,12 @@ export default {
   },
   // Maybe watch on line from store
   mounted() {
-    this.$store.dispatch('getNextLine') // Later add line params
+    this.$store.dispatch('transcribe/getNextLine') // Later add line params
     const currentLang = this.$i18n.locales.find(l => {
       return l.code === this.$i18n.locale
     })
     
-    this.$store.dispatch('getManuscriptContent', {
+    this.$store.dispatch('content/getManuscriptContent', {
       manuscript: this.$store.state.manuscript.name.toLowerCase(),
       lang:currentLang.iso
     })

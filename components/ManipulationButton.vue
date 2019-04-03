@@ -13,7 +13,7 @@ export default {
   props: ['title', 'action', 'content'],
   methods: {
     manipulateLine() {
-      this.$store.dispatch('manipulateLine', this.action)
+      this.$store.dispatch('transcribe/manipulateLine', this.action)
     }
   }
 }

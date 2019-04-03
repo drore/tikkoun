@@ -18,7 +18,7 @@ export const mutations = {
   },
   loginShowSection(state, payload) {
     state.login.shown_section = payload
-  },
+  }
 }
 
 export const actions = {

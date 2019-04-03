@@ -228,7 +228,7 @@ export default {
     // whenever question changes, this function will run
     line: function(res) {
       if (res) {
-        this.$store.dispatch('updateTranscription', res.AT)
+        this.$store.dispatch('trancribe/updateTranscription', res.AT)
         this.color_img_file_name = res.color_img_file_name
         this.polygonObj = {
           top: res.top_on_page,
@@ -281,10 +281,10 @@ export default {
       }
     },
     manipulateLineByAdding(mark) {
-      this.$store.dispatch('manipulateLineByAdding', mark)
+      this.$store.dispatch('trancribe/manipulateLineByAdding', mark)
     },
     reset() {
-      this.$store.dispatch('resetTranscription')
+      this.$store.dispatch('trancribe/resetTranscription')
     },
     resetFontSize() {      
       const imgElement = $('.viewer-canvas>img')
@@ -308,20 +308,20 @@ export default {
       })
     },
     select(e) {
-      this.$store.dispatch('setSelectedTextRange', {
+      this.$store.dispatch('trancribe/setSelectedTextRange', {
         start: e.target.selectionStart,
         end: e.target.selectionEnd
       })
     },
     change(e) {
-      this.$store.dispatch('updateTranscription', e.target.value)
+      this.$store.dispatch('trancribe/updateTranscription', e.target.value)
     },
     done() {
-      this.$store.dispatch('addTranscription')
+      this.$store.dispatch('trancribe/addTranscription')
     },
     skip() {
       // Skip and...
-      this.$store.dispatch('skip') // Later add line params
+      this.$store.dispatch('trancribe/skip') // Later add line params
     }
   }
 }

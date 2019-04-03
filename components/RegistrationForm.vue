@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     showLogin(section) {
-      this.$store.dispatch('loginShowSection', 'login')
+      this.$store.dispatch('auth/loginShowSection', 'login')
     },
     register() {
       const registerationParams = {
@@ -53,9 +53,8 @@ export default {
       }
 
       this.$store
-        .dispatch('createUserWithEmailAndPassword', registerationParams)
+        .dispatch('auth/createUserWithEmailAndPassword', registerationParams)
         .then((res) => {
-          debugger
           console.log('inside then statement on login')
         })
         .catch(e => {
@@ -64,7 +63,7 @@ export default {
     },
     googleSignUp() {
       this.$store
-        .dispatch('signInWithGoogle')
+        .dispatch('auth/signInWithGoogle')
         .then(() => {
           console.log('inside then statement on login')
         })

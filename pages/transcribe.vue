@@ -24,12 +24,12 @@ export default {
           return this.$store.state.manuscript
         } else if (!this.manuscriptRequested) {
           this.manuscriptRequested = true
-          this.$store.dispatch('GET_MANUSCRIPT', routeManuscript)
+          this.$store.dispatch('transcribe/GET_MANUSCRIPT', routeManuscript)
           return null
         }
       } else if (!this.manuscriptRequested) {
         this.manuscriptRequested = true
-        this.$store.dispatch('GET_MANUSCRIPT')
+        this.$store.dispatch('transcribe/GET_MANUSCRIPT')
         return null
       } else {
         return this.$store.state.manuscript

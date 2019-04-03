@@ -308,7 +308,7 @@ export default {
     // Manuscript content
     getManuscriptContent() {
       this.showWysiwyg = true
-      this.$store.dispatch('getManuscriptContent', {
+      this.$store.dispatch('content/getManuscriptContent', {
         lang: this.lang,
         manuscript: this.manuscript
       })
@@ -391,10 +391,10 @@ export default {
       // }
     },
     updateMSContentItem() {
-      this.$store.dispatch('updateMSContentItem', this.msContentItem)
+      this.$store.dispatch('content/updateMSContentItem', this.msContentItem)
     },
     addMSContentItem() {
-      this.$store.dispatch('addMSContentItem', {
+      this.$store.dispatch('content/addMSContentItem', {
         lang: this.lang,
         manuscript: this.manuscript
       })
@@ -405,13 +405,13 @@ export default {
     // General content
     getContent() {
       this.showWysiwyg = true
-      this.$store.dispatch('getContent', this.lang)
+      this.$store.dispatch('content/getContent', this.lang)
     },
     updateContentItem() {
-      this.$store.dispatch('updateContentItem', this.contentItem)
+      this.$store.dispatch('content/updateContentItem', this.contentItem)
     },
     addContentItem() {
-      this.$store.dispatch('addContentItem', this.lang)
+      this.$store.dispatch('content/addContentItem', this.lang)
     },
     editContentItem(contentItem) {
       this.contentItem = contentItem
@@ -419,10 +419,10 @@ export default {
     // Translations
     getTranslations() {
       this.showWysiwyg = false
-      this.$store.dispatch('getTranslations', this.lang)
+      this.$store.dispatch('translations/getTranslations', this.lang)
     },
     updateTranslation() {
-      this.$store.dispatch('updateTranslation', this.translation)
+      this.$store.dispatch('translations/updateTranslation', this.translation)
     },
     duplicateTranslation() {
       this.$store.dispatch(
@@ -431,7 +431,7 @@ export default {
       )
     },
     addTranslation() {
-      this.$store.dispatch('addTranslation', this.lang)
+      this.$store.dispatch('translations/addTranslation', this.lang)
     },
     editTranslation(translation) {
       this.translation = translation

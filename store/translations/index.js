@@ -48,7 +48,7 @@ export const actions = {
     commit('duplicateTranslation', translation)
   },
   async updateTranslation({ dispatch }, translation) {
-    dispatch('getTranslations', await api.updateTranslation(translation))
+    dispatch('translations/getTranslations', await api.updateTranslation(translation))
   }
 }
 

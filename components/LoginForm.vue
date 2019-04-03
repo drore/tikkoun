@@ -70,10 +70,11 @@ export default {
   },
   methods: {
     showRegistration(section) {
-      this.$store.dispatch('loginShowSection', 'registration')
+      this.$store.dispatch('auth/loginShowSection', 'registration')
     },
     enterAsGuest() {
-      this.$store.dispatch('loginAnonymously').then(() => {
+      this.$store.dispatch('auth/loginAnonymously').then(() => {
+        debugger
         this.$router.push('/transcribe')
       })
     },
@@ -85,7 +86,7 @@ export default {
       }
       
       this.$store
-        .dispatch('signInWithEmail', {
+        .dispatch('auth/signInWithEmail', {
           email: username,
           password: password
         })
@@ -95,7 +96,7 @@ export default {
     },
     googleSignUp() {
       this.$store
-        .dispatch('signInWithGoogle')
+        .dispatch('auth/signInWithGoogle')
         .then(() => {
           console.log('inside then statement on login')
         })

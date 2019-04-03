@@ -105,7 +105,7 @@
 export default {
   methods: {
     logout() {
-      this.$store.dispatch('signOut')
+      this.$store.dispatch('auth/signOut')
       this.$router.push('/')
     },
     getTranscribePath() {
