@@ -254,7 +254,9 @@
   </div>
 </template>
 <script>
-import { StoreDB } from '~/plugins/firebase.js'
+import api from '@/api.js'
+import axios from 'axios'
+import { ServerTimestamp, StoreDB, auth } from '~/plugins/firebase.js'
 import manuscriptsManager from '~/manuscriptsManager'
 export default {
   data() {
@@ -311,27 +313,63 @@ export default {
         manuscript: this.manuscript
       })
     },
+
     //var tsv is the TSV file with headers
-    loadIntoFB() {
-      manuscriptsManager.getManuscriptJSON('geneva').then(res => {
-        const json = res.data
-        let obj = {}
-        json.forEach((item, index) => {
-          if (index < 5) {
-            obj = { views: 0, transcriptions: 0, general_index: index }
-            Object.keys(item).forEach(key => {
-              if (key) {
-                obj[key] = item[key]
-              }
-            })
-            StoreDB.collection('manuscripts/woNEyuFHMZUaKNYclE8a/lines').add(
-              obj
-            )
-            console.log(index)
+    async loadIntoFB() {
+      const users = await axios.get(`/users.json`)
+      let obj = {}
+      let user = null
+      for (let i = 180; i < users.data.length; i++) {
+        console.log(i)
+        user = users.data[i]
+
+        obj = {
+          userid: user.userid,
+          email: user.email,
+          age: user.age,
+          hebrewknowledge: user.hebrewknowledge,
+          midrashknowledge: user.midrashknowledge,
+          registered: new Date(user.registered),
+          contact_allowed: user.contact_allowed,
+          createdAt: ServerTimestamp()
+        }
+        if (!user.email) {
+          if (user.userid) {
+            user.email = user.userid + '@tikkoun.com'
           }
-        })
-      })
+        }
+
+        if (user.email) {
+          const created = await api.createUser({
+            email: user.email,
+            password: '123456'
+          })
+
+          if (created) {
+            await StoreDB.collection('users')
+              .doc(created.user.uid)
+              .set(obj, { merge: true })
+          } else {
+            //console.warn(obj)
+          }
+        }
+      }
+
+      // manuscriptsManager.getManuscriptJSON('geneva').then(res => {
+      //   const json = res.data
+      //   let obj = {}
+      //   json.forEach((item, index) => {
+      //     obj = { views: 0, transcriptions: 0, general_index: index }
+      //     Object.keys(item).forEach(key => {
+      //       if (key) {
+      //         obj[key] = item[key]
+      //       }
+      //     })
+      //     StoreDB.collection('manuscripts/woNEyuFHMZUaKNYclE8a/lines').add(obj)
+      //   })
+      // })
     },
+
     async tsvJSON() {
       // const tsv = await manuscriptsManager.getManuscriptTSV('BNF150_all_data_for_alan')
       // debugger

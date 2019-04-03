@@ -4,9 +4,10 @@ export default function({ store, redirect, route }) {
 }
 
 function isProtectedRoute(route) {
-  const name = route.name.split('__)')[0];
+  const name = route.name && route.name.split('__')[0];
   switch(name){
     case 'transcribe':
+    case 'transcribe-manuscript-page-line':
     case 'admin':
     return true
   }
@@ -14,7 +15,10 @@ function isProtectedRoute(route) {
 }
 
 function isLoginScreen(route) {
-  if (route.matched.some(record => record.path == '/')) {
+  const name = route.name && route.name.split('__')[0];
+  switch(name){
+    case 'index':
     return true
   }
+  return false
 }

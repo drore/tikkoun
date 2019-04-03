@@ -1,7 +1,7 @@
 <template>
   <button
     :title="$t(title)"
-    class="btn btn-secondary"
+    class="btn btn-secondary  btn-sm"
     type="button"
     @click="manipulateLine"
   >

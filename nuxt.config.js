@@ -1,7 +1,7 @@
 const pkg = require('./package')
 
 module.exports = {
-  mode: 'spa',
+  mode: 'universal',
 
   /*
   ** Headers of the page
@@ -58,6 +58,7 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '~plugins/v-viewer.js',
     '~plugins/i18n.js',
     '~plugins/vue-wysiwyg',
     '~plugins/bootstrap-vue',
@@ -72,6 +73,9 @@ module.exports = {
     [
       'nuxt-i18n',
       {
+        vueI18n: {
+          fallbackLocale: 'en'
+        },
         locales: [
           {
             code: 'en',

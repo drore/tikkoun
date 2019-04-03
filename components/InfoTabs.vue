@@ -74,7 +74,7 @@
               style="clear: both; color: blue;"
               :title="manuscript.short_desc"
             >{{manuscript.name}}</label>
-          </a>-->
+          </a>
           <label v-if="line">
             - Page {{line.page}} /
             {{manuscript.total_pages}}, Line {{line.line}} /
@@ -114,6 +114,7 @@ export default {
   computed: {
     content() {
       const content = {}
+
       if (this.$store.state.manuscript_content.length) {
         this.$store.state.manuscript_content.forEach(i => {
           content[i.token] = i.value
@@ -131,10 +132,21 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .tab-content {
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.nav-tabs {
+  padding: 0;
+  .nav-item {
+    font-size: 0.8rem;
+  }
+}
+.info-page .flex-nowrap {
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 @media (min-width: 500px) {
   body {
@@ -161,6 +173,36 @@ export default {
   body {
     .tab-content {
       width: 450px;
+    }
+  }
+}
+
+.info_content {
+  .header {
+    font-weight: bold;
+    .title {
+      font-size: 1.2rem;
+    }
+  }
+  & > .content {
+    & > div {
+      margin-top: 5px;
+    }
+  }
+}
+
+.letters-table {
+  width: 100%;
+  direction: rtl;
+  tr {
+    td {
+      border: 1px solid #333;
+      text-align: center;
+      img {
+        margin: 0;
+        max-height: none;
+        height: 100%;
+      }
     }
   }
 }

@@ -6,7 +6,7 @@
         {{$t('banner.encourgement.line_2')}}
       </div>
       <div class="col-sm-6 row">
-        <div class="login-form col-sm-6 col-6">
+        <div class="login-form col-sm-6">
           <div>
             <input
               id="username"
@@ -33,11 +33,11 @@
               class="btn-primary"
               type="submit"
               @click="emailLogin"
-              :value="$t('toolbar.right.start')"
+              :value="$t('nav.start')"
             >
           </div>
         </div>
-        <div class="border-left col-sm-6 col-6">
+        <div class="border-left col-sm-6">
           <a href="javascript:;" @click="googleSignUp">
             <img src="images/btn_google_signin_dark_normal_web.png" alt>
           </a>
@@ -49,10 +49,7 @@
           </div>
         </div>
 
-        <p
-          style="font-weight: bold; color: red;"
-          v-if="loginError"
-        >{{$t(loginError)}}</p>
+        <p style="font-weight: bold; color: red;" v-if="loginError">{{$t(loginError)}}</p>
       </div>
     </div>
   </div>
@@ -68,7 +65,7 @@ export default {
   },
   computed: {
     loginError() {
-      return this.$store.state.login.error
+      return this.$store.state.auth.login.error
     }
   },
   methods: {
@@ -76,17 +73,24 @@ export default {
       this.$store.dispatch('loginShowSection', 'registration')
     },
     enterAsGuest() {
-      this.$store.dispatch('loginAnonymously')
+      this.$store.dispatch('loginAnonymously').then(() => {
+        this.$router.push('/transcribe')
+      })
     },
     emailLogin() {
+      const username = this.username
+      const password = this.password
+      if (username.indexOf('@') === -1) {
+        username += '@tikkoun.com'
+      }
+      
       this.$store
         .dispatch('signInWithEmail', {
-          email: this.username,
-          password: this.password
+          email: username,
+          password: password
         })
         .then(() => {
-          this.username = ''
-          this.password = ''
+          this.$router.push('/transcribe')
         })
     },
     googleSignUp() {

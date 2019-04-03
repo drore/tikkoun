@@ -15,16 +15,32 @@ export default {
         })
     })
   },
-  getNextLine(msId, nextPage, nextLine) {
+  getLine(msId, page, line) {
     return new Promise((resolve, reject) => {
       StoreDB.collection(`manuscripts/${msId}/lines`)
-        .where('page', '==', nextPage)
-        .where('line', '==', nextLine)
+        .where('page', '==', page)
+        .where('line', '==', line)
         .limit(1)
         .get()
         .then(res => {
-          const lineSnap = res.docs[0];
+          const lineSnap = res.docs[0]
           resolve({ data: lineSnap.data(), id: lineSnap.id })
+        })
+    })
+  },
+  getNextLine(msId, current_index) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection(`manuscripts/${msId}/lines`)
+        .where('general_index', '>', current_index)
+        .limit(1)
+        .get()
+        .then(res => {
+          if (res.docs.length) {
+            const lineSnap = res.docs[0]
+            return resolve({ data: lineSnap.data(), id: lineSnap.id })
+          } else {
+            return resolve(this.getLine(msId, 1, 1))
+          }
         })
     })
   },

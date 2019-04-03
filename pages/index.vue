@@ -3,10 +3,10 @@
     <div class="jumbotron jumbotron-fluid tsbackground">
       <div class="container" style="background-color: rgba(255, 255, 255, 0.8);">
         <h1 class="display-4">{{$t('login.center.welcome')}}</h1>
-        <p class="lead">
-          {{$t('login.center.intro_line_1')}}
-          {{$t('login.center.intro_line_2')}}
-        </p>
+        <div class="lead">
+          {{$t('login.center.Intro_line_1')}}
+          {{$t('login.center.Intro_line_2')}}
+        </div>
       </div>
     </div>
     <div class="container">
@@ -34,7 +34,7 @@ export default {
   },
   computed: {
     shownSection() {
-      return this.$store.state.login.shown_section
+      return this.$store.state.auth.login.shown_section
     }
   }
 }

@@ -1,4 +1,5 @@
-import { StoreDB } from '~/plugins/firebase.js'
+import { ServerTimestamp, StoreDB, auth } from '~/plugins/firebase.js'
+import { Store } from 'vuex'
 
 export default {
   getCollection(collection) {
@@ -9,6 +10,13 @@ export default {
       .where('lang', '==', lang)
       .get()
   },
+  createUser(userData) {
+    return auth
+      .createUserWithEmailAndPassword(userData.email, userData.password)
+      .catch(err => {
+        console.error(userData.email)
+      })
+  },
   // General content
   getContent(lang) {
     return StoreDB.collection('content')
@@ -17,6 +25,18 @@ export default {
   },
   updateContentItem(contentItem) {
     return this.updateDocument('content', contentItem.id, contentItem)
+  },
+  updateUser(user) {
+    if (!user.isAnonymous) {
+      const usersRef = StoreDB.collection('users')
+      usersRef.doc(user.uid).set(
+        {
+          displayName: user.displayName,
+          lastLogin: ServerTimestamp()
+        },
+        { merge: true }
+      )
+    }
   },
   getManuscript(name) {
     let query = null
@@ -43,13 +63,92 @@ export default {
       msContentItem
     )
   },
-  updateLineViewing(manuscriptId, params) {
+  // General index is the index in the array, roughly the order in the ms
+  // TODO: move to manuscript manager
+  async getLineByGeneralIndex(msId, generalIndex) {
+    const lineRef = await StoreDB.collection(`manuscripts/${msId}/lines`)
+      .where('general_index', '==', generalIndex)
+      .limit(1)
+      .get()
+    if (lineRef.size) {
+      const lineDocRef = lineRef.docs[0]
+      return { data: lineDocRef.data(), id: lineDocRef.id }
+    } else {
+      return null
+    }
+  },
+  async getUserNextLine(msId, uid) {
+    const userMSRef = await this.getDoc(`users/${uid}/manuscripts/${msId}`)
+    if (userMSRef.exists) {
+      return userMSRef.data().next_general_index
+    } else {
+      return null
+    }
+  },
+  getDoc(path) {
+    return StoreDB.doc(path).get()
+  },
+  async updateLineViewing(manuscriptId, params) {
+    const userLine = await this.getDoc(
+      `users/${params.uid}/lines/${params.lineId}`
+    )
+
+    let lineViews = 0
+    if (userLine.exists) {
+      lineViews = userLine.data().views
+    }
+    // Advance the view count by 1
+    lineViews++
+
+    // Write to the user obj
+    userLine.ref.set(
+      {
+        views: lineViews
+      },
+      { merge: true }
+    )
+
     return StoreDB.doc(
       `manuscripts/${manuscriptId}/lines/${params.lineId}`
     ).update({ views: params.viewCounter + 1 })
   },
+  markLineAsSkipped(params) {
+    // Write to the user obj
+    if (!params.isAnonymous) {
+      return StoreDB.doc(`users/${params.uid}/manuscripts/${params.manuscript}`)
+        .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
+        .then(res => {
+          StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`).set(
+            {
+              action: 'skip'
+            },
+            { merge: true }
+          )
+        })
+    } else {
+      return false
+    }
+  },
   addTranscription(params) {
-    return this.updateDocument(`transcriptions`, null, params)
+    // Write to the user obj
+    if (!params.isAnonymous) {
+      return StoreDB.doc(`users/${params.uid}/manuscripts/${params.manuscript}`)
+        .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
+        .then(res => {
+          StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`)
+            .set(
+              {
+                action: 'done'
+              },
+              { merge: true }
+            )
+            .then(res => {
+              this.updateDocument(`transcriptions`, null, params)
+            })
+        })
+    } else {
+      return false
+    }
   },
   updateTranslation(translation) {
     return this.updateDocument('translations', translation.id, translation)

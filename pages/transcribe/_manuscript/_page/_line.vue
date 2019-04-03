@@ -43,7 +43,7 @@ import TranscriptionLine from '~/components/TranscriptionLine'
 import InfoTabs from '~/components/InfoTabs'
 
 export default {
-  layout: 'inner',
+  xlayout: 'inner',
   components: {
     TranscriptionLine,
     InfoTabs
@@ -72,10 +72,11 @@ export default {
   },
   // Maybe watch on line from store
   mounted() {
-    this.$store.dispatch('getLine') // Later add line params
+    this.$store.dispatch('getNextLine') // Later add line params
     const currentLang = this.$i18n.locales.find(l => {
       return l.code === this.$i18n.locale
     })
+    
     this.$store.dispatch('getManuscriptContent', {
       manuscript: this.$store.state.manuscript.name.toLowerCase(),
       lang:currentLang.iso

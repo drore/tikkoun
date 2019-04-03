@@ -20,4 +20,5 @@ export const GoogleProvider = new firebase.auth.GoogleAuthProvider()
 export const auth = firebase.auth()
 export const DB = firebase.database()
 export const StoreDB = firebase.firestore()
+export const ServerTimestamp = firebase.firestore.FieldValue.serverTimestamp
 export default firebase

@@ -2,3 +2,6 @@
   direction: rtl;
   text-align: right;
 }
+.viewer-backdrop{
+  background-color: rgba(0,0,0,0.7) !important;
+}
