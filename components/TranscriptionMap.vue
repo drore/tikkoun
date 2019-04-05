@@ -69,9 +69,17 @@ export default {
         const height = bottom - top
         const width = right - left
 
+        // For geneva, strip the file extension
+        let color_img_file_name;
+        if (res.color_img_file_name.indexOf('.jpg') != -1) {
+          color_img_file_name = res.color_img_file_name.split('.jpg')[0]
+        } else {
+          color_img_file_name = res.color_img_file_name
+        }
+
         // Now the full image
         const fullPageImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
-          res.color_img_file_name
+          color_img_file_name
         }.${this.$store.state.transcribe.manuscript.image_extension}/info.json`
 
         const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)

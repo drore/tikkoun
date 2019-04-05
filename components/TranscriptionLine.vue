@@ -304,8 +304,15 @@ export default {
     // whenever question changes, this function will run
     line: function(res) {
       if (res) {
+        
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
-        this.color_img_file_name = res.color_img_file_name
+        // For geneva, strip the file extension
+        if (res.color_img_file_name.indexOf('.jpg') != -1) {
+          this.color_img_file_name = res.color_img_file_name.split('.jpg')[0]
+        } else {
+          this.color_img_file_name = res.color_img_file_name
+        }
+
         this.polygonObj = {
           top: res.top_on_page,
           bottom: res.bottom_on_page,
