@@ -44,6 +44,20 @@ export default {
         })
     })
   },
+  getPrevLine(msId, current_index) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection(`manuscripts/${msId}/lines`)
+        .where('general_index', '<', current_index)
+        .limit(1)
+        .get()
+        .then(res => {
+          if (res.docs.length) {
+            const lineSnap = res.docs[0]
+            return resolve({ data: lineSnap.data(), id: lineSnap.id })
+          }
+        })
+    })
+  },
   getManuscriptJSON(filename) {
     return axios.get(`/manuscripts/${filename}.json`)
   },

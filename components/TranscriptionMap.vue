@@ -24,7 +24,7 @@ export default {
   },
   computed: {
     line() {
-      return this.$store.state.selected_line
+      return this.$store.state.transcribe.selected_line
     }
   },
   mounted() {
@@ -45,7 +45,7 @@ export default {
 
     this.map.attributionControl.setPrefix('')
     this.map.attributionControl.addAttribution(
-      self.$store.state.manuscript.attribution
+      self.$store.state.transcribe.manuscript.attribution
     )
   },
   watch: {
@@ -72,11 +72,11 @@ export default {
         // Now the full image
         const fullPageImgSrc = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
           res.color_img_file_name
-        }/info.json`
+        }.${this.$store.state.transcribe.manuscript.image_extension}/info.json`
 
         const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)
         // TODO: move to store? is this MS specific?
-        const factor = 15.9
+        const factor = this.$store.state.transcribe.manuscript.factor
         const imageLayer = pageTileLayer.addTo(this.map)
 
         const linePolygonLayer = L.polygon(

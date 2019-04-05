@@ -43,28 +43,27 @@ import TranscriptionLine from '~/components/TranscriptionLine'
 import InfoTabs from '~/components/InfoTabs'
 
 export default {
-  xlayout: 'inner',
   components: {
     TranscriptionLine,
     InfoTabs
   },
   computed: {
     line() {
-      return this.$store.state.selected_line
+      return this.$store.state.transcribe.selected_line
     }
   },
   watch: {
     line: function(res) {
       if (this.$i18n.locale === this.$i18n.defaultLocale) {
         this.$router.push(
-          `/transcribe/${this.$store.state.manuscript.name}/${res.page}/${
-            res.line
-          }`
+          `/transcribe/${this.$store.state.transcribe.manuscript.name}/${
+            res.page
+          }/${res.line}`
         )
       } else {
         this.$router.push(
           `/${this.$i18n.locale}/transcribe/${
-            this.$store.state.manuscript.name
+            this.$store.state.transcribe.manuscript.name
           }/${res.page}/${res.line}`
         )
       }
@@ -72,14 +71,28 @@ export default {
   },
   // Maybe watch on line from store
   mounted() {
-    this.$store.dispatch('transcribe/getNextLine') // Later add line params
+    const routeParams = this.$route.params
+    if (routeParams && routeParams.line) {
+      this.$store.dispatch('transcribe/getLine', {
+        msId: this.$store.state.transcribe.manuscript.id,
+        page: +routeParams.page,
+        line: +routeParams.line
+      })
+    } else {
+      this.$store.dispatch(
+        'transcribe/getNextLine',
+        this.$store.state.auth.user.uid
+      ) // Later add line params
+    }
+
+    // Get manuscript content - for the instruction tabs
     const currentLang = this.$i18n.locales.find(l => {
       return l.code === this.$i18n.locale
     })
-    
+
     this.$store.dispatch('content/getManuscriptContent', {
-      manuscript: this.$store.state.manuscript.name.toLowerCase(),
-      lang:currentLang.iso
+      manuscript: this.$store.state.transcribe.manuscript.name.toLowerCase(),
+      lang: currentLang.iso
     })
   }
 }

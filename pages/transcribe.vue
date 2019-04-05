@@ -10,30 +10,29 @@ export default {
       manuscriptRequested: false
     }
   },
-  computed: {
-    manuscript() {
-      const routeParams = this.$route.params
-      if (routeParams && routeParams.manuscript) {
-        const routeManuscript = routeParams.manuscript.toLowerCase()
-        const storeManuscript =
-          this.$store.state.manuscript &&
-          this.$store.state.manuscript.name &&
-          this.$store.state.manuscript.name.toLowerCase()
+  mounted() {
+    const routeParams = this.$route.params
+    if (routeParams && routeParams.manuscript) {
+      const routeManuscript = routeParams.manuscript.toLowerCase()
+      const storeManuscript =
+        this.$store.state.transcribe.manuscript &&
+        this.$store.state.transcribe.manuscript.name &&
+        this.$store.state.transcribe.manuscript.name.toLowerCase()
 
-        if (routeManuscript === storeManuscript) {
-          return this.$store.state.manuscript
-        } else if (!this.manuscriptRequested) {
-          this.manuscriptRequested = true
-          this.$store.dispatch('transcribe/GET_MANUSCRIPT', routeManuscript)
-          return null
-        }
+      if (routeManuscript === storeManuscript) {
+        debugger;
       } else if (!this.manuscriptRequested) {
         this.manuscriptRequested = true
-        this.$store.dispatch('transcribe/GET_MANUSCRIPT')
-        return null
-      } else {
-        return this.$store.state.manuscript
+        this.$store.dispatch('transcribe/GET_MANUSCRIPT', routeManuscript)
       }
+    } else if (!this.manuscriptRequested) {
+      this.manuscriptRequested = true
+      this.$store.dispatch('transcribe/GET_MANUSCRIPT')
+    }
+  },
+  computed: {
+    manuscript() {
+      return this.$store.state.transcribe.manuscript
     }
   }
 }

@@ -2,7 +2,7 @@
   <div class="row">
     <div class="sidebar col-3">
       <div class="accordion" id="sidebarAccordion">
-        <div class="card">
+        <!-- <div class="card">
           <div class="card-header" id="headingOne">
             <h5 class="mb-0">
               <button
@@ -44,8 +44,8 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="card">
+        </div>-->
+        <!-- <div class="card">
           <div class="card-header" id="headingContent">
             <h5 class="mb-0">
               <button
@@ -86,7 +86,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div>-->
         <div class="card">
           <div class="card-header" id="headingThree">
             <h5 class="mb-0">
@@ -271,7 +271,7 @@ export default {
   },
   computed: {
     manuscript_content() {
-      const unsorted = this.$store.state.manuscript_content
+      const unsorted = this.$store.state.content.manuscript_content
       if (unsorted && unsorted.length) {
         return unsorted.sort((a, b) => {
           const textA = a.token.toUpperCase()
@@ -316,58 +316,82 @@ export default {
 
     //var tsv is the TSV file with headers
     async loadIntoFB() {
-      const users = await axios.get(`/users.json`)
-      let obj = {}
-      let user = null
-      for (let i = 180; i < users.data.length; i++) {
-        console.log(i)
-        user = users.data[i]
+      // const users = await axios.get(`/users.json`)
+      // let obj = {}
+      // let user = null
+      // for (let i = 180; i < users.data.length; i++) {
+      //   console.log(i)
+      //   user = users.data[i]
 
-        obj = {
-          userid: user.userid,
-          email: user.email,
-          age: user.age,
-          hebrewknowledge: user.hebrewknowledge,
-          midrashknowledge: user.midrashknowledge,
-          registered: new Date(user.registered),
-          contact_allowed: user.contact_allowed,
-          createdAt: ServerTimestamp()
-        }
-        if (!user.email) {
-          if (user.userid) {
-            user.email = user.userid + '@tikkoun.com'
-          }
-        }
+      //   obj = {
+      //     userid: user.userid,
+      //     email: user.email,
+      //     age: user.age,
+      //     hebrewknowledge: user.hebrewknowledge,
+      //     midrashknowledge: user.midrashknowledge,
+      //     registered: new Date(user.registered),
+      //     contact_allowed: user.contact_allowed,
+      //     createdAt: ServerTimestamp()
+      //   }
+      //   if (!user.email) {
+      //     if (user.userid) {
+      //       user.email = user.userid + '@tikkoun.com'
+      //     }
+      //   }
 
-        if (user.email) {
-          const created = await api.createUser({
-            email: user.email,
-            password: '123456'
-          })
-
-          if (created) {
-            await StoreDB.collection('users')
-              .doc(created.user.uid)
-              .set(obj, { merge: true })
-          } else {
-            //console.warn(obj)
-          }
-        }
-      }
-
-      // manuscriptsManager.getManuscriptJSON('geneva').then(res => {
-      //   const json = res.data
-      //   let obj = {}
-      //   json.forEach((item, index) => {
-      //     obj = { views: 0, transcriptions: 0, general_index: index }
-      //     Object.keys(item).forEach(key => {
-      //       if (key) {
-      //         obj[key] = item[key]
-      //       }
+      //   if (user.email) {
+      //     const created = await api.createUser({
+      //       email: user.email,
+      //       password: '123456'
       //     })
-      //     StoreDB.collection('manuscripts/woNEyuFHMZUaKNYclE8a/lines').add(obj)
-      //   })
-      // })
+
+      //     if (created) {
+      //       await StoreDB.collection('users')
+      //         .doc(created.user.uid)
+      //         .set(obj, { merge: true })
+      //     } else {
+      //       //console.warn(obj)
+      //     }
+      //   }
+      // }
+
+      manuscriptsManager.getManuscriptJSON('bnf_150').then(res => {
+        return false
+        const json = res.data
+        let obj = {}
+        let itemProps = {}
+        let filename = ''
+        let item = {}
+        for (let i = 10; i < json.length; i++) {
+          item = json[i]
+          
+            obj = { views: 0, transcriptions: 0, general_index: i }
+            Object.keys(item).forEach(key => {
+              if (key) {
+                itemProps[key] = item[key]
+              }
+            })
+
+            filename = itemProps.color_img_file_name.split('.png')[0]
+            filename = `bnf150_${filename.split('__')[1]}`
+
+            obj.lineId = +itemProps.lineID
+            obj.page = +itemProps.page
+            obj.line = +itemProps.newLineNuAlan
+            obj.top_on_page = +itemProps.top_on_page
+            obj.bottom_on_page = +itemProps.bottom_on_page
+            obj.left_on_page = +itemProps.left_on_page
+            obj.right_on_page = +itemProps.right_on_page
+            obj.AT = itemProps.AT
+            obj.GT02 = itemProps.GT2
+            obj.color_img_file_name = filename
+
+            StoreDB.collection('manuscripts/KVqHkylpQFUvkQlQrP9U/lines').add(
+              obj
+            )
+          
+        }
+      })
     },
 
     async tsvJSON() {

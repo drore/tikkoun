@@ -1,7 +1,10 @@
 <template>
   <div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <nuxt-link class="navbar-brand" :to="localePath('index')">{{ $t('main.site_name') }}</nuxt-link>
+      <nuxt-link
+        class="navbar-brand"
+        :to="localePath({name:'transcribe-manuscript-page-line'})"
+      >{{ $t('main.site_name') }}</nuxt-link>
       <button
         class="navbar-toggler"
         type="button"
@@ -20,7 +23,7 @@
             <nuxt-link
               class="nav-link"
               :to="localePath({name:'transcribe-manuscript-page-line'})"
-              v-if="$store.state.user"
+              v-if="$store.state.auth.user"
             >{{ $t('nav.start') }}</nuxt-link>
           </li>
 
@@ -68,7 +71,7 @@
               >{{ $t(`lang.${locale.code}`) }}</nuxt-link>
             </div>
           </li>
-          <li class="nav-item dropdown" v-if="$store.state.user">
+          <li class="nav-item dropdown" v-if="$store.state.auth.user">
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -79,21 +82,24 @@
               aria-expanded="false"
             >
               <img
-                :src="$store.state.user.photoURL"
+                :src="$store.state.auth.user.photoURL"
                 alt
-                v-if="!$store.state.user.isAnonymous && $store.state.user.photoURL"
+                v-if="!$store.state.auth.user.isAnonymous && $store.state.auth.user.photoURL"
                 style="height:30px;width:30px;"
               >
               <span
-                v-if="!$store.state.user.isAnonymous"
-              >{{$store.state.user.displayName || $store.state.user.email}}</span>
-              <span v-if="$store.state.user.isAnonymous">{{$t('anonymous')}}</span>
+                v-if="!$store.state.auth.user.isAnonymous"
+              >{{$store.state.auth.user.displayName || $store.state.auth.user.email}}</span>
+              <span v-if="$store.state.auth.user.isAnonymous">{{$t('anonymous')}}</span>
             </a>
 
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <nuxt-link class="dropdown-item" :to="localePath('profile')" v-if="!$store.state.user.isAnonymous">{{ $t('nav.profile') }}</nuxt-link>
-
-              <a class="dropdown-item" href="/" @click="logout">{{ $t('nav.logout') }}</a>
+              <nuxt-link
+                class="dropdown-item"
+                :to="localePath('profile')"
+                v-if="!$store.state.auth.user.isAnonymous"
+              >{{ $t('nav.profile') }}</nuxt-link>
+              <a href="javascript:;" class="dropdown-item" @click="logout">{{ $t('nav.logout') }}</a>
             </div>
           </li>
         </ul>
@@ -105,18 +111,22 @@
 export default {
   methods: {
     logout() {
-      this.$store.dispatch('auth/signOut')
-      this.$router.push('/')
+      this.$store.dispatch('auth/signOut').then(() => {
+        this.$router.push('/')
+      })
     },
     getTranscribePath() {
-      if (this.$store.state.manuscript && this.$store.state.selected_liמק) {
+      if (
+        this.$store.state.transcribe.manuscript &&
+        this.$store.state.transcribe.selected_line
+      ) {
         if (this.$i18n.locale === this.$i18n.defaultLocale) {
           return `/transcribe`
         } else {
           return `/${this.$i18n.locale}/transcribe/${
-            this.$store.state.manuscript.name
-          }/${this.$store.state.selected_line.page}/${
-            this.$store.state.selected_line.line
+            this.$store.state.transcribe.manuscript.name
+          }/${this.$store.state.transcribe.selected_line.page}/${
+            this.$store.state.transcribe.selected_line.line
           }`
         }
       } else {

@@ -54,18 +54,18 @@ export default {
   computed: {
     user() {
       const user = {}
-      user.displayName = this.$store.state.user.displayName
+      user.displayName = this.$store.state.auth.user.displayName
       return user
     },
     userLines() {
-      return this.$store.state.user.userLines
+      return this.$store.state.auth.user.userLines
     }
   },
   methods: {
     updateUserInformation() {},
     showInformationPane() {},
     showHistoryPane() {
-      this.$store.dispatch('getUserLines')
+      this.$store.dispatch('getUserLines', this.$store.state.auth.user.uid)
     }
   }
 }

@@ -18,6 +18,18 @@ export const mutations = {
   },
   loginShowSection(state, payload) {
     state.login.shown_section = payload
+  },
+  gotUserLines(state, payload) {
+    state.user.userLines = payload.docs.map(d => {
+      const data = d.data()
+      return {
+        id: d.id,
+        line: data.line,
+        page: data.page,
+        manuscript: data.manuscript,
+        transcription: data.transcription
+      }
+    })
   }
 }
 
@@ -26,8 +38,15 @@ export const actions = {
   updateUser({ commit }, user) {
     api.updateUser(user)
   },
+  loginShowSection({ commit }, section) {
+    commit('loginShowSection', section)
+  },
   setUser({ commit }, user) {
     commit('setUser', user)
+  },
+  gotUserLines({ commit }, payload) {
+    debugger
+    commit('gotUserLines', payload)
   },
   autoSignIn({ commit }, payload) {
     commit('setUser', payload)
@@ -63,12 +82,15 @@ export const actions = {
   },
 
   signOut({ commit, redirect }) {
-    auth
-      .signOut()
-      .then(() => {
-        commit('setUser', null)
-      })
-      .catch(err => console.log(err))
+    return new Promise((resolve, reject) => {
+      auth
+        .signOut()
+        .then(() => {
+          commit('setUser', null)
+          resolve()
+        })
+        .catch(err => console.log(err))
+    })
   }
 }
 

@@ -115,8 +115,8 @@ export default {
     content() {
       const content = {}
 
-      if (this.$store.state.manuscript_content.length) {
-        this.$store.state.manuscript_content.forEach(i => {
+      if (this.$store.state.content.manuscript_content.length) {
+        this.$store.state.content.manuscript_content.forEach(i => {
           content[i.token] = i.value
         })
       }
@@ -124,10 +124,10 @@ export default {
       return content
     },
     manuscript() {
-      return this.$store.state.manuscript
+      return this.$store.state.transcribe.manuscript
     },
     line() {
-      return this.$store.state.selected_line
+      return this.$store.state.transcribe.selected_line
     }
   }
 }

@@ -59,6 +59,7 @@ module.exports = {
   */
   plugins: [
     '~plugins/v-viewer.js',
+    '~plugins/fit-text.js',
     '~plugins/i18n.js',
     '~plugins/vue-wysiwyg',
     '~plugins/bootstrap-vue',
@@ -112,6 +113,7 @@ module.exports = {
   ** Build configuration
   */
   build: {
+    devTools:true,
     /*
     ** You can extend webpack config here
     */

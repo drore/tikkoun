@@ -1,8 +1,10 @@
-import { auth, GoogleProvider } from '@/plugins/firebase.js'
+import manuscriptsManager from '~/manuscriptsManager'
 import api from '@/api.js'
 
 export const state = () => ({
   selected_line: null,
+  next_line: null,
+  prev_line: null,
   manuscript: null,
   transcription: null
 })
@@ -11,18 +13,11 @@ export const mutations = {
   gotLine(state, payload) {
     state.selected_line = payload
   },
-
-  gotUserLines(state, payload) {
-    state.user.userLines = payload.docs.map(d => {
-      const data = d.data()
-      return {
-        id: d.id,
-        line: data.line,
-        page: data.page,
-        manuscript: data.manuscript,
-        transcription: data.transcription
-      }
-    })
+  gotPrevLine(state, payload) {
+    state.prev_line = payload
+  },
+  gotNextLine(state, payload) {
+    state.next_line = payload
   },
   manipulateLineByAdding(state, mark) {
     let transcription = state.transcription
@@ -102,22 +97,22 @@ export const actions = {
   manipulateLineByAdding({ commit }, mark) {
     commit('manipulateLineByAdding', mark)
   },
-  async getUserLines({ commit, state }) {
-    commit('gotUserLines', await api.getUserLines(state.user.uid))
+  async getUserLines({ dispatch }, uid) {
+    dispatch('auth/gotUserLines', await api.getUserLines(uid))
   },
-  async skip({ state, dispatch }) {
+  async skip({ state, dispatch }, user) {
     const params = {
-      uid: state.user.uid,
+      uid: user.uid,
       lineId: state.selected_line.id,
       manuscript: state.manuscript.id,
       generalIndex: state.selected_line.general_index,
-      isAnonymous: state.user.isAnonymous
+      isAnonymous: user.isAnonymous
     }
     dispatch('getNextLine', await api.markLineAsSkipped(params))
   },
-  async addTranscription({ state, dispatch }) {
+  async addTranscription({ state, dispatch }, user) {
     const params = {
-      uid: state.user.uid,
+      uid: user.uid,
       lineId: state.selected_line.id,
       line: state.selected_line.line,
       page: state.selected_line.page,
@@ -125,7 +120,7 @@ export const actions = {
       manuscript: state.manuscript.id,
       createdOn: new Date(),
       generalIndex: state.selected_line.general_index,
-      isAnonymous: state.user.isAnonymous
+      isAnonymous: user.isAnonymous
     }
     dispatch('getNextLine', await api.addTranscription(params))
   },
@@ -137,7 +132,21 @@ export const actions = {
   updateLineViewing({ commit, state }, params) {
     api.updateLineViewing(state.manuscript.id, params)
   },
-  async getNextLine({ commit, dispatch, state }) {
+
+  async getSurroundingLines({ commit, state }) {
+    const prevLine = await manuscriptsManager.getPrevLine(
+      state.manuscript.id,
+      state.selected_line.general_index
+    )
+    commit('gotNextLine', Object.assign({ id: prevLine.id }, prevLine.data))
+
+    const nextLine = await manuscriptsManager.getNextLine(
+      state.manuscript.id,
+      state.selected_line.general_index
+    )
+    commit('gotPrevLine', Object.assign({ id: nextLine.id }, nextLine.data))
+  },
+  async getNextLine({ commit, dispatch, state }, uid) {
     let promise
     // In case it is already seeded
     if (state.selected_line) {
@@ -148,10 +157,7 @@ export const actions = {
     } else {
       // For the specific user!
       // First look at the user profile, see if we have his last line
-      const userNextLine = await api.getUserNextLine(
-        state.manuscript.id,
-        state.user.uid
-      )
+      const userNextLine = await api.getUserNextLine(state.manuscript.id, uid)
 
       if (userNextLine) {
         // Now, is this line matches the conditions? (less then 20 actions)
@@ -187,28 +193,24 @@ export const actions = {
       dispatch('updateLineViewing', {
         lineId: res.id,
         viewCounter: res.data.views || 0,
-        uid: state.user.uid
+        uid: uid
       })
       commit('gotLine', Object.assign({ id: res.id }, res.data))
+      //dispatch('getSurroundingLines')
     })
   },
-  getLine({ commit, dispatch, state }) {
+  getLine({ commit, dispatch, state }, params) {
     manuscriptsManager
-      .getLine(
-        state.manuscript.id,
-        state.manuscript.next_page,
-        state.manuscript.next_line
-      )
+      .getLine(params.msId, params.page, params.line)
       .then(res => {
         dispatch('updateLineViewing', {
           lineId: res.id,
           viewCounter: res.data.views || 0
         })
+
         commit('gotLine', Object.assign({ id: res.id }, res.data))
+        //dispatch('getSurroundingLines')
       })
-  },
-  loginShowSection({ commit }, section) {
-    commit('loginShowSection', section)
   }
 }
 

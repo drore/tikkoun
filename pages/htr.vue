@@ -1,17 +1,9 @@
 <template>
   <div class="container">
-    <div v-html="content"></div>
+    <div v-html="$t('content.htr')"></div>
   </div>
 </template>
-<script>
-export default {
-  computed: {
-    content() {
-      return this.$store.state.content.htr
-    }
-  }
-}
-</script>
+
 
 <style>
 .tabContentTitle {

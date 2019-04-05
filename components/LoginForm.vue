@@ -43,9 +43,9 @@
           </a>
           <div class="d-flex justify-content-between">
             <div>
-              <a href="#" @click="showRegistration">{{$t('login.login_area.register')}}</a>
+              <a href="javascript:;" @click="showRegistration">{{$t('login.login_area.register')}}</a>
             </div>
-            <a href="#" @click="enterAsGuest">{{$t('login.login_area.geust')}}</a>
+            <a href="javascript:;" @click="enterAsGuest">{{$t('login.login_area.geust')}}</a>
           </div>
         </div>
 
@@ -73,8 +73,9 @@ export default {
       this.$store.dispatch('auth/loginShowSection', 'registration')
     },
     enterAsGuest() {
+      console.debug("Signing in as guest")
       this.$store.dispatch('auth/loginAnonymously').then(() => {
-        debugger
+        console.debug("Rerouting to transcribe")
         this.$router.push('/transcribe')
       })
     },
