@@ -87,6 +87,33 @@
             </div>
           </div>
         </div>-->
+        <!-- <div class="card">
+          <div class="card-header" id="utilitiesHeading">
+            <h5 class="mb-0">
+              <button
+                class="btn btn-link"
+                type="button"
+                data-toggle="collapse"
+                data-target="#utilities"
+                aria-expanded="true"
+                aria-controls="utilities"
+              >{{$t('utilities')}}</button>
+            </h5>
+          </div>
+
+          <div
+            id="utilities"
+            class="collapse"
+            aria-labelledby="utilitiesHeading"
+            data-parent="#sidebarAccordion"
+          >
+            <div class="card-body">
+        <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>
+        <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
+              <hr>
+            </div>
+          </div>
+        </div>-->
         <div class="card">
           <div class="card-header" id="headingThree">
             <h5 class="mb-0">
@@ -121,38 +148,11 @@
                 <hr>
                 <ul class="manuscript_content_tokens">
                   <li
-                    v-for="contentItem in manuscript_content"
+                    v-for="(contentItem,i) in manuscript_content" :key="i"
                     @click="editMSContentItem(contentItem)"
                   >{{contentItem.token}}</li>
                 </ul>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header" id="utilitiesHeading">
-            <h5 class="mb-0">
-              <button
-                class="btn btn-link"
-                type="button"
-                data-toggle="collapse"
-                data-target="#utilities"
-                aria-expanded="true"
-                aria-controls="utilities"
-              >{{$t('utilities')}}</button>
-            </h5>
-          </div>
-
-          <div
-            id="utilities"
-            class="collapse"
-            aria-labelledby="utilitiesHeading"
-            data-parent="#sidebarAccordion"
-          >
-            <div class="card-body">
-              <!-- <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a> -->
-              <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
-              <hr>
             </div>
           </div>
         </div>
@@ -265,35 +265,13 @@ export default {
       msContentItem: null,
       translation: null,
       lang: 'en-US',
-      manuscript: 'geneva',
+      manuscript: 'bnf150',
       showWysiwyg: true
     }
   },
   computed: {
     manuscript_content() {
-      const unsorted = this.$store.state.content.manuscript_content
-      if (unsorted && unsorted.length) {
-        return unsorted.sort((a, b) => {
-          const textA = a.token.toUpperCase()
-          const textB = b.token.toUpperCase()
-          return textA < textB ? -1 : textA > textB ? 1 : 0
-        })
-      }
-      return unsorted
-    },
-    content() {
-      const unsorted = this.$store.state.content
-      if (unsorted && unsorted.length) {
-        return unsorted.sort((a, b) => {
-          const textA = a.token.toUpperCase()
-          const textB = b.token.toUpperCase()
-          return textA < textB ? -1 : textA > textB ? 1 : 0
-        })
-      }
-      return unsorted
-    },
-    translations() {
-      const unsorted = this.$store.state.translations
+      const unsorted = Object.assign({},this.$store.state.content.manuscript_content)
       if (unsorted && unsorted.length) {
         return unsorted.sort((a, b) => {
           const textA = a.token.toUpperCase()
@@ -303,6 +281,28 @@ export default {
       }
       return unsorted
     }
+    // content() {
+    //   const unsorted = this.$store.state.content
+    //   if (unsorted && unsorted.length) {
+    //     return unsorted.sort((a, b) => {
+    //       const textA = a.token.toUpperCase()
+    //       const textB = b.token.toUpperCase()
+    //       return textA < textB ? -1 : textA > textB ? 1 : 0
+    //     })
+    //   }
+    //   return unsorted
+    // },
+    // translations() {
+    //   const unsorted = this.$store.state.translations
+    //   if (unsorted && unsorted.length) {
+    //     return unsorted.sort((a, b) => {
+    //       const textA = a.token.toUpperCase()
+    //       const textB = b.token.toUpperCase()
+    //       return textA < textB ? -1 : textA > textB ? 1 : 0
+    //     })
+    //   }
+    //   return unsorted
+    // }
   },
   methods: {
     // Manuscript content
@@ -315,105 +315,105 @@ export default {
     },
 
     //var tsv is the TSV file with headers
-    async loadIntoFB() {
-      // const users = await axios.get(`/users.json`)
-      // let obj = {}
-      // let user = null
-      // for (let i = 180; i < users.data.length; i++) {
-      //   console.log(i)
-      //   user = users.data[i]
+    //async loadIntoFB() {
+    // const users = await axios.get(`/users.json`)
+    // let obj = {}
+    // let user = null
+    // for (let i = 180; i < users.data.length; i++) {
+    //   console.log(i)
+    //   user = users.data[i]
 
-      //   obj = {
-      //     userid: user.userid,
-      //     email: user.email,
-      //     age: user.age,
-      //     hebrewknowledge: user.hebrewknowledge,
-      //     midrashknowledge: user.midrashknowledge,
-      //     registered: new Date(user.registered),
-      //     contact_allowed: user.contact_allowed,
-      //     createdAt: ServerTimestamp()
-      //   }
-      //   if (!user.email) {
-      //     if (user.userid) {
-      //       user.email = user.userid + '@tikkoun.com'
-      //     }
-      //   }
+    //   obj = {
+    //     userid: user.userid,
+    //     email: user.email,
+    //     age: user.age,
+    //     hebrewknowledge: user.hebrewknowledge,
+    //     midrashknowledge: user.midrashknowledge,
+    //     registered: new Date(user.registered),
+    //     contact_allowed: user.contact_allowed,
+    //     createdAt: ServerTimestamp()
+    //   }
+    //   if (!user.email) {
+    //     if (user.userid) {
+    //       user.email = user.userid + '@tikkoun.com'
+    //     }
+    //   }
 
-      //   if (user.email) {
-      //     const created = await api.createUser({
-      //       email: user.email,
-      //       password: '123456'
-      //     })
+    //   if (user.email) {
+    //     const created = await api.createUser({
+    //       email: user.email,
+    //       password: '123456'
+    //     })
 
-      //     if (created) {
-      //       await StoreDB.collection('users')
-      //         .doc(created.user.uid)
-      //         .set(obj, { merge: true })
-      //     } else {
-      //       //console.warn(obj)
-      //     }
-      //   }
-      // }
+    //     if (created) {
+    //       await StoreDB.collection('users')
+    //         .doc(created.user.uid)
+    //         .set(obj, { merge: true })
+    //     } else {
+    //       //console.warn(obj)
+    //     }
+    //   }
+    // }
 
-      manuscriptsManager.getManuscriptJSON('bnf_150').then(res => {
-        return false
-        const json = res.data
-        let obj = {}
-        let itemProps = {}
-        let filename = ''
-        let item = {}
-        for (let i = 10; i < json.length; i++) {
-          item = json[i]
-          
-            obj = { views: 0, transcriptions: 0, general_index: i }
-            Object.keys(item).forEach(key => {
-              if (key) {
-                itemProps[key] = item[key]
-              }
-            })
+    //   manuscriptsManager.getManuscriptJSON('bnf_150').then(res => {
+    //     return false
+    //     const json = res.data
+    //     let obj = {}
+    //     let itemProps = {}
+    //     let filename = ''
+    //     let item = {}
+    //     for (let i = 10; i < json.length; i++) {
+    //       item = json[i]
 
-            filename = itemProps.color_img_file_name.split('.png')[0]
-            filename = `bnf150_${filename.split('__')[1]}`
+    //         obj = { views: 0, transcriptions: 0, general_index: i }
+    //         Object.keys(item).forEach(key => {
+    //           if (key) {
+    //             itemProps[key] = item[key]
+    //           }
+    //         })
 
-            obj.lineId = +itemProps.lineID
-            obj.page = +itemProps.page
-            obj.line = +itemProps.newLineNuAlan
-            obj.top_on_page = +itemProps.top_on_page
-            obj.bottom_on_page = +itemProps.bottom_on_page
-            obj.left_on_page = +itemProps.left_on_page
-            obj.right_on_page = +itemProps.right_on_page
-            obj.AT = itemProps.AT
-            obj.GT02 = itemProps.GT2
-            obj.color_img_file_name = filename
+    //         filename = itemProps.color_img_file_name.split('.png')[0]
+    //         filename = `bnf150_${filename.split('__')[1]}`
 
-            StoreDB.collection('manuscripts/KVqHkylpQFUvkQlQrP9U/lines').add(
-              obj
-            )
-          
-        }
-      })
-    },
+    //         obj.lineId = +itemProps.lineID
+    //         obj.page = +itemProps.page
+    //         obj.line = +itemProps.newLineNuAlan
+    //         obj.top_on_page = +itemProps.top_on_page
+    //         obj.bottom_on_page = +itemProps.bottom_on_page
+    //         obj.left_on_page = +itemProps.left_on_page
+    //         obj.right_on_page = +itemProps.right_on_page
+    //         obj.AT = itemProps.AT
+    //         obj.GT02 = itemProps.GT2
+    //         obj.color_img_file_name = filename
 
-    async tsvJSON() {
-      // const tsv = await manuscriptsManager.getManuscriptTSV('BNF150_all_data_for_alan')
-      // debugger
-      // if(tsv){
-      //   const lines = tsv.split('\n')
-      // const result = []
-      // const headers = lines[0].split('\t')
-      // for (var i = 1; i < lines.length; i++) {
-      //     const obj = {}
-      //     const currentline = lines[i].split('\t')
-      //     for (var j = 0; j < headers.length; j++) {
-      //       obj[headers[j]] = currentline[j]
-      //     }
-      //     result.push(obj)
-      //     }
-      //  debugger
-      //  //return result; //JavaScript object
-      //   return JSON.stringify(result) //JSON
-      // }
-    },
+    //         StoreDB.collection('manuscripts/KVqHkylpQFUvkQlQrP9U/lines').add(
+    //           obj
+    //         )
+
+    //     }
+    //   })
+    // },
+
+    //async tsvJSON() {
+    // const tsv = await manuscriptsManager.getManuscriptTSV('BNF150_all_data_for_alan')
+    // debugger
+    // if(tsv){
+    //   const lines = tsv.split('\n')
+    // const result = []
+    // const headers = lines[0].split('\t')
+    // for (var i = 1; i < lines.length; i++) {
+    //     const obj = {}
+    //     const currentline = lines[i].split('\t')
+    //     for (var j = 0; j < headers.length; j++) {
+    //       obj[headers[j]] = currentline[j]
+    //     }
+    //     result.push(obj)
+    //     }
+    //  debugger
+    //  //return result; //JavaScript object
+    //   return JSON.stringify(result) //JSON
+    // }
+    //},
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)
     },

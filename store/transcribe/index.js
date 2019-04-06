@@ -132,20 +132,6 @@ export const actions = {
   updateLineViewing({ commit, state }, params) {
     api.updateLineViewing(state.manuscript.id, params)
   },
-
-  async getSurroundingLines({ commit, state }) {
-    const prevLine = await manuscriptsManager.getPrevLine(
-      state.manuscript.id,
-      state.selected_line.general_index
-    )
-    commit('gotNextLine', Object.assign({ id: prevLine.id }, prevLine.data))
-
-    const nextLine = await manuscriptsManager.getNextLine(
-      state.manuscript.id,
-      state.selected_line.general_index
-    )
-    commit('gotPrevLine', Object.assign({ id: nextLine.id }, nextLine.data))
-  },
   async getNextLine({ commit, dispatch, state }, uid) {
     let promise
     // In case it is already seeded
@@ -196,7 +182,6 @@ export const actions = {
         uid: uid
       })
       commit('gotLine', Object.assign({ id: res.id }, res.data))
-      //dispatch('getSurroundingLines')
     })
   },
   getLine({ commit, dispatch, state }, params) {
@@ -209,7 +194,6 @@ export const actions = {
         })
 
         commit('gotLine', Object.assign({ id: res.id }, res.data))
-        //dispatch('getSurroundingLines')
       })
   }
 }

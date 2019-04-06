@@ -1,12 +1,6 @@
 <template>
   <div>
     <div id="v-viewer-container">
-      <div class="bgImages">
-        <img :src="prevLineImage" alt="Previous line" v-if="prevLineImage" class="bw">
-        <img :src="currLineImage" alt="Current line">
-        <img :src="nextLineImage" alt="Next line" v-if="nextLineImage" class="bw">
-      </div>
-
       <div
         v-if="!line"
         style="font-size:20px;text-align:center;width:100%"
@@ -33,47 +27,7 @@
         </template>
       </viewer>
     </div>
-    <!-- <div class="d-flex justify-content-between">
-      <div>
-        <label for="contrast">{{$t('contrast')}}</label>
-        <input
-          type="range"
-          class="custom-range"
-          id="contrast"
-          value="1"
-          @change="changeImage('contrast')"
-          min="0.5"
-          step="0.1"
-          max="2.5"
-        >
-      </div>
-      <div>
-        <label for="brightness">{{$t('brightness')}}</label>
-        <input
-          type="range"
-          class="custom-range"
-          id="brightness"
-          @change="changeImage('brightness')"
-          min="0.5"
-          step="0.1"
-          value="1"
-          max="2.5"
-        >
-      </div>
-      <div>
-        <label for="invert">{{$t('invert')}}</label>
-        <input
-          type="range"
-          class="custom-range"
-          id="invert"
-          @change="changeImage('invert')"
-          min="0"
-          step="0.1"
-          value="0"
-          max="1"
-        >
-      </div>
-    </div>-->
+
     <div style="margin-top:20px">
       <input
         id="trw"
@@ -202,9 +156,6 @@ export default {
   data() {
     return {
       fitTextFactor: 2.5,
-      prevLineImage: null,
-      nextLineImage: null,
-      currLineImage: null,
       imagefilters: { contrast: 1, brightness: 1, invert: 0 },
       viewer: null,
       images: [],
@@ -236,75 +187,14 @@ export default {
     line() {
       return this.$store.state.transcribe.selected_line
     },
-    // prevLine() {
-    //   return this.$store.state.transcribe.prev_line
-    // },
-    // nextLine() {
-    //   return this.$store.state.transcribe.next_line
-    // },
     transcription() {
       return this.$store.state.transcribe.transcription
     }
   },
   watch: {
-    prevLine: function(res) {
-      if (res) {
-        this.color_img_file_name = res.color_img_file_name
-        this.polygonObj = {
-          top: res.top_on_page,
-          bottom: res.bottom_on_page,
-          left: res.left_on_page,
-          right: res.right_on_page
-        }
-
-        this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
-        this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
-
-        const elemWidth = parseInt($('#work-page').width()) * 3
-
-        // The scheme is left, top, width, height
-        this.prevLineImage = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
-          this.color_img_file_name
-        }.${this.$store.state.transcribe.manuscript.image_extension}/${
-          this.polygonObj.left
-        },${this.polygonObj.top},${this.polygonObj.width},${
-          this.polygonObj.height
-        }/${elemWidth},/0/default.${
-          this.$store.state.transcribe.manuscript.image_extension
-        }`
-      }
-    },
-    nextLine: function(res) {
-      if (res) {
-        this.color_img_file_name = res.color_img_file_name
-        this.polygonObj = {
-          top: res.top_on_page,
-          bottom: res.bottom_on_page,
-          left: res.left_on_page,
-          right: res.right_on_page
-        }
-
-        this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
-        this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
-
-        const elemWidth = parseInt($('#work-page').width()) * 3
-
-        // The scheme is left, top, width, height
-        this.nextLineImage = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
-          this.color_img_file_name
-        }.${this.$store.state.transcribe.manuscript.image_extension}/${
-          this.polygonObj.left
-        },${this.polygonObj.top},${this.polygonObj.width},${
-          this.polygonObj.height
-        }/${elemWidth},/0/default.${
-          this.$store.state.transcribe.manuscript.image_extension
-        }`
-      }
-    },
     // whenever question changes, this function will run
     line: function(res) {
       if (res) {
-        
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
         // For geneva, strip the file extension
         if (res.color_img_file_name.indexOf('.jpg') != -1) {
@@ -330,47 +220,45 @@ export default {
         const endPart = `${elemWidth},/0/default.${
           this.$store.state.transcribe.manuscript.image_extension
         }`
+
+        const extendedImgFactor = 10
+        const widthFactor = extendedImgFactor
+        const heightFactor = extendedImgFactor / 4
+
         // The scheme is left, top, width, height
-        this.currLineImage = `${imageFilePart}${this.polygonObj.left},${
-          this.polygonObj.top
-        },${this.polygonObj.width},${this.polygonObj.height}/${endPart}`
+        let left = this.polygonObj.left - this.polygonObj.width / widthFactor
+        left = left < 0 ? 0 : left
+
+        let top = this.polygonObj.top - this.polygonObj.height / heightFactor
+        top = top < 0 ? 0 : top
+
+        const extendedHeight =
+          this.polygonObj.height * ((heightFactor + 2) / heightFactor)
+
+        const extendedWidth =
+          this.polygonObj.width * ((widthFactor + 2) / widthFactor)
+
+        this.currLineImage = `${imageFilePart}${left},${top},${extendedWidth},${extendedHeight}/${endPart}`
         this.images = [this.currLineImage]
 
-        this.prevLineImage = `${imageFilePart}${this.polygonObj.left},${this
-          .polygonObj.top - this.polygonObj.height},${this.polygonObj.width},${
-          this.polygonObj.height
-        }/${endPart}`
-
-        this.nextLineImage = `${imageFilePart}${this.polygonObj.left},${this
-          .polygonObj.top + this.polygonObj.height},${this.polygonObj.width},${
-          this.polygonObj.height
-        }/${endPart}`
+        $('#v-viewer-container').height(
+          extendedHeight / this.$store.state.transcribe.manuscript.factor
+        )
       }
     }
   },
 
   methods: {
-    changeImage(property) {
-      this.imagefilters[property] = event.target.value
-      let filterString = ''
-      for (let filter in this.imagefilters) {
-        filterString = filterString + ` ${filter}(${this.imagefilters[filter]})`
-      }
-
-      $('.viewer-canvas>img').css({
-        filter: filterString
-      })
-    },
     viewerInited(viewer) {
       const self = this
       self.viewer = viewer
-      self.viewer.options.viewed = function() {
-        const lineImageRatio =
-          $('#original-line-image').width() / $('#original-line-image').height()
+      self.viewer.options.viewed = function(event) {
+        const image = event.detail.image
+        const originalImage = event.detail.originalImage
+        const ratio = originalImage.width / this.viewer.element.offsetWidth
+        self.viewer.zoomTo(1 / ratio)
+        self.viewer.moveTo(0, -image.height*0.2)
 
-        const ratio =
-          $(self.viewer.element).width() / $('#original-line-image').width()
-        self.viewer.zoomTo(ratio * 0.9)
         // Adjust the font size inside the input
         self.resetFontSize()
       }
@@ -426,19 +314,10 @@ export default {
   height: 10vh;
 }
 
-.viewer-canvas > img {
-  box-shadow: rgb(51, 51, 51) 0px 0px 5px 5px;
-}
 #v-viewer-container {
-  min-height: 10vh;
+  min-height: 5vw;
   border: 1px solid #888;
   overflow: hidden;
-  .bgImages {
-    & > img {
-      width: 100%;
-      filter: grayscale(100%);
-    }
-  }
 }
 .line-image-buttons {
   display: flex;
