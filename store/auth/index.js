@@ -70,7 +70,7 @@ export const actions = {
       })
   },
   createUserWithEmailAndPassword({ commit }, params) {
-    auth
+    return auth
       .createUserWithEmailAndPassword(params.email, params.password)
       .catch(function(error) {
         //debugger

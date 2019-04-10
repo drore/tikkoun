@@ -94,8 +94,8 @@ module.exports = {
             file: 'fr-FR.js'
           }
         ],
-        strategy: 'prefix_except_default',
-        defaultLocale: 'en',
+        strategy: 'prefix_and_default',
+        defaultLocale: 'he',
         lazy: true,
         langDir: 'lang/'
       }

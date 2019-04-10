@@ -81,15 +81,16 @@ export default () => {
       'register_screen.require': 'דרוש',
       'register_screen.demographics': 'Demographics (Optional)',
       'register_screen.DoB': 'תאריך לידה',
-      'register_screen.Hebrew': 'רמת ידע עברית',
-      'register_screen.none_Hebrew': 'אינני דובר/ת עברית כלל',
-      'register_screen.knowledgable_Hebrew': 'דובר/ת עברית רהוטה',
-      'register_screen.Midrash': 'ידע במדרש',
-      'register_screen.none_Midrash': 'ללא היכרות מוקדמת',
-      'register_screen.knowledgable_Midrash': 'בקיאות רבע במדרש',
+      'register_screen.hebrew': 'רמת ידע עברית',
+      'register_screen.none_hebrew': 'אינני דובר/ת כלל',
+      'register_screen.knowledgable_hebrew': 'דובר/ת עברית רהוטה',
+      'register_screen.midrash': 'ידע במדרש',
+      'register_screen.none_midrash': 'ללא היכרות מוקדמת',
+      'register_screen.knowledgable_midrash': 'בקיאות רבה',
       'register_screen.invalid':
         'User name already exists in the system. Please try another one',
-      'register_screen.contact': 'אישור יצירת קשר באימייל'
+      'register_screen.contact': 'אישור יצירת קשר באימייל',
+      'register_screen.show_extra_details':'פרטים נוספים (רשות)'
     }
 
     translations.content = {}

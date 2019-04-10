@@ -28,14 +28,12 @@ export default {
   },
   updateUser(user) {
     if (!user.isAnonymous) {
+      let obj = Object.assign({ lastLogin: ServerTimestamp() }, user)
+      if (user.isNewUser) {
+        obj.createAt = ServerTimestamp()
+      }
       const usersRef = StoreDB.collection('users')
-      usersRef.doc(user.uid).set(
-        {
-          displayName: user.displayName,
-          lastLogin: ServerTimestamp()
-        },
-        { merge: true }
-      )
+      usersRef.doc(user.uid).set(obj, { merge: true })
     }
   },
   getManuscript(name) {

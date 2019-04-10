@@ -87,16 +87,17 @@ export default () => {
       'register_screen.demographics':
         'Informations suppl\u00E9mentaires (optionnel)',
       'register_screen.DoB': '\u00E2ge',
-      'register_screen.Hebrew': 'Connaissance de l&#39;h\u00E9breu',
-      'register_screen.none_Hebrew': 'aucune',
-      'register_screen.knowledgable_Hebrew': 'tr\u00E8s bonne ma\u00EEtrise',
-      'register_screen.Midrash': 'Connaissance du Midrash',
-      'register_screen.none_Midrash': 'aucune',
-      'register_screen.knowledgable_Midrash': 'tr\u00E8s bonne connaissance',
+      'register_screen.hebrew': 'Connaissance de l&#39;h\u00E9breu',
+      'register_screen.none_hebrew': 'aucune',
+      'register_screen.knowledgable_hebrew': 'tr\u00E8s bonne ma\u00EEtrise',
+      'register_screen.midrash': 'Connaissance du Midrash',
+      'register_screen.none_midrash': 'aucune',
+      'register_screen.knowledgable_midrash': 'tr\u00E8s bonne connaissance',
       'register_screen.invalid':
         'Identifiant existe d\u00E9j\u00E0 dans le syst\u00E8me. S&#39;il vous pla\u00EEt essayer un autre',
       'register_screen.contact':
-        'Est-ce que vous nous autorisez de vous contacter par e-mail?'
+        'Est-ce que vous nous autorisez de vous contacter par e-mail?',
+        'register_screen.show_extra_details':'Additional details'
     }
     translations.content = {}
     // TEAM

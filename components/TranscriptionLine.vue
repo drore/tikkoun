@@ -155,6 +155,8 @@ import { setTimeout } from 'timers'
 export default {
   data() {
     return {
+      nextLine: null,
+      prevLine: null,
       fitTextFactor: 2.5,
       imagefilters: { contrast: 1, brightness: 1, invert: 0 },
       viewer: null,
@@ -229,20 +231,18 @@ export default {
         let left = this.polygonObj.left - this.polygonObj.width / widthFactor
         left = left < 0 ? 0 : left
 
-        let top = this.polygonObj.top - this.polygonObj.height / heightFactor
-        top = top < 0 ? 0 : top
-
-        const extendedHeight =
-          this.polygonObj.height * ((heightFactor + 2) / heightFactor)
-
         const extendedWidth =
           this.polygonObj.width * ((widthFactor + 2) / widthFactor)
 
-        this.currLineImage = `${imageFilePart}${left},${top},${extendedWidth},${extendedHeight}/${endPart}`
+        const width = this.polygonObj.width
+        const height = this.polygonObj.height
+
+        this.currLineImage = `${imageFilePart}${left},${this.polygonObj.top},${extendedWidth},${this.polygonObj.height}/${endPart}`
+       
         this.images = [this.currLineImage]
 
         $('#v-viewer-container').height(
-          extendedHeight / this.$store.state.transcribe.manuscript.factor
+          this.polygonObj.height / this.$store.state.transcribe.manuscript.factor
         )
       }
     }
@@ -257,7 +257,7 @@ export default {
         const originalImage = event.detail.originalImage
         const ratio = originalImage.width / this.viewer.element.offsetWidth
         self.viewer.zoomTo(1 / ratio)
-        self.viewer.moveTo(0, -image.height*0.2)
+        self.viewer.moveTo(0, 15)
 
         // Adjust the font size inside the input
         self.resetFontSize()
@@ -315,7 +315,7 @@ export default {
 }
 
 #v-viewer-container {
-  min-height: 5vw;
+  min-height: 10vw;
   border: 1px solid #888;
   overflow: hidden;
 }

@@ -84,15 +84,16 @@ export default () => {
       'register_screen.require': 'required',
       'register_screen.demographics': 'Demographics (Optional)',
       'register_screen.DoB': 'Date of Birth',
-      'register_screen.Hebrew': 'Knowledge of Hebrew',
-      'register_screen.none_Hebrew': 'None',
-      'register_screen.knowledgable_Hebrew': 'Very knowledgable',
-      'register_screen.Midrash': 'Knowledge of Midrashim',
-      'register_screen.none_Midrash': 'None',
-      'register_screen.knowledgable_Midrash': 'Very knowledgable',
+      'register_screen.hebrew': 'Knowledge of Hebrew',
+      'register_screen.none_hebrew': 'None',
+      'register_screen.knowledgable_hebrew': 'Very knowledgable',
+      'register_screen.midrash': 'Knowledge of Midrashim',
+      'register_screen.none_midrash': 'None',
+      'register_screen.knowledgable_midrash': 'Very knowledgable',
       'register_screen.invalid':
         'User name already exists in the system. Please try another one',
-      'register_screen.contact': 'Contact you via e-mail'
+      'register_screen.contact': 'Contact you via e-mail',
+      'register_screen.show_extra_details':'Additional details'
     }
     translations.content = {}
     // TEAM
