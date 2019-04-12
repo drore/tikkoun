@@ -31,6 +31,7 @@ export default () => {
       'login.login_area.geust': 'Enter as guest',
       'login.login_area.invalid': 'Invalid Credentials!',
       'main.data_area.page': 'Page',
+      manuscripts:'Manuscript',
       'main.data_area.alphabet': 'Alphabet',
       'main.data_area.issues': 'Special Characters',
       'main.data_area.editing': 'Editing symbols',
@@ -48,6 +49,10 @@ export default () => {
       'main.work_area.button_3': '</>',
       'main.work_area.button_4': '{?}',
       'main.work_area.button_5': '↺',
+      'wrong_creds':'Wrong credentials',
+      'reset_password':'Reset Password',
+      'version_text':'You are using a new version of Tikkoun-Sofrim. If you encounter problems please e-mail us.',
+      'support':'Support',
       'main.work_area.finish_line_1':
         'If all errors are corrected, or if no errors found, press Done',
       'main.work_area.finish_line_2':

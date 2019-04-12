@@ -17,20 +17,29 @@ export default {
         console.error(userData.email)
       })
   },
+  getAllUsers(){
+    return StoreDB.collection('users').get()
+  },
   // General content
   getContent(lang) {
     return StoreDB.collection('content')
       .where('lang', '==', lang)
       .get()
   },
+  sendResetPasswordMail(emailAddress){
+    return auth.sendPasswordResetEmail(emailAddress);
+  },
   updateContentItem(contentItem) {
     return this.updateDocument('content', contentItem.id, contentItem)
+  },
+  getUser(uid){
+    return StoreDB.doc(`users/${uid}`).get()
   },
   updateUser(user) {
     if (!user.isAnonymous) {
       let obj = Object.assign({ lastLogin: ServerTimestamp() }, user)
       if (user.isNewUser) {
-        obj.createAt = ServerTimestamp()
+        obj.createOn = ServerTimestamp()
       }
       const usersRef = StoreDB.collection('users')
       usersRef.doc(user.uid).set(obj, { merge: true })

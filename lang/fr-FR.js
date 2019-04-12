@@ -3,10 +3,8 @@ export default () => {
     const translations = {
       dir: 'ltr',
       'main.site_name': 'Tikkoun Sofrim',
-      'banner.encourgement.line_1':
-        `Contribuez à l'étude des manuscrits hébraïques anciens !`,
-      'banner.encourgement.line_2':
-        `Mettez vos talents à l'épreuve de la transcription`,
+      'banner.encourgement.line_1': `Contribuez à l'étude des manuscrits hébraïques anciens !`,
+      'banner.encourgement.line_2': `Mettez vos talents à l'épreuve de la transcription`,
       'nav.about': `À propos`,
       'nav.project': 'Le Projet',
       'nav.htr': "Qu'est-ce que l'HTR ?",
@@ -15,7 +13,7 @@ export default () => {
       'nav.logout': 'Se déconnecter',
       'nav.profile': 'Profile',
       'nav.start': 'Je participe !',
-      'nav.conversation':``,
+      'nav.conversation': ``,
       'lang.en': 'English',
       'lang.he': 'Hebrew',
       'lang.fr': 'French',
@@ -39,44 +37,36 @@ export default () => {
       'main.work_area.video': 'https://www.youtube.com/watch?v=Gwb751U6MVk',
       'main.work_area.video_hover': 'Tutoriel vid\u00E9o',
       'main.work_area.video_text': 'Pour un tutoriel voir &#127910; ',
-      'main.work_area.intro_line_1':
-        `Voici une transcription automatique. Veuillez corriger toute erreur que vous pourriez identifier dans l'encadré du texte. `,
-      'main.work_area.intro_line_2':
-        `Merci de corriger des lettres erronnées, manquantes ou mal lues, ainsi que les espaces superflus ou manquants.`,
-        'main.work_area.button_1': '(-)',
-        'main.work_area.button_2': '[+]',
-        'main.work_area.button_3': '</>',
-        'main.work_area.button_4': '{?}',
-        'main.work_area.button_5': '↺',
-      'main.work_area.finish_line_1':
-        `Après avoir corrigé toutes les erreurs, ou si la transcription n'en comportait aucune, cliquez sur "Terminé".`,
-      'main.work_area.finish_line_2':
-        `Si vous souhaitez passer cette ligne sans la corriger, cliquez sur "Passer".`,
+      'main.work_area.intro_line_1': `Voici une transcription automatique. Veuillez corriger toute erreur que vous pourriez identifier dans l'encadré du texte. `,
+      'main.work_area.intro_line_2': `Merci de corriger des lettres erronnées, manquantes ou mal lues, ainsi que les espaces superflus ou manquants.`,
+      'main.work_area.button_1': '(-)',
+      'main.work_area.button_2': '[+]',
+      'main.work_area.button_3': '</>',
+      'main.work_area.button_4': '{?}',
+      'main.work_area.button_5': '↺',
+      manuscripts:'Manuscript',
+      'main.work_area.finish_line_1': `Après avoir corrigé toutes les erreurs, ou si la transcription n'en comportait aucune, cliquez sur "Terminé".`,
+      wrong_creds: 'identifiant ou mot de passe incorrect',
+      'main.work_area.finish_line_2': `Si vous souhaitez passer cette ligne sans la corriger, cliquez sur "Passer".`,
       'main.work_area.finish_button_1': 'Termin\u00E9',
       'main.work_area.finish_button_2': 'Passer',
+      'reset_password':'Réinitialiser un mot de passe',
       'main.work_area.Good_bye_Message1': 'Merci de votre aide ! ',
+      'version_text':'You are using a new version of Tikkoun-Sofrim. If you encounter problems please e-mail us.',
+      'support':'Support',
       'main.work_area.Good_bye_Message2':
         'Les nombre the lignes que vous avez corrig\u00E9:',
       'main.work_area.hovers.over_reset':
         'Revenir \u00E0 la transcription automatique.',
-      'main.work_area.hovers.over_additions':
-        `Signaler un ajout. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
-      'main.work_area.hovers.over_deletions':
-        `Signaler une suppression. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
-      'main.work_area.hovers.over_uncertain':
-        `Signaler comme incertain. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
-      'main.work_area.hovers.over_damaged':
-        `Signaler un texte endommagé. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
-      'main.work_area.hovers.over_ligature':
-        `Signaler une ligature Aleph-Lamed. Besoin d'aide ? Référez-vous à l'onglet "Caractères spéciaux" sur la gauche.`,
-      'main.work_area.hovers.over_upper':
-        `Signaler un point supérieur à la fin d'une phrase. Besoin d'aide ? Référez-vous à l'onglet "Caractères spéciaux" sur la gauche.`,
-      'main.work_area.hovers.over_line_fillers':
-        `Signaler un remplisseur de ligne. Besoin d'aide ? Référez-vous à l'onglet "Caractères spéciaux" sur la gauche.`,
-      'main.work_area.hovers.over_alef_plus':
-        `Agrandir la taille de la police.`,
-      'main.work_area.hovers.over_alef_minus':
-        `Réduire la taille de la police.`,
+      'main.work_area.hovers.over_additions': `Signaler un ajout. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
+      'main.work_area.hovers.over_deletions': `Signaler une suppression. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
+      'main.work_area.hovers.over_uncertain': `Signaler comme incertain. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
+      'main.work_area.hovers.over_damaged': `Signaler un texte endommagé. Besoin d'aide ? Référez-vous à l'onglet "Marquage éditorial" sur la gauche.`,
+      'main.work_area.hovers.over_ligature': `Signaler une ligature Aleph-Lamed. Besoin d'aide ? Référez-vous à l'onglet "Caractères spéciaux" sur la gauche.`,
+      'main.work_area.hovers.over_upper': `Signaler un point supérieur à la fin d'une phrase. Besoin d'aide ? Référez-vous à l'onglet "Caractères spéciaux" sur la gauche.`,
+      'main.work_area.hovers.over_line_fillers': `Signaler un remplisseur de ligne. Besoin d'aide ? Référez-vous à l'onglet "Caractères spéciaux" sur la gauche.`,
+      'main.work_area.hovers.over_alef_plus': `Agrandir la taille de la police.`,
+      'main.work_area.hovers.over_alef_minus': `Réduire la taille de la police.`,
       'register_screen.title': 'S&#39;inscrire',
       'register_screen.subtitle': 'D\u00E9j\u00E0 inscrit?',
       'register_screen.userid': 'Identifiant',
@@ -97,7 +87,7 @@ export default () => {
         'Identifiant existe d\u00E9j\u00E0 dans le syst\u00E8me. S&#39;il vous pla\u00EEt essayer un autre',
       'register_screen.contact':
         'Est-ce que vous nous autorisez de vous contacter par e-mail?',
-        'register_screen.show_extra_details':'Additional details'
+      'register_screen.show_extra_details': 'Additional details'
     }
     translations.content = {}
     // TEAM

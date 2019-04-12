@@ -2,8 +2,7 @@
   <div class="row">
     <div class="sidebar col-3">
       <div class="accordion" id="sidebarAccordion">
-        
-        <!-- <div class="card">
+        <div class="card">
           <div class="card-header" id="utilitiesHeading">
             <h5 class="mb-0">
               <button
@@ -24,12 +23,13 @@
             data-parent="#sidebarAccordion"
           >
             <div class="card-body">
-        <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>
-        <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
+              <!-- <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>-->
+              <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
+              <a href="javascript:;" @click="getAllUsers">get all users</a>
               <hr>
             </div>
           </div>
-        </div>-->
+        </div>
         <div class="card">
           <div class="card-header" id="headingThree">
             <h5 class="mb-0">
@@ -64,7 +64,8 @@
                 <hr>
                 <ul class="manuscript_content_tokens">
                   <li
-                    v-for="(contentItem,i) in manuscript_content" :key="i"
+                    v-for="(contentItem,i) in manuscript_content"
+                    :key="i"
                     @click="editMSContentItem(contentItem)"
                   >{{contentItem.token}}</li>
                 </ul>
@@ -102,9 +103,8 @@
             </label>
           </div>
           <a href="javascript:;" @click="updateContentItem">{{$t('update')}}</a>
-        </div> -->
+        </div>-->
         <div class="edit-manuscript-content" v-if="msContentItem">
-          
           <div class="field">
             <label for="value">
               Manuscript:
@@ -126,7 +126,8 @@
           <div class="field">
             <label for="value">
               Content: (
-              <a href="javascript:;" @click="showWysiwyg = !showWysiwyg">Html / Wysiwyg</a>) -- <a href="javascript:;" @click="updateMSContentItem">{{$t('update')}}</a>
+              <a href="javascript:;" @click="showWysiwyg = !showWysiwyg">Html / Wysiwyg</a>) --
+              <a href="javascript:;" @click="updateMSContentItem">{{$t('update')}}</a>
               <wysiwyg v-model="msContentItem.value" v-if="showWysiwyg"/>
               <textarea
                 v-model="msContentItem.value"
@@ -135,7 +136,6 @@
               ></textarea>
             </label>
           </div>
-          
         </div>
       </div>
     </div>
@@ -159,7 +159,10 @@ export default {
   },
   computed: {
     manuscript_content() {
-      const unsorted = Object.assign({},this.$store.state.content.manuscript_content)
+      const unsorted = Object.assign(
+        {},
+        this.$store.state.content.manuscript_content
+      )
       if (unsorted && unsorted.length) {
         return unsorted.sort((a, b) => {
           const textA = a.token.toUpperCase()
@@ -179,107 +182,85 @@ export default {
         manuscript: this.manuscript
       })
     },
+    async getAllUsers() {
+      const users = await api.getAllUsers()
+
+      const usersData = users.docs.map(_u => {
+        let u = _u.data()
+        let uid = _u.id
+        let created = u.createdAt || u.createdOn
+        let obj = {
+          displayName: u.displayName,
+          email: u.email,
+          uid: uid,
+          contactByEmail: u.contact_allowed,
+          midrash: +u.midrashknowledge,
+          hebrew: +u.hebrewknowledge,
+          userid: u.userid,
+          age: u.age
+        }
+
+        if (created) {
+          let a = null
+          if (created.seconds) {
+            a = new Date(+`${created.seconds}000`)
+          } else {
+            a = new Date(+created)
+          }
+          if (!isNaN(a)) {
+            obj.createdOn = a
+          } else {
+            debugger
+          }
+        }
+
+        return obj
+      })
+      debugger
+    },
 
     //var tsv is the TSV file with headers
-    //async loadIntoFB() {
-    // const users = await axios.get(`/users.json`)
-    // let obj = {}
-    // let user = null
-    // for (let i = 180; i < users.data.length; i++) {
-    //   console.log(i)
-    //   user = users.data[i]
+//     async loadIntoFB() {
+//       const transcriptions = await axios.get(`/transcriptions_EOF.json`)
+//       //debugger;
+//       let obj = {}
+//       let transcription = null
+//       //transcriptions.data.length
+//       //debugger;
+//       let exists = []
 
-    //   obj = {
-    //     userid: user.userid,
-    //     email: user.email,
-    //     age: user.age,
-    //     hebrewknowledge: user.hebrewknowledge,
-    //     midrashknowledge: user.midrashknowledge,
-    //     registered: new Date(user.registered),
-    //     contact_allowed: user.contact_allowed,
-    //     createdAt: ServerTimestamp()
-    //   }
-    //   if (!user.email) {
-    //     if (user.userid) {
-    //       user.email = user.userid + '@tikkoun.com'
-    //     }
-    //   }
-
-    //   if (user.email) {
-    //     const created = await api.createUser({
-    //       email: user.email,
-    //       password: '123456'
-    //     })
-
-    //     if (created) {
-    //       await StoreDB.collection('users')
-    //         .doc(created.user.uid)
-    //         .set(obj, { merge: true })
-    //     } else {
-    //       //console.warn(obj)
-    //     }
-    //   }
-    // }
-
-    //   manuscriptsManager.getManuscriptJSON('bnf_150').then(res => {
-    //     return false
-    //     const json = res.data
-    //     let obj = {}
-    //     let itemProps = {}
-    //     let filename = ''
-    //     let item = {}
-    //     for (let i = 10; i < json.length; i++) {
-    //       item = json[i]
-
-    //         obj = { views: 0, transcriptions: 0, general_index: i }
-    //         Object.keys(item).forEach(key => {
-    //           if (key) {
-    //             itemProps[key] = item[key]
-    //           }
-    //         })
-
-    //         filename = itemProps.color_img_file_name.split('.png')[0]
-    //         filename = `bnf150_${filename.split('__')[1]}`
-
-    //         obj.lineId = +itemProps.lineID
-    //         obj.page = +itemProps.page
-    //         obj.line = +itemProps.newLineNuAlan
-    //         obj.top_on_page = +itemProps.top_on_page
-    //         obj.bottom_on_page = +itemProps.bottom_on_page
-    //         obj.left_on_page = +itemProps.left_on_page
-    //         obj.right_on_page = +itemProps.right_on_page
-    //         obj.AT = itemProps.AT
-    //         obj.GT02 = itemProps.GT2
-    //         obj.color_img_file_name = filename
-
-    //         StoreDB.collection('manuscripts/KVqHkylpQFUvkQlQrP9U/lines').add(
-    //           obj
-    //         )
-
-    //     }
-    //   })
-    // },
-
-    //async tsvJSON() {
-    // const tsv = await manuscriptsManager.getManuscriptTSV('BNF150_all_data_for_alan')
-    // debugger
-    // if(tsv){
-    //   const lines = tsv.split('\n')
-    // const result = []
-    // const headers = lines[0].split('\t')
-    // for (var i = 1; i < lines.length; i++) {
-    //     const obj = {}
-    //     const currentline = lines[i].split('\t')
-    //     for (var j = 0; j < headers.length; j++) {
-    //       obj[headers[j]] = currentline[j]
-    //     }
-    //     result.push(obj)
-    //     }
-    //  debugger
-    //  //return result; //JavaScript object
-    //   return JSON.stringify(result) //JSON
-    // }
-    //},
+//       for (let i = 0; i < transcriptions.data.length; i++) {
+//         transcription = transcriptions.data[i]
+// console.log(i)
+//         await StoreDB.collection('transcriptions')
+//           .where('createdOn', '==', transcription.createdOn)
+//           .where('page', '==', transcription.page)
+//           .where('uid', '==', transcription.uid)
+//           .where('line', '==', transcription.line)
+//           .get()
+//           .then(res => {
+//             if (!res.size) {
+//               console.log(`++adding: `, i)
+//               StoreDB.collection('transcriptions')
+//                 .add(transcription)
+//                 .catch(err => {
+//                   console.log(err, transcription, i)
+//                 })
+//             } else {
+//               if (res.size > 1) {
+//                 console.log(`exists #:${res.size}`, i)
+//                 exists.push({ count: res.size, index: i })
+//                 res.docs[0].ref.delete().then(result => {
+//                   //debugger
+// console.log(`--removed`, i)
+//                 })
+                
+                
+//               }
+//             }
+//           })
+//       }
+//     },
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)
     },
@@ -290,8 +271,8 @@ export default {
       })
     },
     editMSContentItem(msContentItem) {
-      this.msContentItem = Object.assign({},msContentItem)
-    },
+      this.msContentItem = Object.assign({}, msContentItem)
+    }
   }
 }
 </script>

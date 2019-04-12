@@ -75,6 +75,23 @@
             <a
               class="nav-link dropdown-toggle"
               href="#"
+              id="msDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >{{$t('manuscripts')}}</a>
+
+            <div class="dropdown-menu" aria-labelledby="msDropdown">
+              <a class="dropdown-item" :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:'geneva' }})">Geneva</a>
+              <a class="dropdown-item" :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:'bnf150' }})">BNF</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown" v-if="$store.state.auth.user">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
               id="navbarDropdown"
               role="button"
               data-toggle="dropdown"
@@ -94,11 +111,16 @@
             </a>
 
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <nuxt-link
+              <!-- <nuxt-link
                 class="dropdown-item"
                 :to="localePath('profile')"
                 v-if="!$store.state.auth.user.isAnonymous"
-              >{{ $t('nav.profile') }}</nuxt-link>
+              >{{ $t('nav.profile') }}</nuxt-link>-->
+              <!-- <nuxt-link
+                class="dropdown-item"
+                :to="localePath('admin')"
+                v-if="$store.state.auth.user && $store.state.auth.user.role && $store.state.auth.user.role==='admin'"
+              >Admin</nuxt-link>-->
               <a href="javascript:;" class="dropdown-item" @click="logout">{{ $t('nav.logout') }}</a>
             </div>
           </li>

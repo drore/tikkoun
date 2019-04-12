@@ -36,6 +36,12 @@
               :value="$t('nav.start')"
             >
           </div>
+          <div class="d-flex justify-content-between">
+            <p style="font-weight: bold; color: red;" v-if="loginError">{{$t(loginError)}}</p>
+            <div v-if="loginError">
+              <a href="javascript:;" @click="resetPassword">{{$t('reset_password')}}</a>
+            </div>
+          </div>
         </div>
         <div class="border-left col-sm-6">
           <a href="javascript:;" @click="googleSignUp">
@@ -48,8 +54,6 @@
             <a href="javascript:;" @click="enterAsGuest">{{$t('login.login_area.geust')}}</a>
           </div>
         </div>
-
-        <p style="font-weight: bold; color: red;" v-if="loginError">{{$t(loginError)}}</p>
       </div>
     </div>
   </div>
@@ -65,17 +69,31 @@ export default {
   },
   computed: {
     loginError() {
-      return this.$store.state.auth.login.error
+      if (
+        this.$store.state.auth.login.error ===
+        'The password is invalid or the user does not have a password.'
+      ) {
+        return 'wrong_creds'
+      } else {
+        return this.$store.state.auth.login.error
+      }
     }
   },
   methods: {
     showRegistration(section) {
       this.$store.dispatch('auth/loginShowSection', 'registration')
     },
+    resetPassword() {
+      this.$store.dispatch('auth/sendResetPasswordMail', this.username).then(res => {
+        alert('Reset password mail sent')
+      }).catch(err =>{
+        debugger;
+      })
+    },
     enterAsGuest() {
-      console.debug("Signing in as guest")
+      console.debug('Signing in as guest')
       this.$store.dispatch('auth/loginAnonymously').then(() => {
-        console.debug("Rerouting to transcribe")
+        console.debug('Rerouting to transcribe')
         this.$router.push('/transcribe')
       })
     },
@@ -85,7 +103,7 @@ export default {
       if (username.indexOf('@') === -1) {
         username += '@tikkoun.com'
       }
-      
+
       this.$store
         .dispatch('auth/signInWithEmail', {
           email: username,

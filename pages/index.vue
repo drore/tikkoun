@@ -7,6 +7,11 @@
           {{$t('login.center.Intro_line_1')}}
           {{$t('login.center.Intro_line_2')}}
         </div>
+        <hr>
+        <div class="lead" style="color:green">
+          {{$t('version_text')}}
+          <a href="mailto:dror.elovits@gmail.com">{{$t('support')}}</a>
+        </div>
       </div>
     </div>
     <div class="container">

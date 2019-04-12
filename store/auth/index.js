@@ -13,6 +13,9 @@ export const mutations = {
   setUser(state, payload) {
     state.user = payload
   },
+  setUserRole(state, payload) {
+    state.user.role = payload
+  },
   loginError(state, payload) {
     state.login.error = payload.message
   },
@@ -38,14 +41,20 @@ export const actions = {
   updateUser({ commit }, user) {
     api.updateUser(user)
   },
+  sendResetPasswordMail({ commit }, emailAddress) {
+    return api.sendResetPasswordMail(emailAddress)
+  },
   loginShowSection({ commit }, section) {
     commit('loginShowSection', section)
   },
   setUser({ commit }, user) {
     commit('setUser', user)
+    // api.getUser(user.uid).then(res => {
+    //   const userData = res.data()
+    //   commit('setUserRole', userData.role)
+    // })
   },
   gotUserLines({ commit }, payload) {
-    debugger
     commit('gotUserLines', payload)
   },
   autoSignIn({ commit }, payload) {
