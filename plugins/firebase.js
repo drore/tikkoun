@@ -21,4 +21,5 @@ export const auth = firebase.auth()
 export const DB = firebase.database()
 export const StoreDB = firebase.firestore()
 export const ServerTimestamp = firebase.firestore.FieldValue.serverTimestamp
+export const Timestamp = firebase.firestore.Timestamp
 export default firebase

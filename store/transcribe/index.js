@@ -134,6 +134,7 @@ export const actions = {
   },
   async getNextLine({ commit, dispatch, state }, uid) {
     let promise
+    debugger
     // In case it is already seeded
     if (state.selected_line) {
       promise = manuscriptsManager.getNextLine(

@@ -17,7 +17,7 @@ export default {
         console.error(userData.email)
       })
   },
-  getAllUsers(){
+  getAllUsers() {
     return StoreDB.collection('users').get()
   },
   // General content
@@ -26,13 +26,13 @@ export default {
       .where('lang', '==', lang)
       .get()
   },
-  sendResetPasswordMail(emailAddress){
-    return auth.sendPasswordResetEmail(emailAddress);
+  sendResetPasswordMail(emailAddress) {
+    return auth.sendPasswordResetEmail(emailAddress)
   },
   updateContentItem(contentItem) {
     return this.updateDocument('content', contentItem.id, contentItem)
   },
-  getUser(uid){
+  getUser(uid) {
     return StoreDB.doc(`users/${uid}`).get()
   },
   updateUser(user) {
@@ -62,6 +62,20 @@ export default {
       .where('manuscript', '==', manuscriptName)
       .where('lang', '==', lang)
       .get()
+  },
+  getEmailForUserId(userid) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection('users')
+        .where('userid', '==', userid)
+        .get()
+        .then(res => {
+          if (res.size) {
+            resolve(res.docs[0].data().email)
+          } else {
+            reject()
+          }
+        })
+    })
   },
   updateMSContentItem(msContentItem) {
     return this.updateDocument(

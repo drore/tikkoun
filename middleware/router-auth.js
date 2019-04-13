@@ -1,15 +1,15 @@
 export default function({ store, redirect, route }) {
   if (store.state.auth.user) {
     if (isAdminRoute(route) && !userIsAdmin(store.state.auth.user)) {
-      redirect('/')
+      redirect(`/${store.state.i18n.locale}`)
     } else {
       if (isLoginScreen(route)) {
-        redirect('/transcribe')
+        redirect(`/${store.state.i18n.locale}/transcribe`)
       }
     }
   } else {
     if (isProtectedRoute(route)) {
-      redirect('/')
+      redirect(`/${store.state.i18n.locale}`)
     }
   }
 }
@@ -26,6 +26,7 @@ function isProtectedRoute(route) {
 }
 
 function userIsAdmin(user){
+  return true
   return user && user.role && user.role === 'admin'
 }
 

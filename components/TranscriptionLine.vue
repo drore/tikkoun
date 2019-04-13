@@ -223,7 +223,7 @@ export default {
           this.$store.state.transcribe.manuscript.image_extension
         }`
 
-        const extendedImgFactor = 10
+        const extendedImgFactor = 20
         const widthFactor = extendedImgFactor
         const heightFactor = extendedImgFactor / 4
 

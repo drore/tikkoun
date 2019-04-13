@@ -144,7 +144,12 @@
 <script>
 import api from '@/api.js'
 import axios from 'axios'
-import { ServerTimestamp, StoreDB, auth } from '~/plugins/firebase.js'
+import {
+  Timestamp,
+  ServerTimestamp,
+  StoreDB,
+  auth
+} from '~/plugins/firebase.js'
 import manuscriptsManager from '~/manuscriptsManager'
 export default {
   data() {
@@ -218,49 +223,55 @@ export default {
       })
       debugger
     },
-
+    async loadIntoFB() {
+      // const users = await axios.get(`/users.json`)
+      // users.data.forEach(u => {
+      //   StoreDB.doc('us')
+        
+      // })
+      //StoreDB.collection('users')
+    },
     //var tsv is the TSV file with headers
-//     async loadIntoFB() {
-//       const transcriptions = await axios.get(`/transcriptions_EOF.json`)
-//       //debugger;
-//       let obj = {}
-//       let transcription = null
-//       //transcriptions.data.length
-//       //debugger;
-//       let exists = []
+    //     async loadIntoFB() {
+    //       const transcriptions = await axios.get(`/transcriptions_EOF.json`)
+    //       //debugger;
+    //       let obj = {}
+    //       let transcription = null
+    //       //transcriptions.data.length
+    //       //debugger;
+    //       let exists = []
 
-//       for (let i = 0; i < transcriptions.data.length; i++) {
-//         transcription = transcriptions.data[i]
-// console.log(i)
-//         await StoreDB.collection('transcriptions')
-//           .where('createdOn', '==', transcription.createdOn)
-//           .where('page', '==', transcription.page)
-//           .where('uid', '==', transcription.uid)
-//           .where('line', '==', transcription.line)
-//           .get()
-//           .then(res => {
-//             if (!res.size) {
-//               console.log(`++adding: `, i)
-//               StoreDB.collection('transcriptions')
-//                 .add(transcription)
-//                 .catch(err => {
-//                   console.log(err, transcription, i)
-//                 })
-//             } else {
-//               if (res.size > 1) {
-//                 console.log(`exists #:${res.size}`, i)
-//                 exists.push({ count: res.size, index: i })
-//                 res.docs[0].ref.delete().then(result => {
-//                   //debugger
-// console.log(`--removed`, i)
-//                 })
-                
-                
-//               }
-//             }
-//           })
-//       }
-//     },
+    //       for (let i = 0; i < transcriptions.data.length; i++) {
+    //         transcription = transcriptions.data[i]
+    // console.log(i)
+    //         await StoreDB.collection('transcriptions')
+    //           .where('createdOn', '==', transcription.createdOn)
+    //           .where('page', '==', transcription.page)
+    //           .where('uid', '==', transcription.uid)
+    //           .where('line', '==', transcription.line)
+    //           .get()
+    //           .then(res => {
+    //             if (!res.size) {
+    //               console.log(`++adding: `, i)
+    //               StoreDB.collection('transcriptions')
+    //                 .add(transcription)
+    //                 .catch(err => {
+    //                   console.log(err, transcription, i)
+    //                 })
+    //             } else {
+    //               if (res.size > 1) {
+    //                 console.log(`exists #:${res.size}`, i)
+    //                 exists.push({ count: res.size, index: i })
+    //                 res.docs[0].ref.delete().then(result => {
+    //                   //debugger
+    // console.log(`--removed`, i)
+    //                 })
+
+    //               }
+    //             }
+    //           })
+    //       }
+    //     },
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)
     },

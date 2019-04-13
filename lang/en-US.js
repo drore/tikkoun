@@ -17,8 +17,8 @@ export default () => {
       'nav.profile': 'Profile',
       'nav.start': 'Start correcting!',
       'lang.en': 'English',
-      'lang.he': 'Hebrew',
-      'lang.fr': 'French',
+      'lang.he': 'עברית',
+      'lang.fr': 'Français',
       'login.center.welcome': 'Welcome to Tikkoun Sofrim',
       'login.center.Intro_line_1':
         'The project aims to train computer algorithms to recognize handwritten text of Hebrew manuscripts.',

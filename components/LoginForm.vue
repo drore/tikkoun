@@ -60,6 +60,7 @@
 </template>
 
 <script>
+import api from '@/api.js'
 export default {
   data() {
     return {
@@ -94,14 +95,15 @@ export default {
       console.debug('Signing in as guest')
       this.$store.dispatch('auth/loginAnonymously').then(() => {
         console.debug('Rerouting to transcribe')
-        this.$router.push('/transcribe')
+        this.$router.push(`/${this.$i18n.locale}/transcribe`)
       })
     },
-    emailLogin() {
-      const username = this.username
+    async emailLogin() {
+      let username = this.username
       const password = this.password
       if (username.indexOf('@') === -1) {
-        username += '@tikkoun.com'
+        // username += '@tikkoun.com'
+        username = await api.getEmailForUserId(username)
       }
 
       this.$store
@@ -110,7 +112,7 @@ export default {
           password: password
         })
         .then(() => {
-          this.$router.push('/transcribe')
+          this.$router.push(`/${this.$i18n.locale}/transcribe`)
         })
     },
     googleSignUp() {

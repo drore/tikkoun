@@ -134,7 +134,7 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('auth/signOut').then(() => {
-        this.$router.push('/')
+        this.$router.push(`/${this.$store.state.i18n.locale}`)
       })
     },
     getTranscribePath() {

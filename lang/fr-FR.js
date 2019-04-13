@@ -15,8 +15,8 @@ export default () => {
       'nav.start': 'Je participe !',
       'nav.conversation': ``,
       'lang.en': 'English',
-      'lang.he': 'Hebrew',
-      'lang.fr': 'French',
+      'lang.he': 'עברית',
+      'lang.fr': 'Français',
       'login.center.welcome': 'Bienvenue sur Tikkoun Sofrim',
       'login.center.Intro_line_1':
         'Notre projet: développer un programme capable de transcrire automatiquement les manuscrits hébreux médiévaux.',
@@ -52,8 +52,8 @@ export default () => {
       'main.work_area.finish_button_2': 'Passer',
       'reset_password':'Réinitialiser un mot de passe',
       'main.work_area.Good_bye_Message1': 'Merci de votre aide ! ',
-      'version_text':'You are using a new version of Tikkoun-Sofrim. If you encounter problems please e-mail us.',
-      'support':'Support',
+      'version_text':`Vous êtes en train d'utiliser la nouvelle version de Tikkoun Sofrim. Si vous rencontrez des problèms, n'hésitez pas à nous écrire.`,
+      'support':'Soutien technique',
       'main.work_area.Good_bye_Message2':
         'Les nombre the lignes que vous avez corrig\u00E9:',
       'main.work_area.hovers.over_reset':
