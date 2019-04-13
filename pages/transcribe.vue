@@ -20,7 +20,7 @@ export default {
         this.$store.state.transcribe.manuscript.name.toLowerCase()
 
       if (routeManuscript === storeManuscript) {
-        debugger;
+      ////
       } else if (!this.manuscriptRequested) {
         this.manuscriptRequested = true
         this.$store.dispatch('transcribe/GET_MANUSCRIPT', routeManuscript)

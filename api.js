@@ -48,12 +48,13 @@ export default {
   getManuscript(name) {
     let query = null
     if (!name) {
-      query = StoreDB.collection('manuscripts').limit(1)
-    } else {
-      query = StoreDB.collection('manuscripts')
-        .where('name', '==', name)
-        .limit(1)
+      //query = StoreDB.collection('manuscripts').limit(1)
+      name = 'geneva'
     }
+    query = StoreDB.collection('manuscripts')
+      .where('name', '==', name)
+      .limit(1)
+
     return query.get()
   },
   // Manuscript content
@@ -84,6 +85,22 @@ export default {
       msContentItem
     )
   },
+  async getLine(msId, page, line) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection(`manuscripts/${msId}/lines/`)
+        .where('page', '==', page)
+        .where('line', '==', line)
+        .limit(1)
+        .get()
+        .then(res => {
+          if (res.size) {
+            resolve(res.docs[0].data())
+          } else {
+            reject()
+          }
+        })
+    })
+  },
   // General index is the index in the array, roughly the order in the ms
   // TODO: move to manuscript manager
   async getLineByGeneralIndex(msId, generalIndex) {
@@ -97,6 +114,25 @@ export default {
     } else {
       return null
     }
+  },
+  async getUserLastLine(msId, uid) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection(`transcriptions`)
+        .where('manuscript', '==', msId)
+        .where('uid', '==', uid)
+        .orderBy('createdOn', 'desc')
+        .limit(1)
+        .get()
+        .then(res => {
+          if (res.size) {
+            resolve(res.docs[0].data())
+          } else {
+            resolve()
+          }
+        }).catch(err => {
+          resolve()
+        })
+    })
   },
   async getUserNextLine(msId, uid) {
     const userMSRef = await this.getDoc(`users/${uid}/manuscripts/${msId}`)

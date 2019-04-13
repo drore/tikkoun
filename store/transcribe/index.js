@@ -134,7 +134,6 @@ export const actions = {
   },
   async getNextLine({ commit, dispatch, state }, uid) {
     let promise
-    debugger
     // In case it is already seeded
     if (state.selected_line) {
       promise = manuscriptsManager.getNextLine(
@@ -145,7 +144,6 @@ export const actions = {
       // For the specific user!
       // First look at the user profile, see if we have his last line
       const userNextLine = await api.getUserNextLine(state.manuscript.id, uid)
-
       if (userNextLine) {
         // Now, is this line matches the conditions? (less then 20 actions)
         const res = await api.getLineByGeneralIndex(
@@ -167,11 +165,34 @@ export const actions = {
           )
         }
       } else {
-        promise = manuscriptsManager.getLine(
-          state.manuscript.id,
-          state.manuscript.next_page,
-          state.manuscript.next_line
-        )
+        // If no next line is one user, go by it's last line
+        const lastUserLine = await api.getUserLastLine(state.manuscript.id, uid)
+        
+        if (lastUserLine) {
+          
+          const lineObj = await api.getLine(
+            state.manuscript.id,
+            lastUserLine.page,
+            lastUserLine.line
+          )
+
+          const res = await api.getLineByGeneralIndex(
+            state.manuscript.id,
+            lineObj.general_index + 1
+          )
+
+          promise = manuscriptsManager.getLine(
+            state.manuscript.id,
+            res.data.page,
+            res.data.line
+          )
+        } else {
+          promise = manuscriptsManager.getLine(
+            state.manuscript.id,
+            state.manuscript.next_page,
+            state.manuscript.next_line
+          )
+        }
       }
     }
 
