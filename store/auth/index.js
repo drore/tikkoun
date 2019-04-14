@@ -39,7 +39,10 @@ export const mutations = {
 export const actions = {
   nuxtServerInit({ commit }, { req }) {},
   updateUser({ commit }, user) {
-    api.updateUser(user)
+    return new Promise((resolve, reject) => {
+      api.updateUser(user)
+      resolve()
+    })
   },
   sendResetPasswordMail({ commit }, emailAddress) {
     return api.sendResetPasswordMail(emailAddress)

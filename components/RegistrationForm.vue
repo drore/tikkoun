@@ -127,7 +127,8 @@ export default {
             isAnonymous: res.user.isAnonymous,
             displayName: res.user.displayName,
             contactByEmail: this.contactByEmail,
-            isNewUser: res.additionalUserInfo.isNewUser
+            isNewUser: res.additionalUserInfo.isNewUser,
+            uid: res.user.uid
           }
 
           if (this.showExtraDetails) {
@@ -136,7 +137,10 @@ export default {
           }
 
           // Now, update the user with the rest of the details
-          this.$store.dispatch('auth/updateUser', obj)
+          this.$store.dispatch('auth/updateUser', obj).then(res =>{
+            this.$router.push(`/${this.$i18n.locale}/transcribe`)
+          })
+
         })
         .catch(e => {
           console.log(e.message)

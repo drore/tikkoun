@@ -38,7 +38,7 @@
           </div>
           <div class="d-flex justify-content-between">
             <p style="font-weight: bold; color: red;" v-if="loginError">{{$t(loginError)}}</p>
-            <div v-if="loginError">
+            <div>
               <a href="javascript:;" @click="resetPassword">{{$t('reset_password')}}</a>
             </div>
           </div>
@@ -85,11 +85,18 @@ export default {
       this.$store.dispatch('auth/loginShowSection', 'registration')
     },
     resetPassword() {
-      this.$store.dispatch('auth/sendResetPasswordMail', this.username).then(res => {
-        alert('Reset password mail sent')
-      }).catch(err =>{
-        debugger;
-      })
+      if (this.username) {
+        this.$store
+          .dispatch('auth/sendResetPasswordMail', this.username)
+          .then(res => {
+            alert('Reset password mail sent')
+          })
+          .catch(err => {
+            debugger
+          })
+      } else {
+        alert('Please enter e-mail')
+      }
     },
     enterAsGuest() {
       console.debug('Signing in as guest')

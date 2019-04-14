@@ -224,10 +224,31 @@ export default {
       debugger
     },
     async loadIntoFB() {
+      const genevaLines = await StoreDB.collection(
+        'manuscripts/woNEyuFHMZUaKNYclE8a/lines'
+      ).get()
+
+      for (var i = 0; i < genevaLines.size; i++) {
+        let lineSnap = genevaLines.docs[i]
+        let lineData = lineSnap.data()
+        let transcriptions = await StoreDB.collection('transcriptions')
+          .where('page', '==', lineData.page)
+          .where('line', '==', lineData.line)
+          .where('manuscript', '==', 'woNEyuFHMZUaKNYclE8a')
+          .get()
+        if (
+          transcriptions.size &&
+          transcriptions.size !== lineData.transcriptions
+        ) {
+          console.log("*** updating ***", i)
+          await lineSnap.ref.update({ transcriptions: transcriptions.size })
+        }
+      }
+
       // const users = await axios.get(`/users.json`)
       // users.data.forEach(u => {
       //   StoreDB.doc('us')
-        
+
       // })
       //StoreDB.collection('users')
     },
