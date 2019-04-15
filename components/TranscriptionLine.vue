@@ -237,12 +237,15 @@ export default {
         const width = this.polygonObj.width
         const height = this.polygonObj.height
 
-        this.currLineImage = `${imageFilePart}${left},${this.polygonObj.top},${extendedWidth},${this.polygonObj.height}/${endPart}`
-       
+        this.currLineImage = `${imageFilePart}${left},${
+          this.polygonObj.top
+        },${extendedWidth},${this.polygonObj.height}/${endPart}`
+
         this.images = [this.currLineImage]
 
         $('#v-viewer-container').height(
-          this.polygonObj.height / this.$store.state.transcribe.manuscript.factor
+          this.polygonObj.height /
+            this.$store.state.transcribe.manuscript.factor
         )
       }
     }
@@ -293,14 +296,17 @@ export default {
       this.$store.dispatch('transcribe/updateTranscription', e.target.value)
     },
     done() {
-      this.$store.dispatch(
-        'transcribe/addTranscription',
-        this.$store.state.auth.user
-      )
+      this.$store.dispatch('transcribe/addTranscription', {
+        user: this.$store.state.auth.user,
+        skipped: false
+      })
     },
     skip() {
-      // Skip and...
-      this.$store.dispatch('transcribe/skip', this.$store.state.auth.user) // Later add line params
+      // The last params is for 'skipped'
+      this.$store.dispatch('transcribe/addTranscription', {
+        user: this.$store.state.auth.user,
+        skipped: true
+      })
     }
   }
 }

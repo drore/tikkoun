@@ -100,18 +100,9 @@ export const actions = {
   async getUserLines({ dispatch }, uid) {
     dispatch('auth/gotUserLines', await api.getUserLines(uid))
   },
-  async skip({ state, dispatch }, user) {
-    const params = {
-      uid: user.uid,
-      lineId: state.selected_line.id,
-      manuscript: state.manuscript.id,
-      generalIndex: state.selected_line.general_index,
-      isAnonymous: user.isAnonymous
-    }
-    dispatch('getNextLine', await api.markLineAsSkipped(params))
-  },
-  async addTranscription({ state, dispatch }, user) {
-    const params = {
+  async addTranscription({ state, dispatch }, params) {
+    const user = params.user
+    const transcription = {
       uid: user.uid,
       lineId: state.selected_line.id,
       line: state.selected_line.line,
@@ -120,9 +111,10 @@ export const actions = {
       manuscript: state.manuscript.id,
       createdOn: new Date(),
       generalIndex: state.selected_line.general_index,
-      isAnonymous: user.isAnonymous
+      isAnonymous: user.isAnonymous,
+      skipped: !!params.skipped
     }
-    dispatch('getNextLine', await api.addTranscription(params))
+    dispatch('getNextLine', await api.addTranscription(transcription))
   },
 
   async GET_MANUSCRIPT({ commit }, name) {

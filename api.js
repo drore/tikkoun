@@ -169,23 +169,6 @@ export default {
       `manuscripts/${manuscriptId}/lines/${params.lineId}`
     ).update({ views: params.viewCounter + 1 })
   },
-  markLineAsSkipped(params) {
-    // Write to the user obj
-    if (!params.isAnonymous) {
-      return StoreDB.doc(`users/${params.uid}/manuscripts/${params.manuscript}`)
-        .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
-        .then(res => {
-          StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`).set(
-            {
-              action: 'skip'
-            },
-            { merge: true }
-          )
-        })
-    } else {
-      return false
-    }
-  },
   addTranscription(params) {
     // Write to the user obj
     if (!params.isAnonymous) {
@@ -195,7 +178,7 @@ export default {
           StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`)
             .set(
               {
-                action: 'done'
+                action: params.skipped? 'skip':'done'
               },
               { merge: true }
             )
