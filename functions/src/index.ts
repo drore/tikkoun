@@ -1,6 +1,134 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
+const cors = require('cors')({
+  origin: true
+})
 admin.initializeApp()
+exports.last_day_lines = functions.https.onRequest((req, res) => {
+  // [END trigger]
+  // [START sendError]
+  // Forbidding PUT requests.
+  if (req.method === 'PUT') {
+    return res.status(403).send('Forbidden!')
+  }
+  // [END sendError]
+
+  // [START usingMiddleware]
+  // Enable CORS using the `cors` express middleware.
+  return cors(req, res, () => {
+    const date = new Date()
+    date.setDate(date.getDate() - 1)
+
+    const db = admin.firestore()
+    db.collection('transcriptions')
+      .where('createdOn', '>', date)
+      .get()
+      .then(snapshot => {
+        const lines = snapshot.docs.map(d => d.data())
+        res.status(200).send(lines)
+        return ''
+      })
+      .catch(reason => {
+        res.status(500).send(reason)
+      })
+
+    // [END sendResponse]
+  })
+})
+
+exports.last_day_lines_count = functions.https.onRequest((req, res) => {
+  // [END trigger]
+  // [START sendError]
+  // Forbidding PUT requests.
+  if (req.method === 'PUT') {
+    return res.status(403).send('Forbidden!')
+  }
+  // [END sendError]
+
+  // [START usingMiddleware]
+  // Enable CORS using the `cors` express middleware.
+  return cors(req, res, () => {
+    const date = new Date()
+    date.setDate(date.getDate() - 1)
+
+    const db = admin.firestore()
+    db.collection('transcriptions')
+      .where('createdOn', '>', date)
+      .get()
+      .then(snapshot => {
+        res.status(200).send(snapshot.size.toString())
+        return ''
+      })
+      .catch(reason => {
+        res.status(500).send(reason)
+      })
+
+    // [END sendResponse]
+  })
+})
+
+exports.last_hour_lines_count = functions.https.onRequest((req, res) => {
+  // [END trigger]
+  // [START sendError]
+  // Forbidding PUT requests.
+  if (req.method === 'PUT') {
+    return res.status(403).send('Forbidden!')
+  }
+  // [END sendError]
+
+  // [START usingMiddleware]
+  // Enable CORS using the `cors` express middleware.
+  return cors(req, res, () => {
+    const date = new Date()
+    date.setHours(date.getHours() - 1)
+
+    const db = admin.firestore()
+    db.collection('transcriptions')
+      .where('createdOn', '>', date)
+      .get()
+      .then(snapshot => {
+        res.status(200).send(snapshot.size.toString())
+        return ''
+      })
+      .catch(reason => {
+        res.send(reason)
+      })
+
+    // [END sendResponse]
+  })
+})
+
+exports.last_hour_lines = functions.https.onRequest((req, res) => {
+  // [END trigger]
+  // [START sendError]
+  // Forbidding PUT requests.
+  if (req.method === 'PUT') {
+    return res.status(403).send('Forbidden!')
+  }
+  // [END sendError]
+
+  // [START usingMiddleware]
+  // Enable CORS using the `cors` express middleware.
+  return cors(req, res, () => {
+    const date = new Date()
+    date.setHours(date.getHours() - 1)
+
+    const db = admin.firestore()
+    db.collection('transcriptions')
+      .where('createdOn', '>', date)
+      .get()
+      .then(snapshot => {
+        const lines = snapshot.docs.map(d => d.data())
+        res.status(200).send(lines)
+        return ''
+      })
+      .catch(reason => {
+        res.send(reason)
+      })
+
+    // [END sendResponse]
+  })
+})
 
 export const onLineViewUpdated = functions.firestore
   .document('manuscripts/{msId}/lines/{lineId}')
