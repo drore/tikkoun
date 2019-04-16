@@ -21,11 +21,7 @@ export const mutations = {
   },
   manipulateLineByAdding(state, mark) {
     let transcription = state.transcription
-    const range = state.selected_line.selected_range
-    const pre = transcription.substring(0, range.end)
-    const post = transcription.substring(range.end, state.transcription.length)
-
-    state.transcription = `${pre}${mark}${post}`
+    state.transcription = `${transcription}${mark}`
   },
   manipulateLine(state, action) {
     let transcription = state.transcription
