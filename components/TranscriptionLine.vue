@@ -266,11 +266,27 @@ export default {
         self.resetFontSize()
       }
     },
+    setCursorPosition() {
+      const cursorLocation = this.$store.state.transcribe.selected_line
+        .selected_range.end
+
+      const inputElem = document.getElementById('trw')
+      inputElem.focus()
+      inputElem.setSelectionRange(cursorLocation + 2, cursorLocation + 2)
+    },
     manipulateLineByAdding(mark) {
-      this.$store.dispatch('transcribe/manipulateLineByAdding', mark)
+      const self = this
+      this.$store
+        .dispatch('transcribe/manipulateLineByAdding', mark)
+        .then(() => {
+          self.setCursorPosition()
+        })
     },
     reset() {
-      this.$store.dispatch('transcribe/resetTranscription')
+      const self = this
+      this.$store.dispatch('transcribe/resetTranscription').then(() => {
+        self.setCursorPosition()
+      })
     },
     resetFontSize() {
       const imgElement = $('.viewer-canvas>img')

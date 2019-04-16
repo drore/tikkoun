@@ -1,10 +1,5 @@
 <template>
-  <button
-    :title="$t(title)"
-    class="btn btn-secondary  btn-sm"
-    type="button"
-    @click="manipulateLine"
-  >
+  <button :title="$t(title)" class="btn btn-secondary btn-sm" type="button" @click="manipulateLine">
     <span style="font-size: larger;">{{$t(content)}}</span>
   </button>
 </template>
@@ -13,7 +8,16 @@ export default {
   props: ['title', 'action', 'content'],
   methods: {
     manipulateLine() {
-      this.$store.dispatch('transcribe/manipulateLine', this.action)
+      this.$store
+        .dispatch('transcribe/manipulateLine', this.action)
+        .then(() => {
+          const cursorLocation = this.$store.state.transcribe.selected_line
+            .selected_range.end
+
+          const inputElem = document.getElementById('trw')
+          inputElem.focus()
+          inputElem.setSelectionRange(cursorLocation+2, cursorLocation+2)
+        })
     }
   }
 }

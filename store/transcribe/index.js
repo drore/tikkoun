@@ -11,7 +11,15 @@ export const state = () => ({
 
 export const mutations = {
   gotLine(state, payload) {
-    state.selected_line = payload
+    state.selected_line = Object.assign(
+      {
+        selected_range: {
+          start: 0,
+          end: 0
+        }
+      },
+      payload
+    )
   },
   gotPrevLine(state, payload) {
     state.prev_line = payload
@@ -155,9 +163,8 @@ export const actions = {
       } else {
         // If no next line is one user, go by it's last line
         const lastUserLine = await api.getUserLastLine(state.manuscript.id, uid)
-        
+
         if (lastUserLine) {
-          
           const lineObj = await api.getLine(
             state.manuscript.id,
             lastUserLine.page,
