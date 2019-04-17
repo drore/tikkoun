@@ -71,6 +71,7 @@ module.exports = {
   ** Nuxt.js modules
   */
   modules: [
+    'nuxt-device-detect',
     [
       'nuxt-i18n',
       {

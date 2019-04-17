@@ -8,6 +8,7 @@ export default () => {
       'nav.about': 'אודות',
       'nav.project': 'אודות הפרויקט',
       'nav.htr': 'HTR',
+      'lines_made':'שורות שתועתקו',
       'nav.midrash': 'מדרש תנחומא',
       'nav.team': 'מי אנחנו',
       'nav.logout': 'יציאה',

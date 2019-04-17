@@ -94,7 +94,13 @@
             </div>
           </li>
           <li class="nav-item" v-if="$store.state.auth.user && $store.state.auth.user.linesTranscribed">
-            <a class="nav-link lines-made">
+            <a class="nav-link" v-if="$device.isMobile">
+              {{$t('lines_made')}}: 
+              <span
+                title="Number of lines transcribed"
+              >{{$store.state.auth.user.linesTranscribed}}</span>
+            </a>
+            <a class="nav-link lines-made" v-if="!$device.isMobile">
               <span
                 title="Number of lines transcribed"
               >{{$store.state.auth.user.linesTranscribed}}</span>

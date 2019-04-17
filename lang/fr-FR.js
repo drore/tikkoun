@@ -13,6 +13,7 @@ export default () => {
       'nav.logout': 'Se déconnecter',
       'nav.profile': 'Profile',
       'nav.start': 'Je participe !',
+      'lines_made':'Transcribed lines',
       'nav.conversation': ``,
       'lang.en': 'English',
       'lang.he': 'עברית',

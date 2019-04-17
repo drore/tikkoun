@@ -12,6 +12,7 @@ export default () => {
       'nav.midrash': 'Midrash Tanhuma',
       'nav.team': 'The Team',
       'nav.logout': 'Logout',
+      'lines_made':'Transcribed lines',
       'nav.conversation': 'Conversation',
       anonymous: 'Guest',
       'nav.profile': 'Profile',
