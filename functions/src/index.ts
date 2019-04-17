@@ -76,7 +76,7 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
   if (req.method === 'PUT') {
     return res.status(403).send('Forbidden!')
   }
-  if(!req.query.date){
+  if (!req.query.date) {
     return res.status(400).send(JSON.stringify(req.query))
   }
   // [END sendError]
@@ -99,7 +99,6 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
 
         Promise.all(promises).then(
           values => {
-            
             const csv = jsonToCSV(values)
             res.setHeader(
               'Content-disposition',
@@ -144,6 +143,15 @@ function formatLine(line: any) {
     const _userData = _user && _user.data && _user.data()
     const userid = _userData ? _userData.userid || _userData.uid : line.uid
 
+    const krakenLine = await admin
+      .firestore()
+      .collection(`manuscripts/${line.manuscript}/lines`)
+      .where('page', '==', line.page)
+      .where('line', '==', line.line)
+      .get()
+
+    const krakenLineData = krakenLine.size && krakenLine.docs[0] && krakenLine.docs[0].data && krakenLine.docs[0].data() || {}
+
     const createdOn = new Date(line.createdOn._seconds * 1000)
     const start = line.start
       ? new Date(line.start._seconds * 1000)
@@ -156,7 +164,7 @@ function formatLine(line: any) {
       line: line.line,
       status: line.skipped ? 0 : 3,
       transcriptionversion: '',
-      automatictranscription: '',
+      automatictranscription: krakenLineData.AT,
       usertranscription: line.transcription,
       start: start,
       host: ''
@@ -175,6 +183,36 @@ function jsonToCSV(json: Array<object>, fields?: Array<string>) {
   const BOM = '\uFEFF'
   return BOM + csv
 }
+
+export const onLineTranscriptionAdded = functions.firestore
+  .document('transcriptions/{id}')
+  .onCreate((snap, context) => {
+    const data = snap.data()
+    if (data) {
+      if (!data.skipped) {
+        // update the num of lines per user
+        admin
+          .firestore()
+          .collection('transcriptions')
+          .where('uid', '==', data.uid)
+          .get()
+          .then(tSnap => {
+            admin
+              .firestore()
+              .doc(`users/${data.uid}`)
+              .update({
+                linesTranscribed: tSnap.size
+              })
+              .catch(() => {
+                return null
+              })
+          })
+          .catch(() => {
+            return null
+          })
+      }
+    }
+  })
 
 export const onLineViewUpdated = functions.firestore
   .document('manuscripts/{msId}/lines/{lineId}')

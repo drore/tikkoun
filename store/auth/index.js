@@ -13,14 +13,17 @@ export const mutations = {
   setUser(state, payload) {
     state.user = payload
   },
-  setUserRole(state, payload) {
-    state.user.role = payload
-  },
   loginError(state, payload) {
     state.login.error = payload.message
   },
   loginShowSection(state, payload) {
     state.login.shown_section = payload
+  },
+
+  updateUserLinesTranscribed(state) {
+    state.user.linesTranscribed = state.user.linesTranscribed
+      ? state.user.linesTranscribed + 1
+      : 1
   },
   gotUserLines(state, payload) {
     state.user.userLines = payload.docs.map(d => {
@@ -38,11 +41,16 @@ export const mutations = {
 
 export const actions = {
   nuxtServerInit({ commit }, { req }) {},
-  updateUser({ commit }, user) {
+  updateUser({ commit, dispatch }, user) {
     return new Promise((resolve, reject) => {
-      api.updateUser(user)
-      resolve()
+      api.updateUser(user).then(res => {
+        dispatch('setUser', res)
+        resolve()
+      })
     })
+  },
+  updateUserLinesTranscribed({ commit }) {
+    commit('updateUserLinesTranscribed')
   },
   sendResetPasswordMail({ commit }, emailAddress) {
     return api.sendResetPasswordMail(emailAddress)
@@ -52,10 +60,6 @@ export const actions = {
   },
   setUser({ commit }, user) {
     commit('setUser', user)
-    // api.getUser(user.uid).then(res => {
-    //   const userData = res.data()
-    //   commit('setUserRole', userData.role)
-    // })
   },
   gotUserLines({ commit }, payload) {
     commit('gotUserLines', payload)

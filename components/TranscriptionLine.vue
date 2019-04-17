@@ -315,6 +315,8 @@ export default {
       this.$store.dispatch('transcribe/addTranscription', {
         user: this.$store.state.auth.user,
         skipped: false
+      }).then(res =>{
+        this.$store.dispatch('auth/updateUserLinesTranscribed')
       })
     },
     skip() {

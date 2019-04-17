@@ -83,11 +83,23 @@
             >{{$t('manuscripts')}}</a>
 
             <div class="dropdown-menu" aria-labelledby="msDropdown">
-              <a class="dropdown-item" :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:'geneva' }})">Geneva</a>
-              <a class="dropdown-item" :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:'bnf150' }})">BNF</a>
+              <a
+                class="dropdown-item"
+                :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:'geneva' }})"
+              >Geneva</a>
+              <a
+                class="dropdown-item"
+                :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:'bnf150' }})"
+              >BNF</a>
             </div>
           </li>
-
+          <li class="nav-item" v-if="$store.state.auth.user && $store.state.auth.user.linesTranscribed">
+            <a class="nav-link lines-made">
+              <span
+                title="Number of lines transcribed"
+              >{{$store.state.auth.user.linesTranscribed}}</span>
+            </a>
+          </li>
           <li class="nav-item dropdown" v-if="$store.state.auth.user">
             <a
               class="nav-link dropdown-toggle"
@@ -163,3 +175,21 @@ export default {
   }
 }
 </script>
+<style lang="scss">
+.lines-made {
+  margin: 0 10px;
+  background-color: black;
+  padding: 8px;
+  border-radius: 50%;
+  text-align: center;
+  & > span {
+    width: 25px;
+    height: 25px;
+    color: white;
+    display: inline-block;
+    &:hover {
+      color: white;
+    }
+  }
+}
+</style>

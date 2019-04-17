@@ -36,14 +36,32 @@ export default {
     return StoreDB.doc(`users/${uid}`).get()
   },
   updateUser(user) {
-    if (!user.isAnonymous) {
-      let obj = Object.assign({ lastLogin: ServerTimestamp() }, user)
-      if (user.isNewUser) {
-        obj.createOn = ServerTimestamp()
+    return new Promise((resolve, reject) => {
+      if (!user.isAnonymous) {
+        let obj = Object.assign({ lastLogin: ServerTimestamp() }, user)
+        if (user.isNewUser) {
+          obj.createdOn = ServerTimestamp()
+        }
+        const userObj = {
+          displayName: obj.displayName,
+          email: obj.email,
+          uid: obj.uid,
+          photoURL: obj.photoURL,
+          isAnonymous: obj.isAnonymous
+        }
+        StoreDB.doc(`users/${user.uid}`)
+          .get()
+          .then(userSnap => {
+            userSnap.ref.set(userObj, { merge: true })
+            resolve(userSnap.data())
+          })
+          .catch(() => {
+            resolve()
+          })
+      } else {
+        resolve()
       }
-      const usersRef = StoreDB.collection('users')
-      usersRef.doc(user.uid).set(obj, { merge: true })
-    }
+    })
   },
   getManuscript(name) {
     let query = null
@@ -129,7 +147,8 @@ export default {
           } else {
             resolve()
           }
-        }).catch(err => {
+        })
+        .catch(err => {
           resolve()
         })
     })
@@ -178,7 +197,7 @@ export default {
           StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`)
             .set(
               {
-                action: params.skipped? 'skip':'done'
+                action: params.skipped ? 'skip' : 'done'
               },
               { merge: true }
             )
