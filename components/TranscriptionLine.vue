@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div id="v-viewer-container">
+    <img :src="currLineImage" v-if="$device.isMobile" style="width:100%">
+    <div id="v-viewer-container" v-if="!$device.isMobile">
       <div
         v-if="!line"
         style="font-size:20px;text-align:center;width:100%"
