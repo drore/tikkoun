@@ -67,6 +67,13 @@ export const mutations = {
   setSelectedTextRange(state, payload) {
     state.selected_line.selected_range = payload
   },
+  clear(state) {
+    state.selected_line = null;
+    state.manuscript = null
+    state.next_line = null
+    state.prev_line = null
+    state.transcription = null
+  },
   gotManuscript(state, payload) {
     const msData = payload.docs.map(d => {
       const obj = d.data()
@@ -85,6 +92,9 @@ export const actions = {
   nuxtServerInit({ commit }, { req }) {},
   INIT({ commit, dispatch }, manuscriptName) {
     dispatch('GET_MANUSCRIPT', manuscriptName)
+  },
+  clear({ commit }) {
+    commit('clear')
   },
   resetTranscription({ commit }) {
     commit('resetTranscription')
@@ -139,15 +149,18 @@ export const actions = {
     } else {
       // For the specific user!
       // First look at the user profile, see if we have his last line
-      const userNextLine = await api.getUserNextLine(state.manuscript.id, uid)
-      if (userNextLine) {
+      const userNextLineGeneralIndex = await api.getUserNextLine(
+        state.manuscript.id,
+        uid
+      )
+      if (userNextLineGeneralIndex) {
         // Now, is this line matches the conditions? (less then 20 actions)
         const res = await api.getLineByGeneralIndex(
           state.manuscript.id,
-          userNextLine
+          userNextLineGeneralIndex
         )
 
-        if (res.data && res.data.views + res.data.transcriptions < 20) {
+        if (res.data && res.data.transcriptions < 5) {
           // This is just to keep the structure, maybe better impl. is possible
           promise = new Promise(resolve => {
             resolve(res)
@@ -161,7 +174,7 @@ export const actions = {
           )
         }
       } else {
-        // If no next line is one user, go by it's last line
+        // If no next line is on the user, go by the user's last line
         const lastUserLine = await api.getUserLastLine(state.manuscript.id, uid)
 
         if (lastUserLine) {
@@ -176,11 +189,19 @@ export const actions = {
             lineObj.general_index + 1
           )
 
-          promise = manuscriptsManager.getLine(
-            state.manuscript.id,
-            res.data.page,
-            res.data.line
-          )
+          if (res.data && res.data.transcriptions < 5) {
+            // This is just to keep the structure, maybe better impl. is possible
+            promise = new Promise(resolve => {
+              resolve(res)
+            })
+          } else {
+            // If not, take the next line from the manuscript object
+            promise = manuscriptsManager.getLine(
+              state.manuscript.id,
+              state.manuscript.next_page,
+              state.manuscript.next_line
+            )
+          }
         } else {
           promise = manuscriptsManager.getLine(
             state.manuscript.id,

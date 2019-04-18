@@ -29,16 +29,7 @@ export const mutations = {
   },
   // Manuscript content
   gotManuscriptContent(state, payload) {
-    state.manuscript_content = payload.docs.map(d => {
-      const data = d.data()
-      return {
-        id: d.id,
-        token: data.token,
-        lang: data.lang,
-        manuscript: data.manuscript,
-        value: data.value
-      }
-    })
+    state.manuscript_content = payload
   },
   addMSContentItem(state, payload) {
     if (state.manuscript_content) {

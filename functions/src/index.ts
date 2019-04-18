@@ -76,7 +76,7 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
   if (req.method === 'PUT') {
     return res.status(403).send('Forbidden!')
   }
-  if (!req.query.date) {
+  if (!req.query.from || !req.query.to) {
     return res.status(400).send(JSON.stringify(req.query))
   }
   // [END sendError]
@@ -84,11 +84,13 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
   // [START usingMiddleware]
   // Enable CORS using the `cors` express middleware.
   return cors(req, res, () => {
-    const date = new Date(req.query.date)
+    const from = new Date(req.query.from)
+    const to = new Date(req.query.to)
 
     const db = admin.firestore()
     db.collection('transcriptions')
-      .where('createdOn', '>', date)
+      .where('createdOn', '>=', from)
+      .where('createdOn', '<=', to)
       .limit(5000)
       .get()
       .then(snapshot => {
@@ -102,7 +104,7 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
             const csv = jsonToCSV(values)
             res.setHeader(
               'Content-disposition',
-              `filename; filename=lines_${date.toString()}.csv`
+              `filename; filename=lines_${from.toString()}_${to.toString()}.csv`
             )
             res.setHeader(
               'Access-Control-Expose-Headers',
@@ -150,7 +152,12 @@ function formatLine(line: any) {
       .where('line', '==', line.line)
       .get()
 
-    const krakenLineData = krakenLine.size && krakenLine.docs[0] && krakenLine.docs[0].data && krakenLine.docs[0].data() || {}
+    const krakenLineData =
+      (krakenLine.size &&
+        krakenLine.docs[0] &&
+        krakenLine.docs[0].data &&
+        krakenLine.docs[0].data()) ||
+      {}
 
     const createdOn = new Date(line.createdOn._seconds * 1000)
     const start = line.start
@@ -183,34 +190,128 @@ function jsonToCSV(json: Array<object>, fields?: Array<string>) {
   const BOM = '\uFEFF'
   return BOM + csv
 }
-
-export const onLineTranscriptionAdded = functions.firestore
+/**
+ * This function will point to the next needed location
+ */
+export const updateManuscriptNextLine = functions.firestore
   .document('transcriptions/{id}')
-  .onCreate((snap, context) => {
-    const data = snap.data()
-    if (data) {
-      if (!data.skipped) {
-        // update the num of lines per user
-        admin
-          .firestore()
-          .collection('transcriptions')
-          .where('uid', '==', data.uid)
-          .get()
-          .then(tSnap => {
+  .onCreate(transcriptionSnap => {
+    const transcriptionData = transcriptionSnap && transcriptionSnap.data()
+    return (
+      transcriptionData &&
+      !transcriptionData.skipped &&
+      admin
+        .firestore()
+        .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
+        .where('transcriptions', '<', 5)
+        .limit(1)
+        .get()
+        .then(lineSnap => {
+          const lineData = lineSnap.size && lineSnap.docs[0].data()
+          if (lineData) {
             admin
               .firestore()
-              .doc(`users/${data.uid}`)
+              .doc(`manuscripts/${transcriptionData.manuscript}`)
               .update({
-                linesTranscribed: tSnap.size
+                next_line: lineData.line,
+                next_page: lineData.page
               })
               .catch(() => {
                 return null
               })
+
+            return null
+          } else {
+            return null
+          }
+        })
+    )
+  })
+
+export const onLineTranscriptionAdded = functions.firestore
+  .document('transcriptions/{id}')
+  .onCreate(transcriptionSnap => {
+    const transcriptionData = transcriptionSnap.data()
+
+    if (transcriptionData) {
+      
+      if (!transcriptionData.skipped) {
+        console.log(`*** LINE BY: ${transcriptionData.uid} ***`)
+        // Update the number of transcriptions on the line obj
+        admin
+          .firestore()
+          .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
+          .where('page', '==', transcriptionData.page)
+          .where('line', '==', transcriptionData.line)
+          .limit(1)
+          .get()
+          .then(linesSnap => {
+            if (linesSnap.size) {
+              const lineData = linesSnap.docs[0].data()
+              const transcriptions = (lineData && lineData.transcriptions) || 0
+              console.log(`*** LINE ${linesSnap.docs[0].id} transcriptions: ${transcriptions + 1} ***`)
+              return linesSnap.docs[0].ref
+                .update({ transcriptions: transcriptions + 1 })
+                .catch(() => {
+                  return null
+                })
+            } else {
+              return null
+            }
           })
           .catch(() => {
             return null
           })
+
+        admin
+          .firestore()
+          .doc(`users/${transcriptionData.uid}`)
+          .get()
+          .then(userSnap => {
+            if (userSnap.exists) {
+              const userData = userSnap.data()
+              if (userData && userData.linesTranscribed) {
+                return userSnap.ref
+                  .update({
+                    linesTranscribed: userData.linesTranscribed + 1
+                  })
+                  .catch(() => {
+                    return null
+                  })
+              } else {
+                // update the num of lines per user
+                return admin
+                  .firestore()
+                  .collection('transcriptions')
+                  .where('uid', '==', transcriptionData.uid)
+                  .get()
+                  .then(tSnap => {
+                    console.log(`*** UPDATING USER ${transcriptionData.uid} with lines transcribed: ${tSnap.size + 1} ***`)
+                    return userSnap.ref
+                      .update({
+                        linesTranscribed: tSnap.size
+                      })
+                      .catch(() => {
+                        return null
+                      })
+                  })
+                  .catch(() => {
+                    return null
+                  })
+              }
+            } else {
+              return null
+            }
+          })
+          .catch(() => {
+            return null
+          })
+        return null
+      } else {
+        return null
       }
+    } else {
+      return null
     }
   })
 

@@ -25,7 +25,6 @@
             <div class="card-body">
               <!-- <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>-->
               <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
-              <a href="javascript:;" @click="getAllUsers">get all users</a>
               <hr>
             </div>
           </div>
@@ -188,97 +187,31 @@ export default {
         manuscript: this.manuscript
       })
     },
-    async getAllUsers() {
-      const users = await api.getAllUsers()
 
-      const usersData = users.docs.map(_u => {
-        let u = _u.data()
-        let uid = _u.id
-        let created = u.createdAt || u.createdOn
-        let obj = {
-          displayName: u.displayName,
-          email: u.email,
-          uid: uid,
-          contactByEmail: u.contact_allowed,
-          midrash: +u.midrashknowledge,
-          hebrew: +u.hebrewknowledge,
-          userid: u.userid,
-          age: u.age
-        }
-
-        if (created) {
-          let a = null
-          if (created.seconds) {
-            a = new Date(+`${created.seconds}000`)
-          } else {
-            a = new Date(+created)
-          }
-          if (!isNaN(a)) {
-            obj.createdOn = a
-          } else {
-            debugger
-          }
-        }
-
-        return obj
-      })
-      debugger
-    },
     async loadIntoFB() {
-      StoreDB.collection('users')
+      const lines = await StoreDB.collection(
+        'manuscripts/KVqHkylpQFUvkQlQrP9U/lines'
+      )
+        .where('transcriptions', '==', 0)
         .get()
-        .then(snap => {
-          snap.docs.forEach(d => {
-            const userData = d.data()
-            if (userData.createdAt && userData.createdOn) {
-              d.ref.update({
-                createdAt: firebase.firestore.FieldValue.delete()
-              })
-            }
-          })
-        })
+      console.log(lines.size)
+      for (let i = 0; i < lines.size; i++) {
+        const lineDoc = lines.docs[i]
+        const lineData = lineDoc.data()
+        const transcriptions = await StoreDB.collection('transcriptions')
+          .where('manuscript', '==', 'KVqHkylpQFUvkQlQrP9U')
+          .where('page', '==', lineData.page)
+          .where('line', '==', lineData.line)
+          .get()
+
+        if (transcriptions.size) {
+          await lineDoc.ref.update({ transcriptions: transcriptions.size })
+          console.log('++ updated', i, transcriptions.size)
+        } else {
+          console.log('-- skipped', i)
+        }
+      }
     },
-    //var tsv is the TSV file with headers
-    //     async loadIntoFB() {
-    //       const transcriptions = await axios.get(`/transcriptions_EOF.json`)
-    //       //debugger;
-    //       let obj = {}
-    //       let transcription = null
-    //       //transcriptions.data.length
-    //       //debugger;
-    //       let exists = []
-
-    //       for (let i = 0; i < transcriptions.data.length; i++) {
-    //         transcription = transcriptions.data[i]
-    // console.log(i)
-    //         await StoreDB.collection('transcriptions')
-    //           .where('createdOn', '==', transcription.createdOn)
-    //           .where('page', '==', transcription.page)
-    //           .where('uid', '==', transcription.uid)
-    //           .where('line', '==', transcription.line)
-    //           .get()
-    //           .then(res => {
-    //             if (!res.size) {
-    //               console.log(`++adding: `, i)
-    //               StoreDB.collection('transcriptions')
-    //                 .add(transcription)
-    //                 .catch(err => {
-    //                   console.log(err, transcription, i)
-    //                 })
-    //             } else {
-    //               if (res.size > 1) {
-    //                 console.log(`exists #:${res.size}`, i)
-    //                 exists.push({ count: res.size, index: i })
-    //                 res.docs[0].ref.delete().then(result => {
-    //                   //debugger
-    // console.log(`--removed`, i)
-    //                 })
-
-    //               }
-    //             }
-    //           })
-    //       }
-    //     },
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)
     },

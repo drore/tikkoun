@@ -153,6 +153,7 @@ export default {
     logout() {
       this.$store.dispatch('auth/signOut').then(() => {
         this.$router.push(`/${this.$store.state.i18n.locale}`)
+        this.$store.dispatch('transcribe/clear')
       })
     },
     getTranscribePath() {

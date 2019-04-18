@@ -8,7 +8,10 @@ export default context => {
       if (user) {
         const _user = user.toJSON()
         store.dispatch('auth/setUser', _user)
-        store.dispatch('auth/updateUser', _user)
+        if (!_user.isAnonymous) {
+          store.dispatch('auth/updateUser', _user)
+        }
+
         return resolve()
       }
       return resolve()

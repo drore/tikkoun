@@ -1,5 +1,4 @@
 import { ServerTimestamp, StoreDB, auth } from '~/plugins/firebase.js'
-import { Store } from 'vuex'
 
 export default {
   getCollection(collection) {
@@ -16,9 +15,6 @@ export default {
       .catch(err => {
         console.error(userData.email)
       })
-  },
-  getAllUsers() {
-    return StoreDB.collection('users').get()
   },
   // General content
   getContent(lang) {
@@ -77,10 +73,35 @@ export default {
   },
   // Manuscript content
   getManuscriptContent(lang, manuscriptName) {
-    return StoreDB.collection('manuscript_content')
-      .where('manuscript', '==', manuscriptName)
-      .where('lang', '==', lang)
-      .get()
+    return new Promise ((resolve, reject) => {
+      // Try to read from local cache
+      let content = localStorage.getItem(`manuscript_content_${manuscriptName}`)
+      if(!content){
+        StoreDB.collection('manuscript_content')
+        .where('manuscript', '==', manuscriptName)
+        .where('lang', '==', lang)
+        .get().then(res => {
+          content = res.docs.map(d => {
+            const data = d.data()
+            return {
+              id: d.id,
+              token: data.token,
+              lang: data.lang,
+              manuscript: data.manuscript,
+              value: data.value
+            }
+          })
+          // cache locally
+          localStorage.setItem(`manuscript_content_${manuscriptName}`, JSON.stringify(content))
+          resolve(content)
+        })
+      }
+      else{
+        resolve(JSON.parse(content))
+      }
+      
+    })
+    
   },
   getEmailForUserId(userid) {
     return new Promise((resolve, reject) => {

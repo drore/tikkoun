@@ -45,7 +45,7 @@
         </div>
         <div class="border-left col-sm-6">
           <a href="javascript:;" @click="googleSignUp">
-            <img src="images/btn_google_signin_dark_normal_web.png" alt>
+            <img src="/images/btn_google_signin_dark_normal_web.png" alt="Google signin">
           </a>
           <div class="d-flex justify-content-between">
             <div>
