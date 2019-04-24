@@ -16,7 +16,7 @@ export default {
 
           const inputElem = document.getElementById('trw')
           inputElem.focus()
-          inputElem.setSelectionRange(cursorLocation+2, cursorLocation+2)
+          inputElem.setSelectionRange(cursorLocation+1, cursorLocation+1)
         })
     }
   }

@@ -273,7 +273,7 @@ export default {
 
       const inputElem = document.getElementById('trw')
       inputElem.focus()
-      inputElem.setSelectionRange(cursorLocation + 2, cursorLocation + 2)
+      inputElem.setSelectionRange(cursorLocation, cursorLocation)
     },
     manipulateLineByAdding(mark) {
       const self = this
@@ -311,6 +311,10 @@ export default {
     },
     change(e) {
       this.$store.dispatch('transcribe/updateTranscription', e.target.value)
+      this.$store.dispatch('transcribe/setSelectedTextRange', {
+        start: e.target.selectionEnd,
+        end: e.target.selectionEnd
+      })
     },
     done() {
       this.$store.dispatch('transcribe/addTranscription', {

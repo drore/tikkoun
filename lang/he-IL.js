@@ -8,6 +8,7 @@ export default () => {
       'nav.about': 'אודות',
       'nav.project': 'אודות הפרויקט',
       'nav.htr': 'HTR',
+      'maintenance':'מערכת תיקון סופרים יצאה להפסקת תחזוקה קלה, תשוב בשעה 14:00',
       'lines_made':'שורות שתועתקו',
       'nav.midrash': 'מדרש תנחומא',
       'nav.team': 'מי אנחנו',

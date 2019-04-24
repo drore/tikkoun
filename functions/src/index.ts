@@ -195,117 +195,102 @@ function jsonToCSV(json: Array<object>, fields?: Array<string>) {
  */
 export const updateManuscriptNextLine = functions.firestore
   .document('transcriptions/{id}')
-  .onCreate(transcriptionSnap => {
+  .onCreate(async transcriptionSnap => {
+    console.log('updateManuscriptNextLine', 'updateing next line and page')
     const transcriptionData = transcriptionSnap && transcriptionSnap.data()
-    return (
-      transcriptionData &&
-      !transcriptionData.skipped &&
-      admin
+    if (transcriptionData && !transcriptionData.skipped) {
+      const lineSnap = await admin
         .firestore()
         .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
         .where('transcriptions', '<', 5)
         .limit(1)
         .get()
-        .then(lineSnap => {
-          const lineData = lineSnap.size && lineSnap.docs[0].data()
-          if (lineData) {
-            admin
-              .firestore()
-              .doc(`manuscripts/${transcriptionData.manuscript}`)
-              .update({
-                next_line: lineData.line,
-                next_page: lineData.page
-              })
-              .catch(() => {
-                return null
-              })
 
+      const lineData = lineSnap.size && lineSnap.docs[0].data()
+      if (lineData) {
+        admin
+          .firestore()
+          .doc(`manuscripts/${transcriptionData.manuscript}`)
+          .update({
+            next_line: lineData.line,
+            next_page: lineData.page
+          })
+          .catch(() => {
             return null
-          } else {
-            return null
-          }
-        })
-    )
+          })
+
+        return null
+      } else {
+        return null
+      }
+    } else {
+      return null
+    }
   })
 
 export const onLineTranscriptionAdded = functions.firestore
   .document('transcriptions/{id}')
-  .onCreate(transcriptionSnap => {
+  .onCreate(async transcriptionSnap => {
     const transcriptionData = transcriptionSnap.data()
-
     if (transcriptionData) {
-      
       if (!transcriptionData.skipped) {
         console.log(`*** LINE BY: ${transcriptionData.uid} ***`)
         // Update the number of transcriptions on the line obj
-        admin
+        const linesSnap = await admin
           .firestore()
           .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
           .where('page', '==', transcriptionData.page)
           .where('line', '==', transcriptionData.line)
           .limit(1)
           .get()
-          .then(linesSnap => {
-            if (linesSnap.size) {
-              const lineData = linesSnap.docs[0].data()
-              const transcriptions = (lineData && lineData.transcriptions) || 0
-              console.log(`*** LINE ${linesSnap.docs[0].id} transcriptions: ${transcriptions + 1} ***`)
-              return linesSnap.docs[0].ref
-                .update({ transcriptions: transcriptions + 1 })
-                .catch(() => {
-                  return null
-                })
-            } else {
-              return null
-            }
-          })
-          .catch(() => {
-            return null
-          })
 
-        admin
+        if (linesSnap.size) {
+          const lineData = linesSnap.docs[0].data()
+          const transcriptions = (lineData && lineData.transcriptions) || 0
+          await linesSnap.docs[0].ref.update({
+            transcriptions: transcriptions + 1
+          })
+          console.log(
+            `*** Updated line ${
+              linesSnap.docs[0].id
+            } transcriptions: ${transcriptions + 1} ***`
+          )
+        }
+
+        // Update the number of lines transcribed on the user
+        const userSnap = await admin
           .firestore()
           .doc(`users/${transcriptionData.uid}`)
           .get()
-          .then(userSnap => {
-            if (userSnap.exists) {
-              const userData = userSnap.data()
-              if (userData && userData.linesTranscribed) {
-                return userSnap.ref
-                  .update({
-                    linesTranscribed: userData.linesTranscribed + 1
-                  })
-                  .catch(() => {
-                    return null
-                  })
-              } else {
-                // update the num of lines per user
-                return admin
-                  .firestore()
-                  .collection('transcriptions')
-                  .where('uid', '==', transcriptionData.uid)
-                  .get()
-                  .then(tSnap => {
-                    console.log(`*** UPDATING USER ${transcriptionData.uid} with lines transcribed: ${tSnap.size + 1} ***`)
-                    return userSnap.ref
-                      .update({
-                        linesTranscribed: tSnap.size
-                      })
-                      .catch(() => {
-                        return null
-                      })
-                  })
-                  .catch(() => {
-                    return null
-                  })
-              }
-            } else {
-              return null
-            }
-          })
-          .catch(() => {
-            return null
-          })
+
+        if (userSnap.exists) {
+          const userData = userSnap.exists && userSnap.data()
+          if (userData && userData.linesTranscribed) {
+            await userSnap.ref.update({
+              linesTranscribed: userData.linesTranscribed + 1
+            })
+            console.log(
+              `*** Updated lines transcribed for user ${
+                transcriptionData.uid
+              } to: ${userData.linesTranscribed + 1} ***`
+            )
+          } else {
+            // update the num of lines per user
+            const userTranscriptionsSnap = await admin
+              .firestore()
+              .collection('transcriptions')
+              .where('uid', '==', transcriptionData.uid)
+              .get()
+            await userSnap.ref.update({
+              linesTranscribed: userTranscriptionsSnap.size
+            })
+            console.log(
+              `*** [Initial calc] Updated lines transcribed for user ${
+                transcriptionData.uid
+              } to: ${userTranscriptionsSnap.size} ***`
+            )
+          }
+        }
         return null
       } else {
         return null

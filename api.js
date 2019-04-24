@@ -73,35 +73,37 @@ export default {
   },
   // Manuscript content
   getManuscriptContent(lang, manuscriptName) {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       // Try to read from local cache
-      let content = localStorage.getItem(`manuscript_content_${manuscriptName}`)
-      if(!content){
+      
+      let content = localStorage.getItem(`manuscript_content_${manuscriptName}_${lang}`)
+      if (!content) {
         StoreDB.collection('manuscript_content')
-        .where('manuscript', '==', manuscriptName)
-        .where('lang', '==', lang)
-        .get().then(res => {
-          content = res.docs.map(d => {
-            const data = d.data()
-            return {
-              id: d.id,
-              token: data.token,
-              lang: data.lang,
-              manuscript: data.manuscript,
-              value: data.value
-            }
+          .where('manuscript', '==', manuscriptName)
+          .where('lang', '==', lang)
+          .get()
+          .then(res => {
+            content = res.docs.map(d => {
+              const data = d.data()
+              return {
+                id: d.id,
+                token: data.token,
+                lang: data.lang,
+                manuscript: data.manuscript,
+                value: data.value
+              }
+            })
+            // cache locally
+            localStorage.setItem(
+              `manuscript_content_${manuscriptName}_${lang}`,
+              JSON.stringify(content)
+            )
+            resolve(content)
           })
-          // cache locally
-          localStorage.setItem(`manuscript_content_${manuscriptName}`, JSON.stringify(content))
-          resolve(content)
-        })
-      }
-      else{
+      } else {
         resolve(JSON.parse(content))
       }
-      
     })
-    
   },
   getEmailForUserId(userid) {
     return new Promise((resolve, reject) => {
@@ -209,23 +211,26 @@ export default {
       `manuscripts/${manuscriptId}/lines/${params.lineId}`
     ).update({ views: params.viewCounter + 1 })
   },
-  addTranscription(params) {
+  async addTranscription(_params) {
     // Write to the user obj
+    const params = Object.assign({}, _params)
+    params.uid = params.isAnonymous ? 'guest' : params.uid
+    delete params.generalIndex
+    ///
+    await this.updateDocument(`transcriptions`, null,  params )
+
     if (!params.isAnonymous) {
-      return StoreDB.doc(`users/${params.uid}/manuscripts/${params.manuscript}`)
-        .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
+      await StoreDB.doc(`users/${params.uid}/manuscripts/${params.manuscript}`)
+        .set({ next_general_index: _params.generalIndex + 1 }, { merge: true })
         .then(res => {
-          StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`)
-            .set(
-              {
-                action: params.skipped ? 'skip' : 'done'
-              },
-              { merge: true }
-            )
-            .then(res => {
-              this.updateDocument(`transcriptions`, null, params)
-            })
+          StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`).set(
+            {
+              action: params.skipped ? 'skip' : 'done'
+            },
+            { merge: true }
+          )
         })
+      return false
     } else {
       return false
     }

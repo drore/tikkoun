@@ -13,6 +13,7 @@ export default () => {
       'nav.team': 'The Team',
       'nav.logout': 'Logout',
       'lines_made':'Transcribed lines',
+      'maintenance':`Tikkoun Sofrim system is out for maintenance, we'll be back at 14:00`,
       'nav.conversation': 'Conversation',
       anonymous: 'Guest',
       'nav.profile': 'Profile',

@@ -189,28 +189,18 @@ export default {
     },
 
     async loadIntoFB() {
-      const lines = await StoreDB.collection(
-        'manuscripts/KVqHkylpQFUvkQlQrP9U/lines'
-      )
-        .where('transcriptions', '==', 0)
-        .get()
-      console.log(lines.size)
-      for (let i = 0; i < lines.size; i++) {
-        const lineDoc = lines.docs[i]
-        const lineData = lineDoc.data()
-        const transcriptions = await StoreDB.collection('transcriptions')
-          .where('manuscript', '==', 'KVqHkylpQFUvkQlQrP9U')
-          .where('page', '==', lineData.page)
-          .where('line', '==', lineData.line)
-          .get()
+      // const users = await StoreDB.collection('users').get()
+      // for(let i=0;i<users.size;i++){
+      //   const userSnap = users.docs[i]
+      //   const transcriptions = await StoreDB.collection('transcriptions').where('uid','==',userSnap.id).get()
+      //   if(transcriptions.size){
+      //     await userSnap.ref.update({linesTranscribed:transcriptions.size})
+      //   }
+      // }
+      const linesWithZero = await StoreDB.collection(`manuscripts/woNEyuFHMZUaKNYclE8a/lines`).where('transcriptions','<',5).get()
+      debugger;
+      
 
-        if (transcriptions.size) {
-          await lineDoc.ref.update({ transcriptions: transcriptions.size })
-          console.log('++ updated', i, transcriptions.size)
-        } else {
-          console.log('-- skipped', i)
-        }
-      }
     },
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)

@@ -6,6 +6,7 @@ export default () => {
       'banner.encourgement.line_1': `Contribuez à l'étude des manuscrits hébraïques anciens !`,
       'banner.encourgement.line_2': `Mettez vos talents à l'épreuve de la transcription`,
       'nav.about': `À propos`,
+      'maintenance':`Tikkoun Sofrim est en arrêt de maintenance jusqu'au 24 avril 2019 à 14h heure de Paris.`,
       'nav.project': 'Le Projet',
       'nav.htr': "Qu'est-ce que l'HTR ?",
       'nav.midrash': 'Midrash Tanhouma',
