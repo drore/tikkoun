@@ -69,6 +69,51 @@ exports.last_hour_lines_count = functions.https.onRequest((req, res) => {
   })
 })
 
+exports.user_lines_csv = functions.https.onRequest((req, res) => {
+  // [END trigger]
+  // [START sendError]
+  // Forbidding PUT requests.
+  if (req.method === 'PUT') {
+    return res.status(403).send('Forbidden!')
+  }
+  if (!req.query.uid) {
+    return res.status(400).send(JSON.stringify(req.query))
+  }
+  // [END sendError]
+  const uid = req.query.uid
+  // [START usingMiddleware]
+  // Enable CORS using the `cors` express middleware.
+  return cors(req, res, () => {
+    const db = admin.firestore()
+    db.collection('transcriptions')
+      .where('uid', '==', uid)
+      .get()
+      .then(snapshot => {
+        let lines = snapshot.docs.map(d => d.data())
+        lines = lines.map(l => {
+          const date = l.start
+            ? new Date(l.start._seconds * 1000)
+            : new Date(l.createdOn._seconds * 1000)
+          return Object.assign({ date: date }, l)
+        })
+
+        const csv = jsonToCSV(lines)
+        res.setHeader(
+          'Content-disposition',
+          `filename; filename=lines_${uid}.csv`
+        )
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition')
+        res.set('Content-Type', 'text/csv;charset=utf-8')
+        res.status(200).send(csv)
+      })
+      .catch(reason => {
+        return res.status(500).send(reason)
+      })
+
+    // [END sendResponse]
+  })
+})
+
 exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
   // [END trigger]
   // [START sendError]
