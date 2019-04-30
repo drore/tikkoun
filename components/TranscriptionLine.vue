@@ -200,10 +200,9 @@ export default {
       if (res) {
         // Send analytics show line event
         ga('send', 'event', {
-          eventCategory: 'Transcribe',
+          eventCategory: 'Site_Actions',
           eventAction: 'show_line',
-          eventLabel: this.$store.state.transcribe.manuscript.id,
-          eventValue: { page: this.line.page, line: this.line.line }
+          eventLabel: this.$store.state.transcribe.manuscript.id
         })
 
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
@@ -333,10 +332,9 @@ export default {
         .then(res => {
           this.$store.dispatch('auth/updateUserLinesTranscribed')
           ga('send', 'event', {
-            eventCategory: 'Transcribe',
+            eventCategory: 'Transcribe_Actions',
             eventAction: 'done_line',
-            eventLabel: this.$store.state.transcribe.manuscript.id,
-            eventValue: { page: this.line.page, line: this.line.line }
+            eventLabel: this.$store.state.transcribe.manuscript.id
           })
         })
     },
@@ -349,10 +347,9 @@ export default {
         })
         .then(res => {
           ga('send', 'event', {
-            eventCategory: 'Transcribe',
+            eventCategory: 'Transcribe_Actions',
             eventAction: 'skipped_line',
-            eventLabel: this.$store.state.transcribe.manuscript.id,
-            eventValue: { page: this.line.page, line: this.line.line }
+            eventLabel: this.$store.state.transcribe.manuscript.id
           })
         })
     }
