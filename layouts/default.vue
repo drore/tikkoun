@@ -25,6 +25,9 @@ export default {
 
       return style
     }
+  },
+  mounted() {
+    ga('create', 'UA-133908181-1')
   }
 }
 </script>

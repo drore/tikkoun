@@ -128,6 +128,12 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
 
   // [START usingMiddleware]
   // Enable CORS using the `cors` express middleware.
+  const cache = {
+    manuscript: null,
+    lines: {},
+    users: {}
+  }
+
   return cors(req, res, () => {
     const from = new Date(req.query.from)
     const to = new Date(req.query.to)
@@ -136,13 +142,13 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
     db.collection('transcriptions')
       .where('createdOn', '>=', from)
       .where('createdOn', '<=', to)
-      .limit(5000)
       .get()
+      
       .then(snapshot => {
         const lines = snapshot.docs.map(d => d.data())
         const promises: Array<any> = []
 
-        lines.forEach(l => promises.push(formatLine(l)))
+        lines.forEach(l => promises.push(formatLine(l, cache)))
 
         Promise.all(promises).then(
           values => {
@@ -158,7 +164,7 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
             res.set('Content-Type', 'text/csv;charset=utf-8')
             res.status(200).send(csv)
           },
-          function(err) {
+          function (err) {
             return res.status(500).send(err)
           }
         )
@@ -171,38 +177,52 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
   })
 })
 
-function formatLine(line: any) {
-  return new Promise(async function(resolve, reject) {
-    const _manuscript = await admin
-      .firestore()
-      .doc(`manuscripts/${line.manuscript}`)
-      .get()
-    const _manuscriptData =
-      _manuscript && _manuscript.data && _manuscript.data()
-    const manuscript = _manuscriptData
-      ? _manuscriptData.official_name
+function formatLine(line: any, cache: any) {
+  return new Promise(async function (resolve, reject) {
+
+    if (!cache.manuscript) {
+      const _manuscript = await admin
+        .firestore()
+        .doc(`manuscripts/${line.manuscript}`)
+        .get()
+
+      cache.manuscript =
+        _manuscript && _manuscript.data && _manuscript.data()
+    }
+
+    const manuscript = cache.manuscript
+      ? cache.manuscript.official_name
       : line.manuscript
 
-    const _user = await admin
-      .firestore()
-      .doc(`users/${line.uid}`)
-      .get()
-    const _userData = _user && _user.data && _user.data()
-    const userid = _userData ? _userData.userid || _userData.uid : line.uid
+    if (!cache.users[line.uid]) {
+      const _user = await admin
+        .firestore()
+        .doc(`users/${line.uid}`)
+        .get()
 
-    const krakenLine = await admin
-      .firestore()
-      .collection(`manuscripts/${line.manuscript}/lines`)
-      .where('page', '==', line.page)
-      .where('line', '==', line.line)
-      .get()
+      cache.users[line.uid] = _user && _user.data && _user.data()
+    }
 
-    const krakenLineData =
-      (krakenLine.size &&
-        krakenLine.docs[0] &&
-        krakenLine.docs[0].data &&
-        krakenLine.docs[0].data()) ||
-      {}
+    const userid = cache.users[line.uid] ? cache.users[line.uid].userid || cache.users[line.uid].uid : line.uid
+
+    if (!cache.lines[`${line.manuscript}_${line.page}_${line.line}`]) {
+      const krakenLine = await admin
+        .firestore()
+        .collection(`manuscripts/${line.manuscript}/lines`)
+        .where('page', '==', line.page)
+        .where('line', '==', line.line)
+        .get()
+
+      cache.lines[`${line.manuscript}_${line.page}_${line.line}`] =
+        (krakenLine.size &&
+          krakenLine.docs[0] &&
+          krakenLine.docs[0].data &&
+          krakenLine.docs[0].data()) ||
+        {}
+    }
+console.log(cache)
+
+    const krakenLineData = cache.lines[`${line.manuscript}_${line.page}_${line.line}`]
 
     const createdOn = new Date(line.createdOn._seconds * 1000)
     const start = line.start
@@ -297,7 +317,7 @@ export const onLineTranscriptionAdded = functions.firestore
           })
           console.log(
             `*** Updated line ${
-              linesSnap.docs[0].id
+            linesSnap.docs[0].id
             } transcriptions: ${transcriptions + 1} ***`
           )
         }
@@ -316,7 +336,7 @@ export const onLineTranscriptionAdded = functions.firestore
             })
             console.log(
               `*** Updated lines transcribed for user ${
-                transcriptionData.uid
+              transcriptionData.uid
               } to: ${userData.linesTranscribed + 1} ***`
             )
           } else {
@@ -331,7 +351,7 @@ export const onLineTranscriptionAdded = functions.firestore
             })
             console.log(
               `*** [Initial calc] Updated lines transcribed for user ${
-                transcriptionData.uid
+              transcriptionData.uid
               } to: ${userTranscriptionsSnap.size} ***`
             )
           }

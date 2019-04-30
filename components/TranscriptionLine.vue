@@ -198,6 +198,14 @@ export default {
     // whenever question changes, this function will run
     line: function(res) {
       if (res) {
+        // Send analytics show line event
+        ga('send', 'event', {
+          eventCategory: 'Transcribe',
+          eventAction: 'show_line',
+          eventLabel: this.$store.state.transcribe.manuscript.id,
+          eventValue: { page: this.line.page, line: this.line.line }
+        })
+
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
         // For geneva, strip the file extension
         if (res.color_img_file_name.indexOf('.jpg') != -1) {
@@ -317,19 +325,36 @@ export default {
       })
     },
     done() {
-      this.$store.dispatch('transcribe/addTranscription', {
-        user: this.$store.state.auth.user,
-        skipped: false
-      }).then(res =>{
-        this.$store.dispatch('auth/updateUserLinesTranscribed')
-      })
+      this.$store
+        .dispatch('transcribe/addTranscription', {
+          user: this.$store.state.auth.user,
+          skipped: false
+        })
+        .then(res => {
+          this.$store.dispatch('auth/updateUserLinesTranscribed')
+          ga('send', 'event', {
+            eventCategory: 'Transcribe',
+            eventAction: 'done_line',
+            eventLabel: this.$store.state.transcribe.manuscript.id,
+            eventValue: { page: this.line.page, line: this.line.line }
+          })
+        })
     },
     skip() {
       // The last params is for 'skipped'
-      this.$store.dispatch('transcribe/addTranscription', {
-        user: this.$store.state.auth.user,
-        skipped: true
-      })
+      this.$store
+        .dispatch('transcribe/addTranscription', {
+          user: this.$store.state.auth.user,
+          skipped: true
+        })
+        .then(res => {
+          ga('send', 'event', {
+            eventCategory: 'Transcribe',
+            eventAction: 'skipped_line',
+            eventLabel: this.$store.state.transcribe.manuscript.id,
+            eventValue: { page: this.line.page, line: this.line.line }
+          })
+        })
     }
   }
 }
