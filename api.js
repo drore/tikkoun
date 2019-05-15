@@ -71,11 +71,28 @@ export default {
 
     return query.get()
   },
+  async addConversationMessage(params) {
+    return new Promise(async (resolve, reject) => {
+      params.createdOn = ServerTimestamp()
+      
+      if (params.replyTo) {
+        const num_replies = params.num_replies ? params.num_replies + 1 : 1
+        delete params.num_replies
+        await StoreDB.doc(params.replyTo).set({ num_replies: num_replies }, { merge: true })
+      }
+
+      const newMessage = await this.updateDocument(`messages`, null, params)
+
+      resolve(newMessage)
+    })
+
+  },
+
   // Manuscript content
   getManuscriptContent(lang, manuscriptName) {
     return new Promise((resolve, reject) => {
       // Try to read from local cache
-      
+
       let content = localStorage.getItem(`manuscript_content_${manuscriptName}_${lang}`)
       if (!content) {
         StoreDB.collection('manuscript_content')
@@ -217,7 +234,7 @@ export default {
     params.uid = params.isAnonymous ? 'guest' : params.uid
     delete params.generalIndex
     ///
-    await this.updateDocument(`transcriptions`, null,  params )
+    await this.updateDocument(`transcriptions`, null, params)
 
     if (!params.isAnonymous) {
       await StoreDB.doc(`users/${params.uid}/manuscripts/${params.manuscript}`)
@@ -237,6 +254,35 @@ export default {
   },
   updateTranslation(translation) {
     return this.updateDocument('translations', translation.id, translation)
+  },
+  async getReplies(path) {
+    return new Promise(async (resolve, reject) => {
+      const repliesSnap = await StoreDB.collection('messages').where('replyTo','==',path).get()
+      const replies = repliesSnap.docs.map(m => {
+        return Object.assign(m.data(), { id: m.id, showReplyLine: false, path: m.ref.path })
+      })
+
+      resolve(replies)
+    })
+  },
+  /**
+   * path - single message
+   */
+  async getMessages(path) {
+    return new Promise(async (resolve, reject) => {
+      const snap = path ? await StoreDB.doc(path).get() : await StoreDB.collection('messages').where('replyTo','==',null).orderBy('createdOn', 'desc').get()
+      let messages;
+      if (path) {
+        messages = [Object.assign(snap.data(), { id: snap.id, showReplyLine: false, path: snap.ref.path })]
+      }
+      else {
+        messages = snap.docs.map(m => {
+          return Object.assign(m.data(), { id: m.id, showReplyLine: false, path: m.ref.path })
+        })
+      }
+
+      resolve(messages)
+    })
   },
   getUserLines(uid) {
     return StoreDB.collection('transcriptions')

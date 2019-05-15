@@ -189,18 +189,20 @@ export default {
     },
 
     async loadIntoFB() {
-      // const users = await StoreDB.collection('users').get()
-      // for(let i=0;i<users.size;i++){
-      //   const userSnap = users.docs[i]
-      //   const transcriptions = await StoreDB.collection('transcriptions').where('uid','==',userSnap.id).get()
-      //   if(transcriptions.size){
-      //     await userSnap.ref.update({linesTranscribed:transcriptions.size})
-      //   }
-      // }
-      const linesWithZero = await StoreDB.collection(`manuscripts/woNEyuFHMZUaKNYclE8a/lines`).where('transcriptions','<',5).get()
-      debugger;
-      
-
+//       const users = await StoreDB.collection('users').get()
+//       for (let i = 0; i < users.size; i++) {
+//         const userSnap = users.docs[i]
+//         const linesTranscribed = await StoreDB.collection(`transcriptions`).where('manuscript','==','woNEyuFHMZUaKNYclE8a').where('uid','==',userSnap.id).get()
+//         if (linesTranscribed.size) {
+//           const percentage = (linesTranscribed.size / 10863) * 100
+// debugger
+//           await StoreDB.doc(
+//             `users/${userSnap.id}/manuscripts/woNEyuFHMZUaKNYclE8a`
+//           ).set({ linesTranscribed: linesTranscribed.size ,done_percentage: percentage }, { merge: true })
+//         }
+//       }
+      // const linesWithZero = await StoreDB.collection(`manuscripts/KVqHkylpQFUvkQlQrP9U/lines`).get()
+      // debugger;
     },
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)

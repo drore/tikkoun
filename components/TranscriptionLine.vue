@@ -54,7 +54,7 @@
             data-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false"
-          >{{$t('fillers')}}</button>
+          ></button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <a class="dropdown-item" href="#" @click="manipulateLineByAdding(' ')">&nbsp;</a>
             <a class="dropdown-item" href="#" @click="manipulateLineByAdding('/')">/</a>

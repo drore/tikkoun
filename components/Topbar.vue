@@ -47,7 +47,7 @@
           <li class="nav-item">
             <nuxt-link
               class="nav-link"
-              :to="localePath('conversation')"
+              :to="localePath({name:'conversation'})"
             >{{ $t('nav.conversation') }}</nuxt-link>
           </li>
         </ul>
@@ -100,7 +100,7 @@
                 title="Number of lines transcribed"
               >{{$store.state.auth.user.linesTranscribed}}</span>
             </a>
-            <a class="nav-link lines-made" v-if="!$device.isMobile">
+            <a class="nav-link lines-made" v-if="!$device.isMobile" :style="getLinesTranscribedStyle($store.state.auth.user.linesTranscribed)">
               <span
                 title="Number of lines transcribed"
               >{{$store.state.auth.user.linesTranscribed}}</span>
@@ -156,6 +156,27 @@ export default {
         this.$store.dispatch('transcribe/clear')
       })
     },
+    getLinesTranscribedStyle(linesTranscribed){
+      let style = 'background-color: ';
+      if(linesTranscribed < 10){
+        return style += 'white;color:black;';
+      }
+      if(linesTranscribed < 20){
+        return style += 'grey;color:black;';
+      }
+      else if (linesTranscribed > 50){
+        return style += '#949494;';
+      }
+      else if (linesTranscribed > 100){
+        return style += '#64bb9b;';
+      }
+      else if (linesTranscribed > 200){
+        return style += '#0db779;';
+      }
+      else if (linesTranscribed > 500){
+        return style += '#2ee600;color:black;';
+      }
+    },
     getTranscribePath() {
       if (
         this.$store.state.transcribe.manuscript &&
@@ -187,11 +208,9 @@ export default {
   margin: 0 10px;
   background-color: black;
   padding: 8px;
-  border-radius: 50%;
+  border-radius: 5px;
   text-align: center;
   & > span {
-    width: 25px;
-    height: 25px;
     color: white;
     display: inline-block;
     &:hover {

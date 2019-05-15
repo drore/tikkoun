@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html {{ HTML_ATTRS }}>
-  <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-133908181-1"></script>
-	<script>
-	  window.dataLayer = window.dataLayer || [];
-	  function gtag(){dataLayer.push(arguments);}
-	  gtag('js', new Date());
-	
+
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133908181-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    if (location.hostname == 'localhost') {
+      gtag('set', 'sendHitTask', null);
+    }
+
     gtag('config', 'UA-133908181-1');
-	</script>
-    {{ HEAD }}
-    
-  </head>
-  <body {{ BODY_ATTRS }}>
-    {{ APP }}
-  </body>
+  </script>
+  {{ HEAD }}
+
+</head>
+
+<body {{ BODY_ATTRS }}>
+  {{ APP }}
+</body>
+
 </html>

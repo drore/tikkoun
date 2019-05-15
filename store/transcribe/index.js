@@ -159,8 +159,8 @@ export const actions = {
           state.manuscript.id,
           userNextLineGeneralIndex
         )
-
-        if (res.data && res.data.transcriptions < 5) {
+        // 
+        if (res.data && res.data.transcriptions < state.manuscript.consensus) {
           // This is just to keep the structure, maybe better impl. is possible
           promise = new Promise(resolve => {
             resolve(res)
@@ -189,7 +189,7 @@ export const actions = {
             lineObj.general_index + 1
           )
 
-          if (res.data && res.data.transcriptions < 5) {
+          if (res.data && res.data.transcriptions < state.manuscript.consensus) {
             // This is just to keep the structure, maybe better impl. is possible
             promise = new Promise(resolve => {
               resolve(res)

@@ -143,7 +143,7 @@ exports.lines_since_date_csv = functions.https.onRequest((req, res) => {
       .where('createdOn', '>=', from)
       .where('createdOn', '<=', to)
       .get()
-      
+
       .then(snapshot => {
         const lines = snapshot.docs.map(d => d.data())
         const promises: Array<any> = []
@@ -220,7 +220,7 @@ function formatLine(line: any, cache: any) {
           krakenLine.docs[0].data()) ||
         {}
     }
-console.log(cache)
+    console.log(cache)
 
     const krakenLineData = cache.lines[`${line.manuscript}_${line.page}_${line.line}`]
 
@@ -261,25 +261,41 @@ function jsonToCSV(json: Array<object>, fields?: Array<string>) {
 export const updateManuscriptNextLine = functions.firestore
   .document('transcriptions/{id}')
   .onCreate(async transcriptionSnap => {
-    console.log('updateManuscriptNextLine', 'updateing next line and page')
+    console.log('updateManuscriptNextLine', 'updating next line and page')
     const transcriptionData = transcriptionSnap && transcriptionSnap.data()
+
     if (transcriptionData && !transcriptionData.skipped) {
-      const lineSnap = await admin
+      const msDoc = await admin
+        .firestore()
+        .doc(`manuscripts/${transcriptionData.manuscript}`).get()
+
+      const msDocData = msDoc && msDoc.data()
+      const transcriptions_threshold = msDocData && msDocData.transcriptions_threshold || 1
+
+      let lineSnap = await admin
         .firestore()
         .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
-        .where('transcriptions', '<', 5)
+        .where('transcriptions', '<', transcriptions_threshold)
         .limit(1)
         .get()
 
+      const needToBumpThreshold = !!!lineSnap.size;
+      if (needToBumpThreshold) {
+        await msDoc.ref.set({ transcriptions_threshold: transcriptions_threshold + 1 }, { merge: true })
+        lineSnap = await admin
+        .firestore()
+        .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
+        .where('transcriptions', '<', transcriptions_threshold + 1)
+        .limit(1)
+        .get()
+      }      
+
       const lineData = lineSnap.size && lineSnap.docs[0].data()
       if (lineData) {
-        admin
-          .firestore()
-          .doc(`manuscripts/${transcriptionData.manuscript}`)
-          .update({
-            next_line: lineData.line,
-            next_page: lineData.page
-          })
+        msDoc.ref.update({
+          next_line: lineData.line,
+          next_page: lineData.page
+        })
           .catch(() => {
             return null
           })
@@ -299,7 +315,6 @@ export const onLineTranscriptionAdded = functions.firestore
     const transcriptionData = transcriptionSnap.data()
     if (transcriptionData) {
       if (!transcriptionData.skipped) {
-        console.log(`*** LINE BY: ${transcriptionData.uid} ***`)
         // Update the number of transcriptions on the line obj
         const linesSnap = await admin
           .firestore()
@@ -315,11 +330,6 @@ export const onLineTranscriptionAdded = functions.firestore
           await linesSnap.docs[0].ref.update({
             transcriptions: transcriptions + 1
           })
-          console.log(
-            `*** Updated line ${
-            linesSnap.docs[0].id
-            } transcriptions: ${transcriptions + 1} ***`
-          )
         }
 
         // Update the number of lines transcribed on the user
@@ -334,11 +344,43 @@ export const onLineTranscriptionAdded = functions.firestore
             await userSnap.ref.update({
               linesTranscribed: userData.linesTranscribed + 1
             })
-            console.log(
-              `*** Updated lines transcribed for user ${
-              transcriptionData.uid
-              } to: ${userData.linesTranscribed + 1} ***`
-            )
+            const userManuscriptDoc = await admin
+              .firestore()
+              .doc(`users/${transcriptionData.uid}/manuscripts/${transcriptionData.manuscript}`)
+              .get()
+
+            const userManuscriptData = userManuscriptDoc.exists && userManuscriptDoc.data();
+
+            const msLinesTranscribed = userManuscriptData && userManuscriptData.linesTranscribed
+
+            // If the lines were already calculated once
+            if (msLinesTranscribed) {
+              const msDonePercentage = userManuscriptData && userManuscriptData.done_percentage
+              let msLines, percentage;
+              if (msDonePercentage) {
+                msLines = msLinesTranscribed / (msDonePercentage / 100)
+              }
+              else {
+                const msDoc = await admin.firestore().doc(`manuscripts/${transcriptionData.manuscript}`).get()
+                const msDocData = msDoc.data()
+                msLines = msDocData && msDocData.total_lines
+              }
+
+              percentage = ((msLinesTranscribed + 1) / msLines) * 100
+              await userManuscriptDoc.ref.set({ linesTranscribed: msLinesTranscribed + 1, done_percentage: percentage }, { merge: true })
+            }
+            else {
+              // If not, we need to calculate it all
+              // First we get it (all the user transcriptions for this ms)
+              const msLinesTranscribedRef = await admin.firestore().collection(`transcriptions`).where('manuscript', '==', transcriptionData.manuscript).where('uid', '==', userSnap.id).get()
+              // Not the ms doc itself (for total_lines)
+              const msDoc = await admin.firestore().doc(`manuscripts/${transcriptionData.manuscript}`).get()
+              const msDocData = msDoc.data()
+              const msLines = msDocData && msDocData.total_lines
+              const percentage = (msLinesTranscribedRef.size / msLines) * 100
+              // Update it all - there is no need to advance the result by one because we query the collection after the addition of the last transcription
+              await userManuscriptDoc.ref.set({ linesTranscribed: msLinesTranscribedRef.size, done_percentage: percentage }, { merge: true })
+            }
           } else {
             // update the num of lines per user
             const userTranscriptionsSnap = await admin
@@ -346,14 +388,10 @@ export const onLineTranscriptionAdded = functions.firestore
               .collection('transcriptions')
               .where('uid', '==', transcriptionData.uid)
               .get()
+
             await userSnap.ref.update({
               linesTranscribed: userTranscriptionsSnap.size
             })
-            console.log(
-              `*** [Initial calc] Updated lines transcribed for user ${
-              transcriptionData.uid
-              } to: ${userTranscriptionsSnap.size} ***`
-            )
           }
         }
         return null
@@ -363,57 +401,4 @@ export const onLineTranscriptionAdded = functions.firestore
     } else {
       return null
     }
-  })
-
-export const onLineViewUpdated = functions.firestore
-  .document('manuscripts/{msId}/lines/{lineId}')
-  .onUpdate((change, context) => {
-    const after = change.after.data()
-
-    if (after) {
-      // If this is the line that is marked on the ms as the next line and page check if it has exceeded the number of view allowed
-      if (after.views > 20) {
-        const msRef = admin
-          .firestore()
-          .doc(`manuscripts/${context.params.msId}`)
-        return msRef
-          .get()
-          .then(msSnap => {
-            const ms = msSnap.data()
-            if (ms) {
-              if (after.page === ms.next_page && after.next_line === ms.line) {
-                // Next
-                admin
-                  .firestore()
-                  .collection(`manuscripts/${context.params.msId}/lines`)
-                  .where('general_index', '==', after.general_index + 1)
-                  .limit(1)
-                  .get()
-                  .then(linesSnap => {
-                    let newLineParams = { next_line: 1, next_page: 1 }
-                    if (linesSnap.size) {
-                      const line = linesSnap.docs[0].data()
-                      newLineParams = {
-                        next_line: line.line,
-                        next_page: line.page
-                      }
-                    }
-
-                    return msRef.update(newLineParams).catch(err => {
-                      console.log(err)
-                    })
-                  })
-                  .catch(err => {
-                    console.log(err)
-                  })
-              }
-            }
-            return null
-          })
-          .catch(err => {
-            console.log(err)
-          })
-      }
-    }
-    return null
   })
