@@ -129,11 +129,11 @@
             </a>
 
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <!-- <nuxt-link
+              <nuxt-link
                 class="dropdown-item"
                 :to="localePath('profile')"
                 v-if="!$store.state.auth.user.isAnonymous"
-              >{{ $t('nav.profile') }}</nuxt-link>-->
+              >{{ $t('nav.profile') }}</nuxt-link>
               <!-- <nuxt-link
                 class="dropdown-item"
                 :to="localePath('admin')"

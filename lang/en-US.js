@@ -12,6 +12,8 @@ export default () => {
       'nav.midrash': 'Midrash Tanhuma',
       'nav.team': 'The Team',
       'nav.logout': 'Logout',
+      'profile.general':'General',
+      'profile.stats':'Statistics',
       'lines_made':'Transcribed lines',
       'maintenance':`Tikkoun Sofrim system is out for maintenance, we'll be back at 14:00`,
       'nav.conversation': 'Conversation',

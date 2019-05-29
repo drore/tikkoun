@@ -13,6 +13,8 @@ export default () => {
       'nav.team': "L'équipe",
       'nav.logout': 'Se déconnecter',
       'nav.profile': 'Profile',
+      'profile.general':'General',
+      'profile.stats':'Statistics',
       'nav.start': 'Je participe !',
       'lines_made':'Transcribed lines',
       'conversation.by':'By',

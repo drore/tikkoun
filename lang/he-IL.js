@@ -16,6 +16,8 @@ export default () => {
       'nav.conversation': 'שיחה',
       'nav.start': 'צאו לדרך!',
       'nav.profile': 'פרופיל',
+      'profile.general':'כללי',
+      'profile.stats':'סטטיסטיקה',
       'conversation.by':'על ידי',
       'conversation.reply':'השב',
       'conversation.comments':'תגובות',

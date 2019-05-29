@@ -203,6 +203,22 @@ export default {
 //       }
       // const linesWithZero = await StoreDB.collection(`manuscripts/KVqHkylpQFUvkQlQrP9U/lines`).get()
       // debugger;
+
+
+//   const userMSLines = await StoreDB
+//     .collection('transcriptions')
+//     .where('uid', '==', 'duZ6ZqB6dUM7MCN9o5xnC186x333')
+//     .where('manuscript', '==', 'woNEyuFHMZUaKNYclE8a')
+//     .limit(50)
+//     .get();
+// let dailyStats = {}
+//  const userLines = userMSLines.docs.forEach(d => {
+//    const dateString = new Date(d.data().createdOn.seconds*1000).toDateString();
+//    const dayCount = dailyStats[dateString] || 0
+//    dailyStats[dateString] = dayCount+1
+//  })
+//  debugger
+
     },
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)

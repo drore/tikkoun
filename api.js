@@ -16,6 +16,10 @@ export default {
         console.error(userData.email)
       })
   },
+  async getUserStats(uid){
+    const userDoc = await StoreDB.doc(`users/${uid}`).get()
+    debugger
+  },
   // General content
   getContent(lang) {
     return StoreDB.collection('content')

@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
+
 const { Parser } = require('json2csv')
 
 const cors = require('cors')({
@@ -265,16 +266,18 @@ export const updateManuscriptNextLine = functions.firestore
     const transcriptionData = transcriptionSnap && transcriptionSnap.data()
 
     if (transcriptionData && !transcriptionData.skipped) {
+      const manuscript_id = transcriptionData.manuscript
+
       const msDoc = await admin
         .firestore()
-        .doc(`manuscripts/${transcriptionData.manuscript}`).get()
+        .doc(`manuscripts/${manuscript_id}`).get()
 
       const msDocData = msDoc && msDoc.data()
       const transcriptions_threshold = msDocData && msDocData.transcriptions_threshold || 1
 
       let lineSnap = await admin
         .firestore()
-        .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
+        .collection(`manuscripts/${manuscript_id}/lines`)
         .where('transcriptions', '<', transcriptions_threshold)
         .limit(1)
         .get()
@@ -283,12 +286,12 @@ export const updateManuscriptNextLine = functions.firestore
       if (needToBumpThreshold) {
         await msDoc.ref.set({ transcriptions_threshold: transcriptions_threshold + 1 }, { merge: true })
         lineSnap = await admin
-        .firestore()
-        .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
-        .where('transcriptions', '<', transcriptions_threshold + 1)
-        .limit(1)
-        .get()
-      }      
+          .firestore()
+          .collection(`manuscripts/${manuscript_id}/lines`)
+          .where('transcriptions', '<', transcriptions_threshold + 1)
+          .limit(1)
+          .get()
+      }
 
       const lineData = lineSnap.size && lineSnap.docs[0].data()
       if (lineData) {
@@ -314,11 +317,12 @@ export const onLineTranscriptionAdded = functions.firestore
   .onCreate(async transcriptionSnap => {
     const transcriptionData = transcriptionSnap.data()
     if (transcriptionData) {
+      const manuscript_id = transcriptionData.manuscript
       if (!transcriptionData.skipped) {
         // Update the number of transcriptions on the line obj
         const linesSnap = await admin
           .firestore()
-          .collection(`manuscripts/${transcriptionData.manuscript}/lines`)
+          .collection(`manuscripts/${manuscript_id}/lines`)
           .where('page', '==', transcriptionData.page)
           .where('line', '==', transcriptionData.line)
           .limit(1)
@@ -333,67 +337,7 @@ export const onLineTranscriptionAdded = functions.firestore
         }
 
         // Update the number of lines transcribed on the user
-        const userSnap = await admin
-          .firestore()
-          .doc(`users/${transcriptionData.uid}`)
-          .get()
-
-        if (userSnap.exists) {
-          const userData = userSnap.exists && userSnap.data()
-          if (userData && userData.linesTranscribed) {
-            await userSnap.ref.update({
-              linesTranscribed: userData.linesTranscribed + 1
-            })
-            const userManuscriptDoc = await admin
-              .firestore()
-              .doc(`users/${transcriptionData.uid}/manuscripts/${transcriptionData.manuscript}`)
-              .get()
-
-            const userManuscriptData = userManuscriptDoc.exists && userManuscriptDoc.data();
-
-            const msLinesTranscribed = userManuscriptData && userManuscriptData.linesTranscribed
-
-            // If the lines were already calculated once
-            if (msLinesTranscribed) {
-              const msDonePercentage = userManuscriptData && userManuscriptData.done_percentage
-              let msLines, percentage;
-              if (msDonePercentage) {
-                msLines = msLinesTranscribed / (msDonePercentage / 100)
-              }
-              else {
-                const msDoc = await admin.firestore().doc(`manuscripts/${transcriptionData.manuscript}`).get()
-                const msDocData = msDoc.data()
-                msLines = msDocData && msDocData.total_lines
-              }
-
-              percentage = ((msLinesTranscribed + 1) / msLines) * 100
-              await userManuscriptDoc.ref.set({ linesTranscribed: msLinesTranscribed + 1, done_percentage: percentage }, { merge: true })
-            }
-            else {
-              // If not, we need to calculate it all
-              // First we get it (all the user transcriptions for this ms)
-              const msLinesTranscribedRef = await admin.firestore().collection(`transcriptions`).where('manuscript', '==', transcriptionData.manuscript).where('uid', '==', userSnap.id).get()
-              // Not the ms doc itself (for total_lines)
-              const msDoc = await admin.firestore().doc(`manuscripts/${transcriptionData.manuscript}`).get()
-              const msDocData = msDoc.data()
-              const msLines = msDocData && msDocData.total_lines
-              const percentage = (msLinesTranscribedRef.size / msLines) * 100
-              // Update it all - there is no need to advance the result by one because we query the collection after the addition of the last transcription
-              await userManuscriptDoc.ref.set({ linesTranscribed: msLinesTranscribedRef.size, done_percentage: percentage }, { merge: true })
-            }
-          } else {
-            // update the num of lines per user
-            const userTranscriptionsSnap = await admin
-              .firestore()
-              .collection('transcriptions')
-              .where('uid', '==', transcriptionData.uid)
-              .get()
-
-            await userSnap.ref.update({
-              linesTranscribed: userTranscriptionsSnap.size
-            })
-          }
-        }
+        await updateUserStatsIfExists(transcriptionData);
         return null
       } else {
         return null
@@ -402,3 +346,170 @@ export const onLineTranscriptionAdded = functions.firestore
       return null
     }
   })
+
+async function updateUserStatsIfExists(transcriptionData: FirebaseFirestore.DocumentData) {
+  const uid = transcriptionData.uid
+  const manuscript_id = transcriptionData.manuscript
+
+  // Update total lines transcribed
+  await updateUserGeneralStats(uid);
+
+  // Update manuscript lines transcribed
+  await updateUserManuscriptStats(uid, manuscript_id);
+}
+
+async function updateUserGeneralStats(uid: any) {
+  const userSnap = await admin
+    .firestore()
+    .doc(`users/${uid}`)
+    .get();
+
+  if (userSnap.exists) {
+    const userData = userSnap.exists && userSnap.data();
+    if (userData) {
+
+      if (userData.linesTranscribed) {
+        await userSnap.ref.update({
+          linesTranscribed: userData.linesTranscribed + 1
+        });
+      }
+      else {
+        // update the init num of lines per user
+        await updateInitUserGeneralLinesStats(uid);
+      }
+    }
+  }
+}
+/**
+ * This function calculates the initial "lines_transcribed" variable on the user obj - this function is costly in potential (gets all lines done by the user)
+ * @param uid The user id
+ */
+async function updateInitUserGeneralLinesStats(uid: any) {
+  // Get all the user transcriptions
+  const userTranscriptionsSnap = await admin
+    .firestore()
+    .collection('transcriptions')
+    .where('uid', '==', uid)
+    .get();
+
+  // Update
+  await admin.firestore().doc(`users/${uid}`).update({
+    linesTranscribed: userTranscriptionsSnap.size
+  });
+}
+
+/**
+ * This function updates the statistics for this specific ms for this specific user
+ * In this function we also update the daily stats
+ * @param uid The user id
+ * @param manuscript_id The manuscript id
+ */
+async function updateUserManuscriptStats(uid: any, manuscript_id: any) {
+  // The user-manuscript obj
+  const userManuscriptDoc = await admin
+    .firestore()
+    .doc(`users/${uid}/manuscripts/${manuscript_id}`)
+    .get();
+
+  const userManuscriptData = userManuscriptDoc.exists && userManuscriptDoc.data();
+  const msLinesTranscribedByNow = userManuscriptData && userManuscriptData.linesTranscribed;
+
+  // If the lines were already calculated once
+  let msLines, linesTranscribed;
+  // If the user had already transcribed we can use the data to infer other vars and optimize the db usage
+  if (msLinesTranscribedByNow) {
+    const msDonePercentage = userManuscriptData && userManuscriptData.done_percentage;
+    // The percentage is used here to reverse calc the ms lines num
+    msLines = await getMSLines(manuscript_id, msDonePercentage, msLinesTranscribedByNow);
+    // Plus this one
+    linesTranscribed = msLinesTranscribedByNow + 1
+  }
+  else {
+    // If not, we need to calculate it all
+    // First we get it (all the user transcriptions for this ms)
+    const msLinesTranscribedRef = await admin.firestore().collection(`transcriptions`).where('manuscript', '==', manuscript_id).where('uid', '==', uid).get();
+
+    // Not the ms doc itself (for total_lines)
+    const msDoc = await admin.firestore().doc(`manuscripts/${manuscript_id}`).get();
+    const msDocData = msDoc.data();
+
+    // Update it all - there is no need to advance the result by one because we query the collection after the addition of the last transcription
+    msLines = msDocData && msDocData.total_lines;
+    linesTranscribed = msLinesTranscribedRef.size
+  }
+
+  await makeTheActualUpdate(linesTranscribed, msLines, userManuscriptDoc);
+  await updateDailyUserMSStats(userManuscriptDoc, uid, manuscript_id);
+}
+
+async function updateDailyUserMSStats(userManuscriptDoc: FirebaseFirestore.DocumentSnapshot, uid: any, manuscript_id: any) {
+  const userManuscriptData = userManuscriptDoc.data()
+  let dailyStats = userManuscriptData && userManuscriptData.dailyStats
+  if (!dailyStats) {
+    // Init daily stats
+    dailyStats = await initUserMSDailyMSStats(uid, manuscript_id)
+  }
+  else {
+    // Add one for today
+    const dateString = new Date().toDateString();
+    const dayCount = dailyStats[dateString] || 0
+    dailyStats[dateString] = dayCount + 1
+  }
+ 
+  await userManuscriptDoc.ref.set({ dailyStats:dailyStats }, { merge: true });
+  
+}
+
+async function initUserMSDailyMSStats(uid: any, manuscript_id: any) {
+  // Get all user lines
+  const userMSLines = await getUserMSLines(uid, manuscript_id)
+
+  // Sort by date, count
+  const dailyStats:any = {}
+  userMSLines.docs.forEach(d => {
+    const dateString = new Date(d.data().createdOn.seconds * 1000).toDateString();
+    const dayCount = dailyStats[dateString] || 0
+    dailyStats[dateString] = dayCount + 1
+  })
+
+  // Return dailyStats obj
+  return dailyStats
+}
+
+async function getUserMSLines(uid: any, manuscript_id: any) {
+  const userMSLines = await admin
+    .firestore()
+    .collection('transcriptions')
+    .where('uid', '==', uid)
+    .where('manuscript', '==', manuscript_id)
+    .get();
+
+  return userMSLines;
+}
+
+async function makeTheActualUpdate(linesTranscribed: number, msLines: any, userManuscriptDoc: FirebaseFirestore.DocumentSnapshot) {
+  const percentage = (linesTranscribed / msLines) * 100;
+  await userManuscriptDoc.ref.set({ linesTranscribed: linesTranscribed, done_percentage: percentage }, { merge: true });
+}
+
+/**
+ * This function calculates the number of lines in the ms from the percentage and the lines transcribed by now (reverse calc)
+ * This is to optimize the db usage
+ * 
+ * @param manuscript_id The manuscript id
+ * @param msDonePercentage The percetage done thus far
+ * @param msLinesTranscribedByNow Lines transcribed by now
+ */
+async function getMSLines(manuscript_id: any, msDonePercentage: number, msLinesTranscribedByNow: number) {
+  let msLines;
+  if (msDonePercentage) {
+    msLines = msLinesTranscribedByNow / (msDonePercentage / 100);
+  }
+  else {
+    const msDoc = await admin.firestore().doc(`manuscripts/${manuscript_id}`).get();
+    const msDocData = msDoc.data();
+    msLines = msDocData && msDocData.total_lines;
+  }
+
+  return msLines;
+}
