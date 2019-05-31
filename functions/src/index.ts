@@ -256,7 +256,9 @@ function jsonToCSV(json: Array<object>, fields?: Array<string>) {
   const BOM = '\uFEFF'
   return BOM + csv
 }
+
 /**
+ * When a new transcrition is added
  * This function will point to the next needed location
  */
 export const updateManuscriptNextLine = functions.firestore
@@ -282,13 +284,17 @@ export const updateManuscriptNextLine = functions.firestore
         .limit(1)
         .get()
 
+      // If not even one is returned, probably we are done with this threshold
       const needToBumpThreshold = !!!lineSnap.size;
       if (needToBumpThreshold) {
-        await msDoc.ref.set({ transcriptions_threshold: transcriptions_threshold + 1 }, { merge: true })
+        const newThreshold = transcriptions_threshold + 1
+        await msDoc.ref.set({ transcriptions_threshold: newThreshold }, { merge: true })
+
+        // This will serve as the next "go-to" line
         lineSnap = await admin
           .firestore()
           .collection(`manuscripts/${manuscript_id}/lines`)
-          .where('transcriptions', '<', transcriptions_threshold + 1)
+          .where('transcriptions', '<', newThreshold)
           .limit(1)
           .get()
       }
@@ -312,6 +318,9 @@ export const updateManuscriptNextLine = functions.firestore
     }
   })
 
+/**
+ * When a transcription is added, update all statistics 
+ */
 export const onLineTranscriptionAdded = functions.firestore
   .document('transcriptions/{id}')
   .onCreate(async transcriptionSnap => {
@@ -455,9 +464,9 @@ async function updateDailyUserMSStats(userManuscriptDoc: FirebaseFirestore.Docum
     const dayCount = dailyStats[dateString] || 0
     dailyStats[dateString] = dayCount + 1
   }
- 
-  await userManuscriptDoc.ref.set({ dailyStats:dailyStats }, { merge: true });
-  
+
+  await userManuscriptDoc.ref.set({ dailyStats: dailyStats }, { merge: true });
+
 }
 
 async function initUserMSDailyMSStats(uid: any, manuscript_id: any) {
@@ -465,7 +474,7 @@ async function initUserMSDailyMSStats(uid: any, manuscript_id: any) {
   const userMSLines = await getUserMSLines(uid, manuscript_id)
 
   // Sort by date, count
-  const dailyStats:any = {}
+  const dailyStats: any = {}
   userMSLines.docs.forEach(d => {
     const dateString = new Date(d.data().createdOn.seconds * 1000).toDateString();
     const dayCount = dailyStats[dateString] || 0

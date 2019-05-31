@@ -16,9 +16,27 @@ export default {
         console.error(userData.email)
       })
   },
-  async getUserStats(uid){
-    const userDoc = await StoreDB.doc(`users/${uid}`).get()
-    debugger
+  getUserDailyMSStats(uid) {
+    return new Promise(async (resolve, reject) => {
+      const dailyStats = {}
+      const userMSCollection = await StoreDB.collection(`users/${uid}/manuscripts`).get()
+      const promises = []
+      userMSCollection.docs.forEach(ms => {
+        promises.push(new Promise(async (res, rej) => {
+          const userMSDoc = await StoreDB.doc(`users/${uid}/manuscripts/${ms.id}`).get()
+          res({ id: ms.id, dailyStats: userMSDoc.exists && userMSDoc.data() && userMSDoc.data().dailyStats })
+        }))
+      })
+      Promise.all(promises).then(res => {
+        res.forEach(msStats => {
+          if(msStats.dailyStats){
+            dailyStats[msStats.id] = msStats.dailyStats
+          }
+        })
+
+        resolve(dailyStats)
+      })
+    })
   },
   // General content
   getContent(lang) {
@@ -78,7 +96,7 @@ export default {
   async addConversationMessage(params) {
     return new Promise(async (resolve, reject) => {
       params.createdOn = ServerTimestamp()
-      
+
       if (params.replyTo) {
         const num_replies = params.num_replies ? params.num_replies + 1 : 1
         delete params.num_replies
@@ -261,7 +279,7 @@ export default {
   },
   async getReplies(path) {
     return new Promise(async (resolve, reject) => {
-      const repliesSnap = await StoreDB.collection('messages').where('replyTo','==',path).get()
+      const repliesSnap = await StoreDB.collection('messages').where('replyTo', '==', path).get()
       const replies = repliesSnap.docs.map(m => {
         return Object.assign(m.data(), { id: m.id, showReplyLine: false, path: m.ref.path })
       })
@@ -274,7 +292,7 @@ export default {
    */
   async getMessages(path) {
     return new Promise(async (resolve, reject) => {
-      const snap = path ? await StoreDB.doc(path).get() : await StoreDB.collection('messages').where('replyTo','==',null).orderBy('createdOn', 'desc').get()
+      const snap = path ? await StoreDB.doc(path).get() : await StoreDB.collection('messages').where('replyTo', '==', null).orderBy('createdOn', 'desc').get()
       let messages;
       if (path) {
         messages = [Object.assign(snap.data(), { id: snap.id, showReplyLine: false, path: snap.ref.path })]

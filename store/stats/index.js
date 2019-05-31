@@ -2,19 +2,19 @@ import manuscriptsManager from '~/manuscriptsManager'
 import api from '@/api.js'
 
 export const state = () => ({
-  userStats:{}
+  userStats:{daily:{}}
 })
 
 export const mutations = {
-  gotUserStats(state, payload) {
-    
+  gotUserDailyMSStats(state, payload) {
+    state.userStats.daily = payload
   }
 }
 
 export const actions = {
   nuxtServerInit({ commit }, { req }) {},
-  async getUserStats({ commit }, uid) {
-    commit('gotUserStats', await api.getUserStats(uid))
+  async getUserDailyMSStats({ commit }, params) {
+    commit('gotUserDailyMSStats', await api.getUserDailyMSStats(params.uid))
   },
 
 }

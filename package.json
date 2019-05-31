@@ -16,6 +16,7 @@
     "@nuxtjs/axios": "^5.3.6",
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.18",
+    "chart.js": "^2.8.0",
     "cross-env": "^5.2.0",
     "express": "^4.16.4",
     "firebase": "^5.9.4",
@@ -26,6 +27,7 @@
     "nuxt-i18n": "^5.8.5",
     "v-viewer": "^1.4.0",
     "vue": "^2.6.10",
+    "vue-chartjs": "^3.4.2",
     "vue-wysiwyg": "^1.7.2"
   },
   "devDependencies": {

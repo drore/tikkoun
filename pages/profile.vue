@@ -21,19 +21,77 @@
           <a href="javascript:;" @click="updateUserInformation">{{$t('update')}}</a>
         </div>
       </div>
-      <div class="pane stats" v-if="shown_pane === 'stats'"></div>
+      <div class="pane stats" v-if="shown_pane === 'stats'">
+        <Chart :options="chartOptions" :chartdata="chartData" v-if="chartData"></Chart>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import { StoreDB } from '~/plugins/firebase.js'
+import Chart from '~/components/Chart'
 export default {
   data() {
     return {
+      chartOptions: {
+        scales: {
+          xAxes: [
+            {
+              type: 'time',
+              distribution: 'linear',
+              time: {
+                unit: 'day'
+              }
+            }
+          ],
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true
+              }
+            }
+          ]
+        }
+      },
       shown_pane: 'information'
     }
   },
+  components: {
+    Chart
+  },
   computed: {
+    chartData() {
+      const userStats = this.$store.state.stats.userStats
+      const dailyStats = userStats.daily
+      const colors = ['navy', 'grey']
+      const data = { labels: [], datasets: [] }
+      const dailyLablesArr = []
+      let iterator = 0
+      $.each(dailyStats, function(ms_id, stats) {
+        // Each is a different manuscript
+        const daily = []
+        const dailyValuesArr = []
+
+        data.datasets[iterator] = {
+          label: `Daily lines for ${ms_id}`,
+          backgroundColor: colors[iterator]
+        }
+
+        $.each(stats, function(dStat, value) {
+          dailyValuesArr.push({
+            x: new Date(dStat),
+            y: value
+          })
+        })
+
+        data.datasets[iterator].data = dailyValuesArr
+        iterator++
+      })
+      if (iterator) {
+        return data
+      }
+    },
+
     user() {
       const user = {}
       user.displayName = this.$store.state.auth.user.displayName
@@ -48,11 +106,13 @@ export default {
     showPane(pane) {
       this.shown_pane = pane
       if (pane === 'stats') {
-        this.getUserStats()
+        this.getUserDailyMSStats()
       }
     },
-    getUserStats() {
-      this.$store.dispatch('stats/getUserStats', this.$store.state.auth.user.uid)
+    getUserDailyMSStats() {
+      this.$store.dispatch('stats/getUserDailyMSStats', {
+        uid: this.$store.state.auth.user.uid
+      })
     }
   }
 }
