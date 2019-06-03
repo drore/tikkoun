@@ -12,6 +12,11 @@ export default {
   },
   mounted() {
     const routeParams = this.$route.params
+    
+    // if(this.$store.state.auth.user.transcribe_mode == "tasks"){
+    //   this.$store.dispatch('transcribe/GET_TASK')
+    // }
+    
     if (routeParams && routeParams.manuscript) {
       const routeManuscript = routeParams.manuscript.toLowerCase()
       const storeManuscript =

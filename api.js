@@ -29,7 +29,7 @@ export default {
       })
       Promise.all(promises).then(res => {
         res.forEach(msStats => {
-          if(msStats.dailyStats){
+          if (msStats.dailyStats) {
             dailyStats[msStats.id] = msStats.dailyStats
           }
         })
@@ -52,6 +52,9 @@ export default {
   },
   getUser(uid) {
     return StoreDB.doc(`users/${uid}`).get()
+  },
+  async updateUserParam(uid, updateParams){
+    return StoreDB.doc(`users/${uid}`).set(updateParams,{merge:true})
   },
   updateUser(user) {
     return new Promise((resolve, reject) => {
@@ -81,6 +84,15 @@ export default {
       }
     })
   },
+  async getTask() {
+    return new Promise(async (resolve, reject) => {
+      const tasks = await StoreDB.collection('tasks')
+        .where('active', '==', true)
+        .get()
+
+      resolve(tasks.size && Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id }))
+    })
+  },
   getManuscript(name) {
     let query = null
     if (!name) {
@@ -107,7 +119,6 @@ export default {
 
       resolve(newMessage)
     })
-
   },
 
   // Manuscript content
@@ -250,25 +261,42 @@ export default {
       `manuscripts/${manuscriptId}/lines/${params.lineId}`
     ).update({ views: params.viewCounter + 1 })
   },
-  async addTranscription(_params) {
-    // Write to the user obj
-    const params = Object.assign({}, _params)
-    params.uid = params.isAnonymous ? 'guest' : params.uid
-    delete params.generalIndex
-    ///
-    await this.updateDocument(`transcriptions`, null, params)
 
-    if (!params.isAnonymous) {
-      await StoreDB.doc(`users/${params.uid}/manuscripts/${params.manuscript}`)
-        .set({ next_general_index: _params.generalIndex + 1 }, { merge: true })
-        .then(res => {
-          StoreDB.doc(`users/${params.uid}/lines/${params.lineId}`).set(
-            {
-              action: params.skipped ? 'skip' : 'done'
-            },
-            { merge: true }
-          )
-        })
+  async addTranscription(params) {
+    // Write to the user obj
+    const updateParams = Object.assign({}, params)
+    updateParams.uid = updateParams.isAnonymous ? 'guest' : updateParams.uid
+    delete updateParams.generalIndex
+    ///
+    await this.updateDocument(`transcriptions`, null, updateParams)
+
+    if (!updateParams.isAnonymous) {
+      if (params.task) {
+        // Update the task record on the user profile - point to the next line in the task
+        const userTaskDoc = await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`).get()
+        const userTaskDocData = userTaskDoc.data();
+        const userTaskLines = (userTaskDocData && userTaskDocData.lines) || [];
+        const lineUID = `${params.manuscript}_${params.lineId}`
+        if(userTaskLines.indexOf(lineUID) == -1){
+          userTaskLines.push(lineUID)
+        }
+
+        await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`)
+          .set({ next_general_index: params.generalIndex + 1, lines:userTaskLines }, { merge: true })
+      }
+
+      // Update the manuscript record on the user profile - point to the next line in the manuscript - this progresses even if the line was skipped
+      await StoreDB.doc(`users/${updateParams.uid}/manuscripts/${updateParams.manuscript}`)
+      .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
+
+      // Add another line to the user lines collection and mark the action
+      await StoreDB.doc(`users/${updateParams.uid}/lines/${updateParams.lineId}`).set(
+        {
+          action: updateParams.skipped ? 'skip' : 'done'
+        },
+        { merge: true }
+      )
+
       return false
     } else {
       return false
@@ -310,6 +338,13 @@ export default {
     return StoreDB.collection('transcriptions')
       .where('uid', '==', uid)
       .get()
+  },
+  async getUserTask(taskId, uid) {
+    return new Promise(async (resolve, reject) => {
+      const userTask = await StoreDB.doc(`users/${uid}/tasks/${taskId}`).get()
+      resolve(userTask.data())
+    })
+
   },
   updateDocument(collection, docId, doc) {
     if (!docId) {

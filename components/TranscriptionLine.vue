@@ -68,9 +68,9 @@
         <ManipulationButton
           title="main.work_area.hovers.over_ligature"
           action="ligature"
-          content="ﭏ"
+          content="main.work_area.over_ligature"
         />
-        <ManipulationButton title="main.work_area.hovers.over_upper" action="upper" content="˙"/>
+        <ManipulationButton title="main.work_area.hovers.over_upper" action="upper" content="main.work_area.over_upper"/>
         <ManipulationButton
           title="main.work_area.hovers.over_uncertain"
           action="uncertain"
@@ -147,10 +147,10 @@
           @click="done"
         >{{$t('main.work_area.finish_button_1')}}</button>
       </div>
-      <a
+      <!-- <a
         target="_blank"
         :href="shareURL"
-      >שתף אותי בפייסבוק</a>
+      >שתף אותי בפייסבוק</a> -->
     </div>
   </div>
 </template>
@@ -232,7 +232,8 @@ export default {
         this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
 
         const elemWidth = parseInt($('#work-page').width()) * 3
-        const imageFilePart = `https://tikkoun-sofrim.haifa.ac.il/cantaloupe/iiif/2/${
+        const baseURL = this.$store.state.transcribe.manuscript.base_url
+        const imageFilePart = `${baseURL}${
           this.color_img_file_name
         }.${this.$store.state.transcribe.manuscript.image_extension}/`
         const endPart = `${elemWidth},/0/default.${

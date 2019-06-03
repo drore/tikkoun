@@ -58,25 +58,34 @@ export default {
   },
   watch: {
     line: function(res) {
-      if (this.$i18n.locale === this.$i18n.defaultLocale) {
-        this.$router.push(
-          `/transcribe/${this.$store.state.transcribe.manuscript.name}/${
-            res.page
-          }/${res.line}`
-        )
-      } else {
-        this.$router.push(
-          `/${this.$i18n.locale}/transcribe/${
-            this.$store.state.transcribe.manuscript.name
-          }/${res.page}/${res.line}`
-        )
+      if (res) {
+        if (this.$i18n.locale === this.$i18n.defaultLocale) {
+          this.$router.push(
+            `/transcribe/${this.$store.state.transcribe.manuscript.name}/${
+              res.page
+            }/${res.line}`
+          )
+        } else {
+          this.$router.push(
+            `/${this.$i18n.locale}/transcribe/${
+              this.$store.state.transcribe.manuscript.name
+            }/${res.page}/${res.line}`
+          )
+        }
       }
     }
   },
   // Maybe watch on line from store
   mounted() {
     const routeParams = this.$route.params
-    if (routeParams && routeParams.line) {
+    if (this.$store.state.auth.user.transcribe_mode == 'tasks') {
+      this.$store.dispatch('transcribe/GET_TASK').then(() => {
+        this.$store.dispatch(
+          'transcribe/getTaskLine',
+          this.$store.state.auth.user.uid
+        )
+      })
+    } else if (routeParams && routeParams.line) {
       this.$store.dispatch('transcribe/getLine', {
         msId: this.$store.state.transcribe.manuscript.id,
         page: +routeParams.page,

@@ -25,6 +25,9 @@ export const mutations = {
       ? state.user.linesTranscribed + 1
       : 1
   },
+  setUserTranscribeMode(state, payload) {
+    state.user.transcribe_mode = payload
+  },
   gotUserLines(state, payload) {
     state.user.userLines = payload.docs.map(d => {
       const data = d.data()
@@ -40,7 +43,7 @@ export const mutations = {
 }
 
 export const actions = {
-  nuxtServerInit({ commit }, { req }) {},
+  nuxtServerInit({ commit }, { req }) { },
   updateUser({ commit, dispatch }, user) {
     return new Promise((resolve, reject) => {
       api.updateUser(user).then(res => {
@@ -48,6 +51,9 @@ export const actions = {
         resolve()
       })
     })
+  },
+  setUserTranscribeMode({ commit }, mode) {
+    commit("setUserTranscribeMode", mode)
   },
   updateUserLinesTranscribed({ commit }) {
     commit('updateUserLinesTranscribed')
@@ -68,7 +74,7 @@ export const actions = {
     commit('setUser', payload)
   },
   loginAnonymously({ commit }) {
-    return auth.signInAnonymously().catch(function(error) {
+    return auth.signInAnonymously().catch(function (error) {
       commit('loginError', error)
     })
   },
@@ -88,7 +94,7 @@ export const actions = {
   createUserWithEmailAndPassword({ commit }, params) {
     return auth
       .createUserWithEmailAndPassword(params.email, params.password)
-      .catch(function(error) {
+      .catch(function (error) {
         //debugger
         // Handle Errors here.
         const errorCode = error.code

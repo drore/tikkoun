@@ -61,6 +61,8 @@ export default () => {
       'main.work_area.button_3': '</>',
       'main.work_area.button_4': '{?}',
       'main.work_area.button_5': '↺',
+      'main.work_area.over_ligature': 'ﭏ',
+      'main.work_area.over_upper': '˙',
       'main.work_area.finish_line_1':
         "לאחר שתיקנתם את כל השגיאות, או אם לא מצאתם שגיאות כלל, לחצו 'סיימתי'.",
       'main.work_area.finish_line_2':

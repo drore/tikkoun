@@ -359,7 +359,8 @@ export const onLineTranscriptionAdded = functions.firestore
 async function updateUserStatsIfExists(transcriptionData: FirebaseFirestore.DocumentData) {
   const uid = transcriptionData.uid
   const manuscript_id = transcriptionData.manuscript
-
+  
+  // TODO: there is a problem here with done_percentage being calculated linesTrascribed / totalLines but includes duplicates....
   // Update total lines transcribed
   await updateUserGeneralStats(uid);
 

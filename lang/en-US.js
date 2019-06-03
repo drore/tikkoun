@@ -56,6 +56,8 @@ export default () => {
       'main.work_area.button_3': '</>',
       'main.work_area.button_4': '{?}',
       'main.work_area.button_5': '↺',
+      'main.work_area.over_ligature': 'ﭏ',
+      'main.work_area.over_upper': '˙',
       'wrong_creds':'Wrong credentials',
       'reset_password':'Reset Password',
       'version_text':'You are using a new version of Tikkoun-Sofrim. If you encounter problems please e-mail us.',
