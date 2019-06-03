@@ -12,11 +12,11 @@ export default {
   },
   mounted() {
     const routeParams = this.$route.params
-    
+
     // if(this.$store.state.auth.user.transcribe_mode == "tasks"){
     //   this.$store.dispatch('transcribe/GET_TASK')
     // }
-    
+
     if (routeParams && routeParams.manuscript) {
       const routeManuscript = routeParams.manuscript.toLowerCase()
       const storeManuscript =
@@ -25,7 +25,7 @@ export default {
         this.$store.state.transcribe.manuscript.name.toLowerCase()
 
       if (routeManuscript === storeManuscript) {
-      ////
+        ////
       } else if (!this.manuscriptRequested) {
         this.manuscriptRequested = true
         this.$store.dispatch('transcribe/GET_MANUSCRIPT', routeManuscript)
@@ -37,7 +37,9 @@ export default {
   },
   computed: {
     manuscript() {
-      return this.$store.state.transcribe.manuscript
+      const manuscript = this.$store.state.transcribe.manuscript
+
+      return manuscript
     }
   }
 }

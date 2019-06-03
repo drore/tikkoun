@@ -67,6 +67,9 @@ export const mutations = {
       case 'ligature':
         transcription = `${pre}${selection}ﭏ${post}`
         break
+      case 'devine_name':
+        transcription = `${pre}${selection}${state.manuscript.special_char['devine_name']}${post}`
+        break
     }
 
     state.transcription = transcription
@@ -154,7 +157,8 @@ export const actions = {
   },
 
   async GET_MANUSCRIPT({ commit }, name) {
-    commit('gotManuscript', await api.getManuscript(name))
+    const manuscript = await api.getManuscript(name)
+    commit('gotManuscript', manuscript)
   },
 
   updateLineViewing({ commit, state }, params) {
@@ -267,7 +271,7 @@ export const actions = {
         // If so, take the user out of the "tasks" routine and give the next line
 
         dispatch('auth/setUserTranscribeMode', 'regular', { root: true })
-        commit('setTask',null)
+        commit('setTask', null)
         api.updateUserParam(uid, { 'transcribe_mode': 'regular' })
 
         dispatch(

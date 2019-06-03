@@ -70,7 +70,11 @@
           action="ligature"
           content="main.work_area.over_ligature"
         />
-        <ManipulationButton title="main.work_area.hovers.over_upper" action="upper" content="main.work_area.over_upper"/>
+        <ManipulationButton
+          title="main.work_area.hovers.over_upper"
+          action="upper"
+          content="main.work_area.over_upper"
+        />
         <ManipulationButton
           title="main.work_area.hovers.over_uncertain"
           action="uncertain"
@@ -90,6 +94,11 @@
           title="main.work_area.hovers.over_additions"
           action="additions"
           content="main.work_area.button_2"
+        />
+        <ManipulationButton
+          title="main.work_area.hovers.devine_name"
+          action="devine_name"
+          :t_content="getSpecialChar('devine_name')"
         />
       </div>
       <div class="btn-group col" role="group" aria-label="Second group" dir="ltr">
@@ -150,7 +159,7 @@
       <!-- <a
         target="_blank"
         :href="shareURL"
-      >שתף אותי בפייסבוק</a> -->
+      >שתף אותי בפייסבוק</a>-->
     </div>
   </div>
 </template>
@@ -197,8 +206,10 @@ export default {
     transcription() {
       return this.$store.state.transcribe.transcription
     },
-    shareURL(){
-      const url =  `https://tikkoun-sofrim.firebaseapp.com${window.location.pathname}`
+    shareURL() {
+      const url = `https://tikkoun-sofrim.firebaseapp.com${
+        window.location.pathname
+      }`
       return `javascript:window.location=%22http://www.facebook.com/sharer.php?u=%22+encodeURIComponent('${url}')+%22&#38;t=%22+encodeURIComponent(document.title)`
     }
   },
@@ -231,14 +242,23 @@ export default {
         this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
         this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
 
-        const elemWidth = parseInt($('#work-page').width()) * 3
+        const default_file_name =
+          this.$store.state.transcribe.manuscript.default_file_name || 'default'
+
+        const image_extension_1 =
+          this.$store.state.transcribe.manuscript.image_extension_1 ||
+          this.$store.state.transcribe.manuscript.image_extension
+
+        const image_extension_2 =
+          this.$store.state.transcribe.manuscript.image_extension_2 ||
+          this.$store.state.transcribe.manuscript.image_extension
+
+        const fullWidth = this.$store.state.transcribe.manuscript.full_width || parseInt($('#work-page').width()) * 3
         const baseURL = this.$store.state.transcribe.manuscript.base_url
         const imageFilePart = `${baseURL}${
           this.color_img_file_name
-        }.${this.$store.state.transcribe.manuscript.image_extension}/`
-        const endPart = `${elemWidth},/0/default.${
-          this.$store.state.transcribe.manuscript.image_extension
-        }`
+        }.${image_extension_1}/`
+        const endPart = `${fullWidth},/0/${default_file_name}.${image_extension_2}`
 
         const extendedImgFactor = 20
         const widthFactor = extendedImgFactor
@@ -269,6 +289,16 @@ export default {
   },
 
   methods: {
+    getSpecialChar(char) {
+      const manuscript = this.$store.state.transcribe.manuscript
+      if (manuscript.special_char) {
+        if (manuscript.special_char['devine_name']) {
+          return manuscript.special_char['devine_name']
+        }
+      }
+
+      return 'ײ'
+    },
     viewerInited(viewer) {
       const self = this
       self.viewer = viewer
