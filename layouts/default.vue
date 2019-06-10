@@ -28,6 +28,7 @@ export default {
   },
   mounted() {
     ga('create', 'UA-133908181-1')
+    this.$store.dispatch("general/getInitialData")
   }
 }
 </script>

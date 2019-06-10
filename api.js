@@ -53,8 +53,8 @@ export default {
   getUser(uid) {
     return StoreDB.doc(`users/${uid}`).get()
   },
-  async updateUserParam(uid, updateParams){
-    return StoreDB.doc(`users/${uid}`).set(updateParams,{merge:true})
+  async updateUserParam(uid, updateParams) {
+    return StoreDB.doc(`users/${uid}`).set(updateParams, { merge: true })
   },
   updateUser(user) {
     return new Promise((resolve, reject) => {
@@ -93,12 +93,26 @@ export default {
       resolve(tasks.size && Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id }))
     })
   },
+  async getLeaderBoard() {
+    return new Promise(async (resolve, reject) => {
+      const leadersSnap = await StoreDB.collection('users').orderBy('linesTranscribed', 'desc').limit(10).get()
+      const leaders = leadersSnap.docs.map((l, i) => {
+        const leaderObj = {
+          rank: i + 1,
+          linesTranscribed: l.data().linesTranscribed
+        }
+        return leaderObj
+      })
+      resolve(leaders)
+    })
+  },
   getManuscript(name) {
     let query = null
     if (!name) {
       //query = StoreDB.collection('manuscripts').limit(1)
       name = 'geneva'
     }
+    // First look in the 
     query = StoreDB.collection('manuscripts')
       .where('name', '==', name)
       .limit(1)
@@ -262,6 +276,37 @@ export default {
     ).update({ views: params.viewCounter + 1 })
   },
 
+  async getManuscripts() {
+    return new Promise(async (resolve, reject) => {
+      const manuscriptsQuerySnapshot = await StoreDB.collection('manuscripts').get()
+      const manuscripts = manuscriptsQuerySnapshot.docs.map(snap => {
+        const msData = snap.data()
+        return Object.assign(msData, { id: snap.id })
+      })
+
+      resolve(manuscripts)
+    })
+  },
+
+  async getUserTemperament(uid) {
+    return new Promise(async (resolve, reject) => {
+      const userTemperament = await StoreDB.doc(`research/umap/users/${uid}`).get()
+      let temperament = null
+      if (userTemperament.exists) {
+        const traits = userTemperament.data();
+        temperament = `${traits.openness}${traits.conscientiousness}`
+      }
+
+      resolve(temperament)
+    })
+  },
+
+  async updateUserTemperament(params) {
+    return new Promise(async (resolve, reject) => {
+      await StoreDB.doc(`research/umap/users/${params.uid}`).set(params.userTraits, { merge: true })
+    })
+  },
+
   async addTranscription(params) {
     // Write to the user obj
     const updateParams = Object.assign({}, params)
@@ -277,17 +322,17 @@ export default {
         const userTaskDocData = userTaskDoc.data();
         const userTaskLines = (userTaskDocData && userTaskDocData.lines) || [];
         const lineUID = `${params.manuscript}_${params.lineId}`
-        if(userTaskLines.indexOf(lineUID) == -1){
+        if (userTaskLines.indexOf(lineUID) == -1) {
           userTaskLines.push(lineUID)
         }
 
         await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`)
-          .set({ next_general_index: params.generalIndex + 1, lines:userTaskLines }, { merge: true })
+          .set({ next_general_index: params.generalIndex + 1, lines: userTaskLines }, { merge: true })
       }
 
       // Update the manuscript record on the user profile - point to the next line in the manuscript - this progresses even if the line was skipped
       await StoreDB.doc(`users/${updateParams.uid}/manuscripts/${updateParams.manuscript}`)
-      .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
+        .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
 
       // Add another line to the user lines collection and mark the action
       await StoreDB.doc(`users/${updateParams.uid}/lines/${updateParams.lineId}`).set(

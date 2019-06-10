@@ -43,6 +43,7 @@ export default () => {
       'login.login_area.register': 'הרשמה',
       'login.login_area.geust': 'הכנס כאורח/ת',
       'login.login_area.invalid': 'פרטי גישה שגויים',
+      'help':"עזרה",
       'main.data_area.page': 'עמוד',
       'main.data_area.alphabet': 'א-ב',
       'main.data_area.issues': 'תווים מיוחדים',
@@ -52,6 +53,8 @@ export default () => {
       'main.work_area.video': 'https://www.youtube.com/watch?v=Gwb751U6MVk',
       'main.work_area.video_hover': 'סרטון הדרכה',
       'main.work_area.video_text': 'סרטון הדרכה',
+      'nav.research_questionnaire':'השתתף במחקר',
+      'conversation.disclaimer':'ברוכים הבאים לפורום "תיקון סופרים" - אנא שימו לב כי הודעות שנכתבות כאן חשופות לכלל משתמשי האתר הרשומים',
       'main.work_area.intro_line_1':
         'לפניכם התעתוק האוטומטי, אנא בדקו ותקנו אותו בתיבת הטקסט.',
       'main.work_area.intro_line_2':

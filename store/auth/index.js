@@ -45,7 +45,11 @@ export const mutations = {
 export const actions = {
   nuxtServerInit({ commit }, { req }) { },
   updateUser({ commit, dispatch }, user) {
+    
     return new Promise((resolve, reject) => {
+      dispatch('stats/getUserDailyMSStats', {
+        uid: user.uid
+      }, { root: true })
       api.updateUser(user).then(res => {
         dispatch('setUser', res)
         resolve()

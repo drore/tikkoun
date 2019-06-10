@@ -45,7 +45,7 @@
     </div>
     <!-- Transcribe toolbar -->
     <div class="mt-3 p-10 row" dir="ltr">
-      <div class="btn-group col" role="group" aria-label="First group" dir="ltr">
+      <div class="btn-group col mt-2" role="group" aria-label="First group" dir="ltr">
         <div class="dropdown">
           <button
             class="btn btn-secondary dropdown-toggle"
@@ -101,7 +101,7 @@
           :t_content="getSpecialChar('devine_name')"
         />
       </div>
-      <div class="btn-group col" role="group" aria-label="Second group" dir="ltr">
+      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
         <button
           :title="$t('main.work_area.hovers.over_reset')"
           class="btn btn-secondary btn-sm"
@@ -112,7 +112,7 @@
         </button>
       </div>
       <!-- right part -->
-      <div class="btn-group col" role="group" aria-label="Second group" dir="ltr">
+      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
         <button
           :title="$t('main.work_area.hovers.over_alef_minus')"
           class="btn btn-secondary btn-sm"
@@ -177,6 +177,7 @@ export default {
       images: [],
       polygon: {},
       color_img_file_name: null,
+      currLineImage:'',
       viewerOptions: {
         inline: true,
         button: false,

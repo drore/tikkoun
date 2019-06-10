@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "tikkoun-sofrim"
+    "default": "tikkoun-sofrim",
+    "demo": "tikkoun-demo"
   }
 }

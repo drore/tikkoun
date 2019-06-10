@@ -166,6 +166,7 @@ export const actions = {
   },
   async getNextLine({ commit, dispatch, state }, uid) {
     let promise
+    
     if (state.task) {
       return dispatch('getTaskLine', uid)
     }

@@ -2,7 +2,7 @@
   <div class="footer">
     <hr>
     <div class="container">
-      <div class="partner-logos row">
+      <div class="partner-logos">
         <a class="col" href="http://elijahlab.haifa.ac.il/index.php/he/" target="_blank">
           <img
             class="tslogos"
@@ -39,8 +39,7 @@
             title="Ministère de lʼEnseignement supérieur, de la Recherche et de lʼInnovation"
           >
         </a>
-      </div>
-      <div class="partner-logos row">
+      
         <a class="col" href="https://www.diplomatie.gouv.fr/en/" target="_blank">
           <img
             class="tslogos"
@@ -70,7 +69,7 @@
 <style lang="scss">
 .partner-logos {
   img {
-    height: 45px;
+    height: 35px;
     margin: 5px;
   }
 }

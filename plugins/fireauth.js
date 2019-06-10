@@ -10,6 +10,7 @@ export default context => {
         store.dispatch('auth/setUser', _user)
         if (!_user.isAnonymous) {
           store.dispatch('auth/updateUser', _user)
+          store.dispatch('research/getUserTemperament', _user.uid)
         }
 
         return resolve()

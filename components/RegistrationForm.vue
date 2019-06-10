@@ -122,12 +122,12 @@ export default {
       this.$store
         .dispatch('auth/createUserWithEmailAndPassword', registerationParams)
         .then(res => {
-          
           let obj = {
             isAnonymous: res.user.isAnonymous,
             displayName: res.user.displayName,
             contactByEmail: this.contactByEmail,
             isNewUser: res.additionalUserInfo.isNewUser,
+            transcribe_mode:'normal',
             uid: res.user.uid
           }
 
@@ -138,7 +138,7 @@ export default {
 
           // Now, update the user with the rest of the details
           this.$store.dispatch('auth/updateUser', obj).then(res =>{
-            this.$router.push(`/${this.$i18n.locale}/transcribe`)
+            window.location.reload()
           })
 
         })

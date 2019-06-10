@@ -53,6 +53,7 @@ export default () => {
       'main.work_area.button_5': '↺',
       'main.work_area.over_ligature': 'ﭏ',
       'main.work_area.over_upper': '˙',
+      'nav.research_questionnaire':'השתתף במחקר',
       manuscripts:'Manuscript',
       'main.work_area.finish_line_1': `Après avoir corrigé toutes les erreurs, ou si la transcription n'en comportait aucune, cliquez sur "Terminé".`,
       wrong_creds: 'identifiant ou mot de passe incorrect',

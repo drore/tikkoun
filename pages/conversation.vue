@@ -2,7 +2,7 @@
   <div class="container pt-5">
     <div
       class="alert"
-    >ברוכים הבאים לפורום "תיקון סופרים" - אנא שימו לב כי הודעות שנכתבות כאן חשופות לכלל משתמשי האתר הרשומים</div>
+    >{{$t('conversation.disclaimer')}}</div>
     <div class="buttons">
       <input
         name="new"
