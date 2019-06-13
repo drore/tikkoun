@@ -1,5 +1,7 @@
 <template>
   <div class="footer">
+    <div class="sharethis-inline-share-buttons"></div>
+
     <hr>
     <div class="container">
       <div class="partner-logos">
@@ -39,7 +41,7 @@
             title="Ministère de lʼEnseignement supérieur, de la Recherche et de lʼInnovation"
           >
         </a>
-      
+
         <a class="col" href="https://www.diplomatie.gouv.fr/en/" target="_blank">
           <img
             class="tslogos"

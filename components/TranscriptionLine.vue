@@ -156,10 +156,6 @@
           @click="done"
         >{{$t('main.work_area.finish_button_1')}}</button>
       </div>
-      <!-- <a
-        target="_blank"
-        :href="shareURL"
-      >שתף אותי בפייסבוק</a>-->
     </div>
   </div>
 </template>
@@ -206,12 +202,6 @@ export default {
     },
     transcription() {
       return this.$store.state.transcribe.transcription
-    },
-    shareURL() {
-      const url = `https://tikkoun-sofrim.firebaseapp.com${
-        window.location.pathname
-      }`
-      return `javascript:window.location=%22http://www.facebook.com/sharer.php?u=%22+encodeURIComponent('${url}')+%22&#38;t=%22+encodeURIComponent(document.title)`
     }
   },
   watch: {
