@@ -1,5 +1,5 @@
 <template>
-  <div id="map" class="h-100"></div>
+  <div id="map"></div>
 </template>
 <script>
 export default {
@@ -108,10 +108,11 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-.show {
-  #map {
-    min-height: 500px;
-  }
+#map {
+  min-height: 500px;
+  height: 35vw;
+  border-radius: 10px;
+  background-color: black;
 }
 </style>
 

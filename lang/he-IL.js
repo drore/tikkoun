@@ -43,6 +43,8 @@ export default () => {
       'login.login_area.register': 'הרשמה',
       'login.login_area.geust': 'הכנס כאורח/ת',
       'login.login_area.invalid': 'פרטי גישה שגויים',
+      'task.weekly-task':'המשימה השבועית',
+      'task.click_to_participate':'הקלק להשתתפות',
       'help':"עזרה",
       'stats.leader_board':'לוח מובילים',
       'stats.personal_stats':'סטטיסטיקה אישית',

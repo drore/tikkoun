@@ -1,8 +1,5 @@
 <template>
-  <div class="footer">
-    <div class="sharethis-inline-share-buttons"></div>
-
-    <hr>
+  <div class="footer mt-5 pt-2">
     <div class="container">
       <div class="partner-logos">
         <a class="col" href="http://elijahlab.haifa.ac.il/index.php/he/" target="_blank">
@@ -69,6 +66,9 @@
   </div>
 </template>
 <style lang="scss">
+.footer{
+  border-top:1px solid #888;
+}
 .partner-logos {
   img {
     height: 35px;

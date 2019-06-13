@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-modal ref="modal-help" id="modal-help" title="Help" centered scrollable ok-only>
+    <b-modal ref="modal-help" id="modal-help" :title="$t('help')" centered scrollable ok-only>
       <div>
         <ul class="nav nav-tabs flex-nowrap" role="tablist">
           <li class="nav-item">

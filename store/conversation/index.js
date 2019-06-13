@@ -28,6 +28,10 @@ export const mutations = {
   },
   hideReplyLine(state, payload) {
     state.messages.find(m => m.id === payload).showReplyLine = false;
+  },
+  clear(state) {
+    state.current_message = {}
+    state.messages = []
   }
 }
 
@@ -44,14 +48,18 @@ export const actions = {
     await api.addConversationMessage(params)
     commit('messageUpdated', params)
   },
-  async getMessages({ commit, dispatch }, path) {
-    const messages = await api.getMessages(path)
+  async getMessages({ commit, dispatch }, params) {
+    const messages = await api.getMessages(params)
     commit('gotMessages', messages)
-    if (path) {
-      dispatch('getReplies', path)
+    if (params.path) {
+      dispatch('getReplies', params.path)
     }
   },
-  
+
+  clear({ commit }) {
+    commit('clear')
+  },
+
   hideReplyLine({ commit }, messageId) {
     commit('hideReplyLine', messageId)
   },

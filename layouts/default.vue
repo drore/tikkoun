@@ -1,5 +1,5 @@
 <template>
-  <div :style="style">
+  <div v-bind:class="{ rtl: direction === 'rtl' }">
     <Topbar/>
     <nuxt/>
     <Footer/>
@@ -16,14 +16,6 @@ export default {
   computed: {
     direction() {
       return this.$t('dir')
-    },
-    style() {
-      let style = ''
-      if (this.direction === 'rtl') {
-        style = `direction:rtl;text-align:right`
-      }
-
-      return style
     }
   },
   mounted() {

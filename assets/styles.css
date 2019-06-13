@@ -1,8 +1,14 @@
-
 .rtl {
   direction: rtl;
   text-align: right;
 }
 .viewer-backdrop{
   background-color: rgba(0,0,0,0.7) !important;
+}
+.btn-tikkoun{
+  border: 1px solid #777 !important;
+}
+.btn-tikkoun:hover{
+  background-color:#555;
+  color:white !important;
 }

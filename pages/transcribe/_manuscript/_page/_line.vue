@@ -2,7 +2,7 @@
   <div class="transcribe-page container-fluid mt-2">
     <div class="row">
       <!-- Column Two work area -->
-      <div id="transcribe-section" class="container col-md-8 mb-2">
+      <div id="transcribe-section" class="col-md-8 mb-2">
         <div class="w-100">
           <div id="work-page" class="d-flex flex-column justify-content-between">
             <div class="header mb-4 row">
@@ -25,21 +25,20 @@
           <TranscriptionLine/>
         </div>
       </div>
-      <div id="map-section" class="container col-md-4">
-        <div class="mb-3">
+      <div id="map-section" class="col-md-4">
+        <div class="mb-3 d-flex justify-content-between">
           <b-button v-b-modal.modal-help>{{$t('help')}}</b-button>
-          <a :href="manuscript.descLink" target="_blank">
-            <label
-              style="clear: both; color: blue;"
-              :title="manuscript.short_desc"
-            >{{manuscript.name}}</label>
-          </a>
+          <div class="line-info">
+            <a :href="manuscript.descLink" target="_blank">
+              <label :title="manuscript.short_desc">{{manuscript.display_name}}</label>
+            </a>
 
-          <label v-if="line">
-            - Page {{line.page}} /
-            {{manuscript.total_pages}}, Line {{line.line}} /
-            {{manuscript.total_lines}}
-          </label>
+            <label v-if="line">
+              - Page {{line.page}} /
+              {{manuscript.total_pages}}, Line {{line.line}} /
+              {{manuscript.total_lines}}
+            </label>
+          </div>
         </div>
         <TranscriptionMap/>
       </div>
@@ -63,6 +62,11 @@ export default {
     TranscriptionLine,
     TranscriptionMap,
     InfoTabs
+  },
+  head() {
+    return {
+      title: `Tikkoun Sofrim - ${this.manuscript.display_name} - Transcribe`
+    }
   },
   computed: {
     line() {
@@ -93,6 +97,7 @@ export default {
   },
   // Maybe watch on line from store
   mounted() {
+    this.$store.dispatch('transcribe/GET_TASK')
     const routeParams = this.$route.params
     const user = this.$store.state.auth.user
     if (user) {
@@ -126,6 +131,12 @@ export default {
 <style lang="scss">
 #map-section {
   min-height: 300px;
+}
+.line-info {
+  direction: ltr;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
 }
 .video_tut {
   a {

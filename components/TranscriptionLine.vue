@@ -36,7 +36,7 @@
         name="transcribed"
         autocomplete="off"
         style="font-family:Corsive;"
-        class="w-100 p-2 rtl"
+        class="w-100 p-2"
         :value="transcription"
         @keyup="change"
         @mouseup="select"
@@ -48,7 +48,7 @@
       <div class="btn-group col mt-2" role="group" aria-label="First group" dir="ltr">
         <div class="dropdown">
           <button
-            class="btn btn-secondary dropdown-toggle"
+            class="btn btn-tikkoun dropdown-toggle"
             type="button"
             id="dropdownMenuButton"
             data-toggle="dropdown"
@@ -64,7 +64,8 @@
             <a class="dropdown-item" href="#" @click="manipulateLineByAdding('\'')">'</a>
           </div>
         </div>
-
+      </div>
+      <div class="btn-group col mt-2" role="group" aria-label="First group" dir="ltr">
         <ManipulationButton
           title="main.work_area.hovers.over_ligature"
           action="ligature"
@@ -104,7 +105,7 @@
       <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
         <button
           :title="$t('main.work_area.hovers.over_reset')"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-tikkoun btn-sm"
           type="button"
           @click="reset"
         >
@@ -115,7 +116,7 @@
       <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
         <button
           :title="$t('main.work_area.hovers.over_alef_minus')"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-tikkoun btn-sm"
           type="button"
           @click="changeFontSize(0.1)"
         >
@@ -125,7 +126,7 @@
         </button>
         <button
           :title="$t('main.work_area.hovers.over_alef_plus')"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-tikkoun btn-sm"
           type="button"
           @click="changeFontSize(-0.1)"
         >
@@ -140,27 +141,37 @@
       <div>{{$t('main.work_area.finish_line_1')}}</div>
       <div>{{$t('main.work_area.finish_line_2')}}</div>
 
-      <div id="activity-buttons" class="mt-2 d-flex justify-content-between" dir="rtl">
-        <button
-          type="submit"
-          class="btn btn-warning"
-          name="status"
-          value="Skip"
-          @click="skip"
-        >{{$t('main.work_area.finish_button_2')}}</button>
-        <button
-          type="submit"
-          class="btn btn-success"
-          name="status"
-          value="Done"
-          @click="done"
-        >{{$t('main.work_area.finish_button_1')}}</button>
+      <div id="activity-buttons" class="mt-2 d-flex justify-content-between">
+        <div class="sharethis-inline-share-buttons"></div>
+        <div>
+          <button
+            type="submit"
+            class="btn btn-warning"
+            name="status"
+            value="Skip"
+            @click="skip"
+          >{{$t('main.work_area.finish_button_2')}}</button>
+          <button
+            type="submit"
+            class="btn btn-success"
+            name="status"
+            value="Done"
+            @click="done"
+          >{{$t('main.work_area.finish_button_1')}}</button>
+        </div>
       </div>
+    </div>
+    <div>
+      <Conversation
+        v-if="manuscript && line"
+        :context="`${manuscript.name}_${line.page}_${line.line}`"
+      />
     </div>
   </div>
 </template>
 <script>
 import ManipulationButton from '~/components/ManipulationButton'
+import Conversation from '~/components/Conversation'
 import { setTimeout } from 'timers'
 export default {
   data() {
@@ -173,7 +184,7 @@ export default {
       images: [],
       polygon: {},
       color_img_file_name: null,
-      currLineImage:'',
+      currLineImage: '',
       viewerOptions: {
         inline: true,
         button: false,
@@ -194,11 +205,18 @@ export default {
     }
   },
   components: {
-    ManipulationButton
+    ManipulationButton,
+    Conversation
+  },
+  mounted() {
+    window.__sharethis__.initialize()
   },
   computed: {
     line() {
       return this.$store.state.transcribe.selected_line
+    },
+    manuscript() {
+      return this.$store.state.transcribe.manuscript
     },
     transcription() {
       return this.$store.state.transcribe.transcription
@@ -212,7 +230,7 @@ export default {
         ga('send', 'event', {
           eventCategory: 'Site_Actions',
           eventAction: 'show_line',
-          eventLabel: this.$store.state.transcribe.manuscript.id
+          eventLabel: this.manuscript.id
         })
 
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
@@ -234,18 +252,20 @@ export default {
         this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
 
         const default_file_name =
-          this.$store.state.transcribe.manuscript.default_file_name || 'default'
+          this.manuscript.default_file_name || 'default'
 
         const image_extension_1 =
-          this.$store.state.transcribe.manuscript.image_extension_1 ||
-          this.$store.state.transcribe.manuscript.image_extension
+          this.manuscript.image_extension_1 ||
+          this.manuscript.image_extension
 
         const image_extension_2 =
-          this.$store.state.transcribe.manuscript.image_extension_2 ||
-          this.$store.state.transcribe.manuscript.image_extension
+          this.manuscript.image_extension_2 ||
+          this.manuscript.image_extension
 
-        const fullWidth = this.$store.state.transcribe.manuscript.full_width || parseInt($('#work-page').width()) * 3
-        const baseURL = this.$store.state.transcribe.manuscript.base_url
+        const fullWidth =
+          this.manuscript.full_width ||
+          parseInt($('#work-page').width()) * 3
+        const baseURL = this.manuscript.base_url
         const imageFilePart = `${baseURL}${
           this.color_img_file_name
         }.${image_extension_1}/`
@@ -273,7 +293,7 @@ export default {
 
         $('#v-viewer-container').height(
           this.polygonObj.height /
-            this.$store.state.transcribe.manuscript.factor
+            this.manuscript.factor
         )
       }
     }
@@ -281,7 +301,7 @@ export default {
 
   methods: {
     getSpecialChar(char) {
-      const manuscript = this.$store.state.transcribe.manuscript
+      const manuscript = this.manuscript
       if (manuscript.special_char) {
         if (manuscript.special_char['devine_name']) {
           return manuscript.special_char['devine_name']
@@ -364,7 +384,7 @@ export default {
           ga('send', 'event', {
             eventCategory: 'Transcribe_Actions',
             eventAction: 'done_line',
-            eventLabel: this.$store.state.transcribe.manuscript.id
+            eventLabel: this.manuscript.id
           })
         })
     },
@@ -379,7 +399,7 @@ export default {
           ga('send', 'event', {
             eventCategory: 'Transcribe_Actions',
             eventAction: 'skipped_line',
-            eventLabel: this.$store.state.transcribe.manuscript.id
+            eventLabel: this.manuscript.id
           })
         })
     }

@@ -44,8 +44,15 @@ export const mutations = {
 
 export const actions = {
   nuxtServerInit({ commit }, { req }) { },
+  async changeTranscribeMode({ commit, state, dispatch }, mode) {
+    if (state.user.transcribe_mode !== mode) {
+      await api.updateUserParam(state.user.uid, { transcribe_mode: mode })
+      dispatch('setUserTranscribeMode', mode)
+    }
+
+  },
   updateUser({ commit, dispatch }, user) {
-    
+
     return new Promise((resolve, reject) => {
       dispatch('stats/getUserDailyMSStats', {
         uid: user.uid

@@ -1,5 +1,6 @@
 import manuscriptsManager from '~/manuscriptsManager'
 import api from '@/api.js'
+import { STATUS_CODES } from 'http';
 
 export const state = () => ({
   selected_line: null,
@@ -11,6 +12,9 @@ export const state = () => ({
 })
 
 export const mutations = {
+  setRange(state, payload) {
+    state.range = payload
+  },
   gotLine(state, payload) {
     state.selected_line = Object.assign(
       {
@@ -30,6 +34,7 @@ export const mutations = {
     state.next_line = null
     state.prev_line = null
     state.transcription = null
+    state.range = null
   },
   gotPrevLine(state, payload) {
     state.prev_line = payload
@@ -87,6 +92,7 @@ export const mutations = {
     state.prev_line = null
     state.transcription = null
     state.task = null;
+    state.range = null;
   },
   gotManuscript(state, payload) {
     const msData = payload.docs.map(d => {
@@ -146,14 +152,19 @@ export const actions = {
 
     if (state.task && state.task.id) {
       transcription.task = state.task.id
+      transcription.rangeId = state.range.id
     }
+
     await api.addTranscription(transcription)
 
     dispatch('getNextLine', user.uid)
   },
 
-  async GET_TASK({ commit }) {
-    commit('setTask', await api.getTask())
+  async GET_TASK({ commit, state }) {
+    if (!state.task) {
+      commit('setTask', await api.getActiveTask())
+    }
+
   },
 
   async GET_MANUSCRIPT({ commit }, name) {
@@ -166,7 +177,7 @@ export const actions = {
   },
   async getNextLine({ commit, dispatch, state }, uid) {
     let promise
-    
+
     if (state.task) {
       return dispatch('getTaskLine', uid)
     }
@@ -258,19 +269,26 @@ export const actions = {
   },
   async getTaskLine({ commit, dispatch, state }, uid) {
     const ranges = state.task.ranges
+
     // For now we take the first one
-    const range = ranges.length && ranges[0];
+    const userTask = await api.getUserTask(state.task.id, uid)
+
+    let rangeId;
+    const range = ranges.length && userTask && ranges.find((r, i) => {
+      rangeId = r.id
+      return !userTask.next_general_index[rangeId] || userTask.next_general_index[rangeId] <= r.end_general_index;
+    }) || ranges.find(r => r.id == rangeId);
+
     if (range) {
-      const userTask = await api.getUserTask(state.task.id, uid)
       // If the next general index on the user task does not go beyond the task
-      const userNextTaskGeneralIndex = (userTask && userTask.next_general_index) || 0;
-      if (userNextTaskGeneralIndex <= range.end.general_index) {
+      const userNextTaskGeneralIndex = (userTask && userTask.next_general_index[rangeId]) || range.start_general_index;
+      if (userNextTaskGeneralIndex <= range.end_general_index) {
         const userNextTaskLine = await api.getLineByGeneralIndex(range.msId, userNextTaskGeneralIndex)
         commit('gotLine', Object.assign({ id: userNextTaskLine.id }, userNextTaskLine.data))
+        commit('setRange', range)
       }
       else {
         // If so, take the user out of the "tasks" routine and give the next line
-
         dispatch('auth/setUserTranscribeMode', 'regular', { root: true })
         commit('setTask', null)
         api.updateUserParam(uid, { 'transcribe_mode': 'regular' })

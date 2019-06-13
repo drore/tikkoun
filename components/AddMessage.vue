@@ -26,7 +26,8 @@ export default {
   },
   props: {
     replyTo: Object,
-    num_replies: Number
+    num_replies: Number,
+    context: String,
   },
   methods: {
     updateMessageContent(event) {
@@ -51,6 +52,7 @@ export default {
           this.$store.state.transcribe.manuscript &&
           this.$store.state.transcribe.manuscript.id,
         content: this.$store.state.conversation.current_message.content,
+        context: this.context,
         title: this.$store.state.conversation.current_message.title,
         replyTo: (this.replyTo && this.replyTo.path) || null,
         num_replies: this.num_replies || 0

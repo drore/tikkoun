@@ -1,5 +1,5 @@
 <template>
-  <button :title="$t(title)" class="btn btn-secondary btn-sm" type="button" @click="manipulateLine">
+  <button :title="$t(title)" class="btn btn-tikkoun btn-sm" type="button" @click="manipulateLine">
     <span style="font-size: larger;" v-if="content">{{$t(content)}}</span>
     <span style="font-size: larger;" v-if="t_content">{{t_content}}</span>
   </button>

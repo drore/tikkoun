@@ -84,13 +84,20 @@ export default {
       }
     })
   },
-  async getTask() {
+  async getActiveTask() {
     return new Promise(async (resolve, reject) => {
       const tasks = await StoreDB.collection('tasks')
         .where('active', '==', true)
         .get()
+      const activeTask = tasks.size && Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id })
+      const rangesSnap = await StoreDB.collection(`tasks/${activeTask.id}/ranges`).get();
+      const ranges = rangesSnap.docs.map(r => {
+        return Object.assign(r.data(), { id: r.id })
+      })
 
-      resolve(tasks.size && Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id }))
+      const returnObj = Object.assign(activeTask, { ranges: ranges })
+
+      resolve(returnObj)
     })
   },
   async getLeaderBoard() {
@@ -317,7 +324,8 @@ export default {
 
     if (!updateParams.isAnonymous) {
       if (params.task) {
-        // Update the task record on the user profile - point to the next line in the task
+        
+        //Update the task record on the user profile - point to the next line in the task
         const userTaskDoc = await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`).get()
         const userTaskDocData = userTaskDoc.data();
         const userTaskLines = (userTaskDocData && userTaskDocData.lines) || [];
@@ -326,8 +334,9 @@ export default {
           userTaskLines.push(lineUID)
         }
 
-        await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`)
-          .set({ next_general_index: params.generalIndex + 1, lines: userTaskLines }, { merge: true })
+        const next_general_index = userTaskDocData.next_general_index
+        next_general_index[params.rangeId] = params.generalIndex + 1
+        await userTaskDoc.ref.set({ next_general_index: next_general_index, lines: userTaskLines }, { merge: true })
       }
 
       // Update the manuscript record on the user profile - point to the next line in the manuscript - this progresses even if the line was skipped
@@ -363,9 +372,13 @@ export default {
   /**
    * path - single message
    */
-  async getMessages(path) {
+  async getMessages(params) {
     return new Promise(async (resolve, reject) => {
-      const snap = path ? await StoreDB.doc(path).get() : await StoreDB.collection('messages').where('replyTo', '==', null).orderBy('createdOn', 'desc').get()
+      const path = params.path;
+      const context = params.context;
+      const snap = path ? await StoreDB.doc(path).get() :
+        context ? await StoreDB.collection('messages').where('replyTo', '==', null).where('context', '==', context).orderBy('createdOn', 'desc').get() :
+          await StoreDB.collection('messages').where('replyTo', '==', null).orderBy('createdOn', 'desc').get()
       let messages;
       if (path) {
         messages = [Object.assign(snap.data(), { id: snap.id, showReplyLine: false, path: snap.ref.path })]
