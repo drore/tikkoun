@@ -1,6 +1,9 @@
 <template>
-  <div>
-    <Conversation />
+  <div class="container pt-5">
+    <div>{{$t('conversation.disclaimer')}}</div>
+    <div>
+      <Conversation/>
+    </div>
   </div>
 </template>
 <script>

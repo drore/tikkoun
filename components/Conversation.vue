@@ -1,6 +1,5 @@
 <template>
-  <div class="container pt-5">
-    <div class="alert">{{$t('conversation.disclaimer')}}</div>
+  <div class="pt-2 mt-2">
     <div class="buttons">
       <input
         name="new"
@@ -14,6 +13,7 @@
 
     <div class="messages">
       <MessageBox v-for="message in messages" :key="message.id" :message="message" :main="true"></MessageBox>
+      <span v-if="!messages.length">{{$t('conversation.add_first_message')}}</span>
     </div>
   </div>
 </template>

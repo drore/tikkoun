@@ -58,7 +58,8 @@ export default {
           label: `Daily lines for ${manuscript.name}`,
           backgroundColor: colors[iterator]
         }
-
+        // TODO: need to move this to local cache with increment
+        
         $.each(stats, function(dStat, value) {
           dailyValuesArr.push({
             x: new Date(dStat),

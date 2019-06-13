@@ -232,7 +232,7 @@
         </ul>
       </div>
     </nav>
-    <b-modal ref="modal-stats" id="modal-stats" title="User statistics" ok-only ok-title="Dismiss">
+    <b-modal ref="modal-stats" id="modal-stats" :title="$t('stats.personal_stats')" ok-only ok-title="Dismiss">
       <div class="user-stats">
         <UserStatsChart></UserStatsChart>
       </div>

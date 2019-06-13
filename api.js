@@ -324,7 +324,12 @@ export default {
 
     if (!updateParams.isAnonymous) {
       if (params.task) {
-        
+
+        const taskRangesSnap = await StoreDB.collection(`tasks/${params.task}/ranges`).get()
+        const taskRanges = taskRangesSnap.docs.map(rs => {
+          return Object.assign(rs.data(),{id:rs.id})
+        })
+
         //Update the task record on the user profile - point to the next line in the task
         const userTaskDoc = await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`).get()
         const userTaskDocData = userTaskDoc.data();
@@ -335,8 +340,22 @@ export default {
         }
 
         const next_general_index = userTaskDocData.next_general_index
-        next_general_index[params.rangeId] = params.generalIndex + 1
-        await userTaskDoc.ref.set({ next_general_index: next_general_index, lines: userTaskLines }, { merge: true })
+        const userNextGeneralIndexForRange = params.generalIndex + 1
+        next_general_index[params.rangeId] = userNextGeneralIndexForRange
+
+        // Are we done?
+        let totalReminingLines = 0;
+        
+        taskRanges.forEach(range => {
+          let reminingLines = !isNaN(next_general_index[range.id])
+          ? range.end_general_index - next_general_index[range.id]
+          : range.end_general_index - range.start_general_index
+
+          reminingLines = Math.max(reminingLines, 0)
+          totalReminingLines+=reminingLines
+        })
+
+        await userTaskDoc.ref.set({ next_general_index: next_general_index, lines: userTaskLines, reminingLines:totalReminingLines }, { merge: true })
       }
 
       // Update the manuscript record on the user profile - point to the next line in the manuscript - this progresses even if the line was skipped

@@ -8,7 +8,8 @@ export const state = () => ({
   prev_line: null,
   manuscript: null,
   transcription: null,
-  task: null
+  task: null,
+  hide_task: false,
 })
 
 export const mutations = {
@@ -28,13 +29,15 @@ export const mutations = {
   },
   setTask(state, payload) {
     state.task = payload
+    if (!payload) {
+      // Also clear the selected_line and other params
+      state.selected_line = null
+      state.next_line = null
+      state.prev_line = null
+      state.transcription = null
+      state.range = null
+    }
 
-    // Also clear the selected_line and other params
-    state.selected_line = null
-    state.next_line = null
-    state.prev_line = null
-    state.transcription = null
-    state.range = null
   },
   gotPrevLine(state, payload) {
     state.prev_line = payload
@@ -46,6 +49,7 @@ export const mutations = {
     let transcription = state.transcription
     state.transcription = `${transcription}${mark}`
   },
+
   manipulateLine(state, action) {
     let transcription = state.transcription
     const range = state.selected_line.selected_range
@@ -105,7 +109,7 @@ export const mutations = {
   },
   resetTranscription(state) {
     state.transcription = state.selected_line.AT
-  }
+  },
 }
 
 export const actions = {
@@ -164,7 +168,6 @@ export const actions = {
     if (!state.task) {
       commit('setTask', await api.getActiveTask())
     }
-
   },
 
   async GET_MANUSCRIPT({ commit }, name) {
@@ -272,7 +275,7 @@ export const actions = {
 
     // For now we take the first one
     const userTask = await api.getUserTask(state.task.id, uid)
-
+    dispatch("auth/setUserTask", userTask, { root: true })
     let rangeId;
     const range = ranges.length && userTask && ranges.find((r, i) => {
       rangeId = r.id
@@ -282,7 +285,7 @@ export const actions = {
     if (range) {
       // If the next general index on the user task does not go beyond the task
       const userNextTaskGeneralIndex = (userTask && userTask.next_general_index[rangeId]) || range.start_general_index;
-      if (userNextTaskGeneralIndex <= range.end_general_index) {
+      if (userNextTaskGeneralIndex < range.end_general_index) {
         const userNextTaskLine = await api.getLineByGeneralIndex(range.msId, userNextTaskGeneralIndex)
         commit('gotLine', Object.assign({ id: userNextTaskLine.id }, userNextTaskLine.data))
         commit('setRange', range)

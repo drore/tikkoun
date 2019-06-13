@@ -1,80 +1,44 @@
 <template>
   <div>
     <b-modal ref="modal-help" id="modal-help" :title="$t('help')" centered scrollable ok-only>
-      <div>
-        <ul class="nav nav-tabs flex-nowrap" role="tablist">
-          <li class="nav-item">
-            <a
-              class="nav-link sfont"
-              id="special-tab"
-              data-toggle="tab"
-              role="tab"
-              href="#special"
-              aria-controls="special"
-            >{{$t('main.data_area.issues')}}</a>
-          </li>
-
-          <li class="nav-item">
-            <a
-              class="nav-link sfont"
-              id="ab-tab"
-              data-toggle="tab"
-              role="tab"
-              href="#ab"
-              aria-controls="ab"
-            >{{$t('main.data_area.alphabet')}}</a>
-          </li>
-
-          <li class="nav-item sfont">
-            <a
-              class="nav-link"
-              id="marked-tab"
-              data-toggle="tab"
-              role="tab"
-              href="#marked"
-              aria-controls="marked"
-            >{{$t('main.data_area.editing')}}</a>
-          </li>
-
-          <li class="nav-item">
-            <a
-              class="nav-link sfont"
-              id="help-tab"
-              data-toggle="tab"
-              role="tab"
-              href="#help"
-              aria-controls="help"
-            >
-              <strong>{{$t('main.data_area.help')}}</strong>
-            </a>
-          </li>
-        </ul>
+      <div class="d-flex justify-content-between" v-if="!$store.state.general.help_section">
+        <div
+          class="help-item"
+          @click="showHelpSection('alphabet')"
+        >{{$t('main.data_area.alphabet')}}</div>
+        <div class="help-item" @click="showHelpSection('special')">{{$t('main.data_area.special')}}</div>
+        <div class="help-item" @click="showHelpSection('editing')">{{$t('main.data_area.editing')}}</div>
+        <div class="help-item" @click="showHelpSection('help')">{{$t('main.data_area.help')}}</div>
       </div>
-      <div class="tab-content">
-        <div id="special" class="tab-pane fade" role="tabpanel" aria-labelledby="profile-tab">
-          <div class="tabcontent">
-            <div class="tabcontent" v-html="content.special" v-if="content.special"></div>
-          </div>
-        </div>
-        <div id="ab" class="tab-pane fade" role="tabpanel" aria-labelledby="ab-tab">
-          <div class="tabcontent">
-            <div class="tabcontent" v-html="content.alphabet" v-if="content.alphabet"></div>
-          </div>
-        </div>
-        <div id="marked" class="tab-pane fade" role="tabpanel" aria-labelledby="marked-tab">
-          <div class="tabcontent">
-            <div class="tabcontent" v-html="content.marked" v-if="content.marked"></div>
-          </div>
-        </div>
-        <div id="help" class="tab-pane fade" role="tabpanel" aria-labelledby="help-tab">
-          <div class="tabcontent" v-html="content.help" v-if="content.help"></div>
-        </div>
+      <div v-if="$store.state.general.help_section">
+        <div @click="showHelpSection()">{{$t('nav.back')}}</div>
+        <div
+          v-html="content.special"
+          v-if="content.special && $store.state.general.help_section === 'special'"
+        ></div>
+        <div
+          v-html="content.alphabet"
+          v-if="content.alphabet && $store.state.general.help_section === 'alphabet'"
+        ></div>
+        <div
+          v-html="content.marked"
+          v-if="content.marked && $store.state.general.help_section === 'editing'"
+        ></div>
+        <div
+          v-html="content.help"
+          v-if="content.help && $store.state.general.help_section === 'help'"
+        ></div>
       </div>
     </b-modal>
   </div>
 </template>
 <script>
 export default {
+  methods: {
+    showHelpSection(section) {
+      this.$store.dispatch('general/showHelpSection', section)
+    }
+  },
   computed: {
     content() {
       const content = {}
@@ -104,7 +68,7 @@ export default {
 
 .nav-tabs {
   padding: 0;
-  .nav-item {
+  .help-item {
     font-size: 0.8rem;
   }
 }
@@ -169,5 +133,13 @@ export default {
       }
     }
   }
+}
+.help-item {
+  border-radius: 50%;
+  padding: 20px;
+  border: 1px solid black;
+  width: 100px;
+  height: 100px;
+  text-align: center;
 }
 </style>

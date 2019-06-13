@@ -1,5 +1,5 @@
 export default () => {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     const translations = {
       dir: 'ltr',
       'main.site_name': 'Tikkoun Sofrim',
@@ -12,14 +12,14 @@ export default () => {
       'nav.midrash': 'Midrash Tanhuma',
       'nav.team': 'The Team',
       'nav.logout': 'Logout',
-      'profile.general':'General',
-      'profile.stats':'Statistics',
-      'lines_made':'Transcribed lines',
-      'maintenance':`Tikkoun Sofrim system is out for maintenance, we'll be back at 14:00`,
+      'profile.general': 'General',
+      'profile.stats': 'Statistics',
+      'lines_made': 'Transcribed lines',
+      'maintenance': `Tikkoun Sofrim system is out for maintenance, we'll be back at 14:00`,
       'nav.conversation': 'Conversation',
-      'conversation.by':'By',
-      'conversation.reply':'Reply',
-      'conversation.comments':'Comments',
+      'conversation.by': 'By',
+      'conversation.reply': 'Reply',
+      'conversation.comments': 'Comments',
       anonymous: 'Guest',
       'nav.profile': 'Profile',
       'nav.start': 'Start correcting!',
@@ -38,9 +38,10 @@ export default () => {
       'login.login_area.geust': 'Enter as guest',
       'login.login_area.invalid': 'Invalid Credentials!',
       'main.data_area.page': 'Page',
-      manuscripts:'Manuscript',
+      manuscripts: 'Manuscript',
+      'nav.back': 'Back',
       'main.data_area.alphabet': 'Alphabet',
-      'main.data_area.issues': 'Special Characters',
+      'main.data_area.special': 'Special Characters',
       'main.data_area.editing': 'Editing symbols',
       'main.data_area.help': 'Help',
       'main.data_area.conversation': 'Comments',
@@ -56,19 +57,19 @@ export default () => {
       'main.work_area.button_3': '</>',
       'main.work_area.button_4': '{?}',
       'main.work_area.button_5': '↺',
-      'help':"Help",
+      'help': "Help",
       'main.work_area.over_ligature': 'ﭏ',
       'main.work_area.over_upper': '˙',
-      'stats.leader_board':'Leaderboard',
-      'stats.personal_stats':'Personal statistics',
-      'conversation.disclaimer':'Welcome to Tikkoun Sofrim conversation! Please note that all messages and sender names are shown to all users by default.',
-      'nav.stats':'Statistics',
-      'nav.research_questionnaire':'Personal Questionnaire',
-      'conversation.new':"+ New topic",
-      'wrong_creds':'Wrong credentials',
-      'reset_password':'Reset Password',
-      'version_text':'You are using a new version of Tikkoun-Sofrim. If you encounter problems please e-mail us.',
-      'support':'Support',
+      'stats.leader_board': 'Leaderboard',
+      'stats.personal_stats': 'Personal statistics',
+      'conversation.disclaimer': 'Welcome to Tikkoun Sofrim conversation! Please note that all messages and sender names are shown to all users by default.',
+      'nav.stats': 'Statistics',
+      'nav.research_questionnaire': 'Personal Questionnaire',
+      'conversation.new': "+ New topic",
+      'wrong_creds': 'Wrong credentials',
+      'reset_password': 'Reset Password',
+      'version_text': 'You are using a new version of Tikkoun-Sofrim. If you encounter problems please e-mail us.',
+      'support': 'Support',
       'main.work_area.finish_line_1':
         'If all errors are corrected, or if no errors found, press Done',
       'main.work_area.finish_line_2':
@@ -111,10 +112,11 @@ export default () => {
       'register_screen.midrash': 'Knowledge of Midrashim',
       'register_screen.none_midrash': 'None',
       'register_screen.knowledgable_midrash': 'Very knowledgable',
+      'conversation.add_first_message': 'No previous messages',
       'register_screen.invalid':
         'User name already exists in the system. Please try another one',
       'register_screen.contact': 'Contact you via e-mail',
-      'register_screen.show_extra_details':'Additional details'
+      'register_screen.show_extra_details': 'Additional details'
     }
     translations.content = {}
     // TEAM
