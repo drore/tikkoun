@@ -6,7 +6,9 @@
         <div class="w-100">
           <div id="work-page" class="d-flex flex-column justify-content-between">
             <div class="header mb-4 row">
+              
               <div class="col-md-10 col-8">
+                <WeeklyTask></WeeklyTask>
                 {{ $t('main.work_area.intro_line_1') }}
                 {{ $t('main.work_area.intro_line_2') }}
               </div>
@@ -27,7 +29,6 @@
       </div>
       <div id="map-section" class="col-md-4">
         <div class="mb-3 d-flex justify-content-between">
-          <b-button v-b-modal.modal-help>{{$t('help')}}</b-button>
           <div class="line-info">
             <a :href="manuscript.descLink" target="_blank">
               <label :title="manuscript.short_desc">{{manuscript.display_name}}</label>
@@ -50,6 +51,7 @@
 <script>
 import TranscriptionLine from '~/components/TranscriptionLine'
 import TranscriptionMap from '~/components/TranscriptionMap'
+import WeeklyTask from '~/components/WeeklyTask'
 import InfoTabs from '~/components/InfoTabs'
 
 export default {
@@ -61,8 +63,10 @@ export default {
   components: {
     TranscriptionLine,
     TranscriptionMap,
+    WeeklyTask,
     InfoTabs
   },
+  
   head() {
     return {
       title: `Tikkoun Sofrim - ${this.manuscript.display_name} - Transcribe`
@@ -103,7 +107,8 @@ export default {
     if (user) {
       if (user.transcribe_mode && user.transcribe_mode == 'tasks') {
         this.$store.dispatch('transcribe/GET_TASK').then(() => {
-          this.$store.dispatch('transcribe/getTaskLine', user.uid)
+          debugger
+          this.$store.dispatch('transcribe/getTaskLine', {uid:user.uid, isAnonymous:user.isAnonymous})
         })
       } else if (routeParams && routeParams.line) {
         this.$store.dispatch('transcribe/getLine', {
@@ -112,7 +117,7 @@ export default {
           line: +routeParams.line
         })
       } else {
-        this.$store.dispatch('transcribe/getNextLine', user.uid) // Later add line params
+        this.$store.dispatch('transcribe/getNextLine', {uid:user.uid, isAnonymous:user.isAnonymous}) // Later add line params
       }
     }
 

@@ -9,6 +9,11 @@
 import Topbar from '~/components/Topbar'
 import Footer from '~/components/Footer'
 export default {
+  data() {
+    return {
+      cache_buster: '1003'
+    }
+  },
   components: {
     Topbar,
     Footer
@@ -20,7 +25,15 @@ export default {
   },
   mounted() {
     ga('create', 'UA-133908181-1')
-    this.$store.dispatch("general/getInitialData")
+    // Check the cache buster - if It's different then the one on the localStorage, remove all localStorage
+    const cacheBuster = localStorage.getItem('cache_buster')
+    if (cacheBuster && cacheBuster != this.cache_buster) {
+      localStorage.clear()
+    }
+
+    localStorage.setItem('cache_buster', this.cache_buster)
+
+    this.$store.dispatch('general/getInitialData')
   }
 }
 </script>

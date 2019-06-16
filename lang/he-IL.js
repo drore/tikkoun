@@ -44,10 +44,13 @@ export default () => {
       'nav.back':'חזור',
       'login.login_area.geust': 'הכנס כאורח/ת',
       'login.login_area.invalid': 'פרטי גישה שגויים',
+      'lines_remining':'שורות שנותרו',
       'task.weekly-task':'המשימה השבועית',
       'task.click_to_participate':'הקלק להשתתפות',
       'task.part':'חלק',
       'task.hide':'הסתר',
+      'back_to_task_mode':'המשך את המשימה',
+      'out_of_task_mode':'חזור להתקדמות רגילה',
       'conversation.add_first_message':'אין הודעות קודמות',
       'task.well_done':'כל הכבוד! סיימת את המשימה השבועית!',
       'help':"עזרה",
@@ -118,7 +121,10 @@ export default () => {
       'register_screen.invalid':
         'User name already exists in the system. Please try another one',
       'register_screen.contact': 'אישור יצירת קשר באימייל',
-      'register_screen.show_extra_details':'פרטים נוספים (רשות)'
+      'register_screen.show_extra_details':'פרטים נוספים (רשות)',
+      'close':"סגור",
+      'manuscript_ab':'אותיות כתב היד',
+      'similar_letters':'אותיות דומות',
     }
 
     translations.content = {}

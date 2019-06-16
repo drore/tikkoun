@@ -159,6 +159,7 @@
           <li class="nav-item dropdown" v-if="$store.state.auth.user">
             <a
               class="nav-link dropdown-toggle"
+              v-bind:class="{ disabled: $store.state.auth.user.transcribe_mode === 'tasks' }"
               href="#"
               id="msDropdown"
               role="button"
@@ -232,7 +233,7 @@
         </ul>
       </div>
     </nav>
-    <b-modal ref="modal-stats" id="modal-stats" :title="$t('stats.personal_stats')" ok-only ok-title="Dismiss">
+    <b-modal ref="modal-stats" id="modal-stats" :title="$t('stats.personal_stats')" ok-only :ok-title="$t('close')">
       <div class="user-stats">
         <UserStatsChart></UserStatsChart>
       </div>

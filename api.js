@@ -89,13 +89,17 @@ export default {
       const tasks = await StoreDB.collection('tasks')
         .where('active', '==', true)
         .get()
-      const activeTask = tasks.size && Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id })
-      const rangesSnap = await StoreDB.collection(`tasks/${activeTask.id}/ranges`).get();
-      const ranges = rangesSnap.docs.map(r => {
-        return Object.assign(r.data(), { id: r.id })
-      })
 
-      const returnObj = Object.assign(activeTask, { ranges: ranges })
+      const activeTask = tasks.size && Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id })
+      let returnObj = null
+      if (activeTask) {
+        const rangesSnap = await StoreDB.collection(`tasks/${activeTask.id}/ranges`).get();
+        const ranges = rangesSnap.docs.map(r => {
+          return Object.assign(r.data(), { id: r.id })
+        })
+
+        returnObj = Object.assign(activeTask, { ranges: ranges })
+      }
 
       resolve(returnObj)
     })
@@ -113,18 +117,37 @@ export default {
       resolve(leaders)
     })
   },
-  getManuscript(name) {
-    let query = null
-    if (!name) {
-      //query = StoreDB.collection('manuscripts').limit(1)
-      name = 'geneva'
-    }
-    // First look in the 
-    query = StoreDB.collection('manuscripts')
-      .where('name', '==', name)
-      .limit(1)
+  async getManuscriptById(id) {
+    return new Promise(async (resolve, reject) => {
+      const manuscript = await StoreDB.doc(`manuscripts/${id}`).get()
 
-    return query.get()
+      const msObj = Object.assign({
+        id: id
+      }, manuscript.data());
+      resolve(msObj)
+    })
+  },
+  async getManuscript(name) {
+    return new Promise(async (resolve, reject) => {
+      let query = null
+      if (!name) {
+        //query = StoreDB.collection('manuscripts').limit(1)
+        name = 'geneva'
+      }
+      // First look in the 
+      query = StoreDB.collection('manuscripts')
+        .where('name', '==', name)
+        .limit(1)
+
+      const manuscripts = await query.get()
+      const manuscriptDoc = manuscripts.docs[0];
+      const manuscriptData = manuscriptDoc.data()
+      const msObj = Object.assign({
+        id: manuscriptDoc.id
+      }, manuscriptData);
+      resolve(msObj)
+
+    });
   },
   async addConversationMessage(params) {
     return new Promise(async (resolve, reject) => {
@@ -164,6 +187,7 @@ export default {
                 value: data.value
               }
             })
+
             // cache locally
             localStorage.setItem(
               `manuscript_content_${manuscriptName}_${lang}`,
@@ -322,42 +346,54 @@ export default {
     ///
     await this.updateDocument(`transcriptions`, null, updateParams)
 
-    if (!updateParams.isAnonymous) {
-      if (params.task) {
 
-        const taskRangesSnap = await StoreDB.collection(`tasks/${params.task}/ranges`).get()
-        const taskRanges = taskRangesSnap.docs.map(rs => {
-          return Object.assign(rs.data(),{id:rs.id})
-        })
+    if (params.task) {
+      const taskRangesSnap = await StoreDB.collection(`tasks/${params.task}/ranges`).get()
+      const taskRanges = taskRangesSnap.docs.map(rs => {
+        return Object.assign(rs.data(), { id: rs.id })
+      })
 
-        //Update the task record on the user profile - point to the next line in the task
-        const userTaskDoc = await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`).get()
-        const userTaskDocData = userTaskDoc.data();
-        const userTaskLines = (userTaskDocData && userTaskDocData.lines) || [];
-        const lineUID = `${params.manuscript}_${params.lineId}`
-        if (userTaskLines.indexOf(lineUID) == -1) {
-          userTaskLines.push(lineUID)
-        }
+      //Update the task record on the user profile - point to the next line in the task
+      const userTaskDoc = !updateParams.isAnonymous && await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`).get()
 
-        const next_general_index = userTaskDocData.next_general_index
-        const userNextGeneralIndexForRange = params.generalIndex + 1
-        next_general_index[params.rangeId] = userNextGeneralIndexForRange
+      let userTaskDocData = userTaskDoc && userTaskDoc.data();
+      
+      if (!userTaskDocData) {
+        const userTaskDocDataJSON = localStorage.getItem(`task_${updateParams.task}`)
+        userTaskDocData = userTaskDocDataJSON && JSON.parse(userTaskDocDataJSON)
+      }
+      const userTaskLines = (userTaskDocData && userTaskDocData.lines) || [];
+      const lineUID = `${params.manuscript}_${params.lineId}`
+      if (userTaskLines.indexOf(lineUID) == -1) {
+        userTaskLines.push(lineUID)
+      }
 
-        // Are we done?
-        let totalReminingLines = 0;
-        
-        taskRanges.forEach(range => {
-          let reminingLines = !isNaN(next_general_index[range.id])
+      const next_general_index = userTaskDocData && userTaskDocData.next_general_index || {}
+      const userNextGeneralIndexForRange = params.generalIndex + 1
+      next_general_index[params.rangeId] = userNextGeneralIndexForRange
+
+      // Are we done?
+      let totalReminingLines = 0;
+
+      taskRanges.forEach(range => {
+        let reminingLines = !isNaN(next_general_index[range.id])
           ? range.end_general_index - next_general_index[range.id]
           : range.end_general_index - range.start_general_index
 
-          reminingLines = Math.max(reminingLines, 0)
-          totalReminingLines+=reminingLines
-        })
+        reminingLines = Math.max(reminingLines, 0)
+        totalReminingLines += reminingLines
+      })
 
-        await userTaskDoc.ref.set({ next_general_index: next_general_index, lines: userTaskLines, reminingLines:totalReminingLines }, { merge: true })
+      const taskObj = { next_general_index: next_general_index, lines: userTaskLines, reminingLines: totalReminingLines }
+      if (!updateParams.isAnonymous) {
+        await userTaskDoc.ref.set(taskObj, { merge: true })
       }
+      else {
+        localStorage.setItem(`task_${updateParams.task}`, JSON.stringify(taskObj))
+      }
+    }
 
+    if (!updateParams.isAnonymous) {
       // Update the manuscript record on the user profile - point to the next line in the manuscript - this progresses even if the line was skipped
       await StoreDB.doc(`users/${updateParams.uid}/manuscripts/${updateParams.manuscript}`)
         .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
@@ -369,11 +405,11 @@ export default {
         },
         { merge: true }
       )
-
-      return false
-    } else {
-      return false
     }
+
+
+    return false
+
   },
   updateTranslation(translation) {
     return this.updateDocument('translations', translation.id, translation)
@@ -416,10 +452,20 @@ export default {
       .where('uid', '==', uid)
       .get()
   },
-  async getUserTask(taskId, uid) {
+  async getUserTask(taskId, uid, isAnonymous) {
     return new Promise(async (resolve, reject) => {
-      const userTask = await StoreDB.doc(`users/${uid}/tasks/${taskId}`).get()
-      resolve(userTask.data())
+      let userTask;
+      debugger
+      if(!isAnonymous){
+        const userTaskDoc = await StoreDB.doc(`users/${uid}/tasks/${taskId}`).get()
+        userTask = userTaskDoc && userTaskDoc.data()
+      }
+      else{
+        const userTaskJSON = localStorage.getItem(`task_${taskId}`)
+        userTask = userTaskJSON && JSON.parse(userTaskJSON)
+      }
+
+      resolve(userTask)
     })
 
   },

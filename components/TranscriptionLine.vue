@@ -142,6 +142,9 @@
       <div>{{$t('main.work_area.finish_line_2')}}</div>
 
       <div id="activity-buttons" class="mt-2 d-flex justify-content-between">
+        <div>
+          <a href="javascript:;" @click="showHelp()">{{$t('help')}}</a>
+        </div>
         <div class="sharethis-inline-share-buttons"></div>
         <div>
           <button
@@ -251,20 +254,16 @@ export default {
         this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
         this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
 
-        const default_file_name =
-          this.manuscript.default_file_name || 'default'
+        const default_file_name = this.manuscript.default_file_name || 'default'
 
         const image_extension_1 =
-          this.manuscript.image_extension_1 ||
-          this.manuscript.image_extension
+          this.manuscript.image_extension_1 || this.manuscript.image_extension
 
         const image_extension_2 =
-          this.manuscript.image_extension_2 ||
-          this.manuscript.image_extension
+          this.manuscript.image_extension_2 || this.manuscript.image_extension
 
         const fullWidth =
-          this.manuscript.full_width ||
-          parseInt($('#work-page').width()) * 3
+          this.manuscript.full_width || parseInt($('#work-page').width()) * 3
         const baseURL = this.manuscript.base_url
         const imageFilePart = `${baseURL}${
           this.color_img_file_name
@@ -292,14 +291,16 @@ export default {
         this.images = [this.currLineImage]
 
         $('#v-viewer-container').height(
-          this.polygonObj.height /
-            this.manuscript.factor
+          this.polygonObj.height / this.manuscript.factor
         )
       }
     }
   },
 
   methods: {
+    showHelp() {
+      this.$store.dispatch('general/showHelp',true)
+    },
     getSpecialChar(char) {
       const manuscript = this.manuscript
       if (manuscript.special_char) {

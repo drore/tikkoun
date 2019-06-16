@@ -13,6 +13,10 @@
 
   export const mutations = {
     setUser(state, payload) {
+      if(payload.isAnonymous){
+        // Grab some stuff from localStorage
+        payload.transcribe_mode = localStorage.getItem('transcribe_mode')
+      }
       state.user = payload
     },
     setHiddenTasks(state, payload){
@@ -58,6 +62,7 @@
     async changeTranscribeMode({ commit, state, dispatch }, mode) {
       if (state.user.transcribe_mode !== mode) {
         await api.updateUserParam(state.user.uid, { transcribe_mode: mode })
+        localStorage.setItem('transcribe_mode', mode)
         dispatch('setUserTranscribeMode', mode)
       }
     },
@@ -96,10 +101,6 @@
     },
     setUser({ commit }, user) {
       commit('setUser', user)
-      // Grab hidden tasks
-      if(user.hidden_tasks){
-        commit('setHiddenTasks',user.hidden_tasks)
-      }
     },
     gotUserLines({ commit }, payload) {
       commit('gotUserLines', payload)

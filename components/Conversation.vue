@@ -1,13 +1,12 @@
 <template>
   <div class="pt-2 mt-2">
     <div class="buttons">
-      <input
+      <button
         name="new"
-        class="btn-primary"
+        class="btn btn-tikkoun btn-sm"
         type="submit"
         @click="showNewMessageBox = true"
-        :value="$t('conversation.new')"
-      >
+      >{{$t('conversation.new')}}</button>
     </div>
     <AddMessage v-if="showNewMessageBox" :context="context"></AddMessage>
 

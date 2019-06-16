@@ -1,61 +1,91 @@
 <template>
   <div>
-    <b-modal ref="modal-help" id="modal-help" :title="$t('help')" centered scrollable ok-only>
-      <div class="d-flex justify-content-between" v-if="!$store.state.general.help_section">
-        <div
-          class="help-item"
-          @click="showHelpSection('alphabet')"
-        >{{$t('main.data_area.alphabet')}}</div>
-        <div class="help-item" @click="showHelpSection('special')">{{$t('main.data_area.special')}}</div>
-        <div class="help-item" @click="showHelpSection('editing')">{{$t('main.data_area.editing')}}</div>
-        <div class="help-item" @click="showHelpSection('help')">{{$t('main.data_area.help')}}</div>
+    <div
+      class="help-docked p-2"
+      v-if="$store.state.general.help_ui === 'docked' &&  $store.state.general.help_shown"
+      :style="getDockedHelpStyle()"
+    >
+      <div slot="modal-header" class="w-100 d-flex justify-content-between">
+        <h4>{{$t('help')}}</h4>
+        <div>
+          <a href="javascript:;" @click="changeHelpUI('popup')">🗗</a>
+          <a href="javascript:;" @click="closeHelpDialog()">🗙</a>
+        </div>
       </div>
-      <div v-if="$store.state.general.help_section">
-        <div @click="showHelpSection()">{{$t('nav.back')}}</div>
-        <div
-          v-html="content.special"
-          v-if="content.special && $store.state.general.help_section === 'special'"
-        ></div>
-        <div
-          v-html="content.alphabet"
-          v-if="content.alphabet && $store.state.general.help_section === 'alphabet'"
-        ></div>
-        <div
-          v-html="content.marked"
-          v-if="content.marked && $store.state.general.help_section === 'editing'"
-        ></div>
-        <div
-          v-html="content.help"
-          v-if="content.help && $store.state.general.help_section === 'help'"
-        ></div>
+      <div class="help">
+        <Help></Help>
+      </div>
+    </div>
+    <b-modal ref="modal-help" id="modal-help" :title="$t('help')" centered scrollable :lazy="true">
+      <div slot="modal-header" class="w-100 d-flex justify-content-between">
+        <h4>{{$t('help')}}</h4>
+        <a href="javascript:;" @click="changeHelpUI('docked')">📌</a>
+      </div>
+      <div>
+        <Help></Help>
+      </div>
+
+      <div slot="modal-footer" class="w-100 d-flex justify-content-between">
+        <div></div>
+        <div>
+          <b-button variant="primary" @click="closeHelpDialog()">🗙</b-button>
+        </div>
       </div>
     </b-modal>
   </div>
 </template>
 <script>
+import Help from '~/components/Help'
 export default {
-  methods: {
-    showHelpSection(section) {
-      this.$store.dispatch('general/showHelpSection', section)
+  components: {
+    Help
+  },
+  watch: {
+    help_shown: function(shown) {
+      if (this.$store.state.general.help_ui === 'popup') {
+        if (shown) {
+          this.$refs['modal-help'].show()
+        } else {
+          this.$refs['modal-help'].hide()
+        }
+      } else {
+      }
     }
   },
   computed: {
-    content() {
-      const content = {}
+    help_shown() {
+      return this.$store.state.general.help_shown
+    }
+  },
+  methods: {
+    getDockedHelpStyle() {
+      const transcribeWidth = $('#transcribe-section').width()
+      const direction = this.$t('dir')
 
-      if (this.$store.state.content.manuscript_content.length) {
-        this.$store.state.content.manuscript_content.forEach(i => {
-          content[i.token] = i.value
-        })
+      let left = 0
+      let right = 0
+      let styleStr = ''
+
+      if (direction === 'rtl') {
+        right = `${transcribeWidth + 30}px`
+        left = 0
+      } else {
+        left = `${transcribeWidth + 30}px`
+        right = 0
       }
 
-      return content
+      return `left:${left};right:${right}`
     },
-    manuscript() {
-      return this.$store.state.transcribe.manuscript
+    changeHelpUI(ui) {
+      this.$store.dispatch('general/changeHelpUI', ui)
+      if (ui === 'docked') {
+        this.$refs['modal-help'].hide()
+      } else {
+        this.$refs['modal-help'].show()
+      }
     },
-    line() {
-      return this.$store.state.transcribe.selected_line
+    closeHelpDialog() {
+      this.$store.dispatch('general/showHelp', false)
     }
   }
 }
@@ -129,17 +159,49 @@ export default {
       img {
         margin: 0;
         max-height: none;
-        height: 100%;
+
+        height: 40px;
       }
     }
   }
 }
 .help-item {
+  cursor: pointer;
   border-radius: 50%;
   padding: 20px;
+  margin: 10px;
   border: 1px solid black;
   width: 100px;
   height: 100px;
   text-align: center;
+  font-size: 15px;
+  background-color: #00003c;
+  color: white;
+  font-weight: bold;
+}
+.mobile {
+  .help-item {
+    font-size: 11px;
+  }
+}
+.help-docked {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 19999;
+  background-color: white;
+  box-shadow: 2px 0px 14px 6px #333;
+  width: auto;
+  overflow-y: auto;
+}
+.rtl .help-docked {
+  left: 0;
+  right: auto;
+}
+
+.ltr .help-docked {
+  right: 0;
+  left: auto;
 }
 </style>

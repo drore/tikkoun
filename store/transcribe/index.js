@@ -37,7 +37,6 @@ export const mutations = {
       state.transcription = null
       state.range = null
     }
-
   },
   gotPrevLine(state, payload) {
     state.prev_line = payload
@@ -99,13 +98,7 @@ export const mutations = {
     state.range = null;
   },
   gotManuscript(state, payload) {
-    const msData = payload.docs.map(d => {
-      const obj = d.data()
-      return Object.assign({ id: d.id }, obj)
-    })[0]
-    if (msData) {
-      state.manuscript = msData
-    }
+    state.manuscript = payload
   },
   resetTranscription(state) {
     state.transcription = state.selected_line.AT
@@ -154,14 +147,14 @@ export const actions = {
       skipped: !!params.skipped
     }
 
-    if (state.task && state.task.id) {
+    if (user.transcribe_mode === 'tasks' && state.task && state.task.id) {
       transcription.task = state.task.id
       transcription.rangeId = state.range.id
     }
 
     await api.addTranscription(transcription)
 
-    dispatch('getNextLine', user.uid)
+    dispatch('getNextLine', {uid:user.uid, isAnonymous:user.isAnonymous})
   },
 
   async GET_TASK({ commit, state }) {
@@ -169,7 +162,10 @@ export const actions = {
       commit('setTask', await api.getActiveTask())
     }
   },
-
+  async getManuscriptById({ commit }, id) {
+    const manuscript = await api.getManuscriptById(id)
+    commit('gotManuscript', manuscript)
+  },
   async GET_MANUSCRIPT({ commit }, name) {
     const manuscript = await api.getManuscript(name)
     commit('gotManuscript', manuscript)
@@ -178,11 +174,12 @@ export const actions = {
   updateLineViewing({ commit, state }, params) {
     api.updateLineViewing(state.manuscript.id, params)
   },
-  async getNextLine({ commit, dispatch, state }, uid) {
+  async getNextLine({ commit, dispatch, state }, params) {
     let promise
+    const transcribe_mode = localStorage.getItem('transcribe_mode')
 
-    if (state.task) {
-      return dispatch('getTaskLine', uid)
+    if (state.task && transcribe_mode === 'tasks') {
+      return dispatch('getTaskLine', params)
     }
     else {
       // In case it is already seeded - meaning -> in active session
@@ -197,8 +194,9 @@ export const actions = {
         // First look at the user profile, see if we have his last line
         const userNextLineGeneralIndex = await api.getUserNextLine(
           state.manuscript.id,
-          uid
+          params.uid
         )
+
         if (userNextLineGeneralIndex) {
           // Now, is this line matches the conditions? (less then 20 actions)
           const res = await api.getLineByGeneralIndex(
@@ -221,7 +219,7 @@ export const actions = {
           }
         } else {
           // If no next line is on the user, go by the user's last line
-          const lastUserLine = await api.getUserLastLine(state.manuscript.id, uid)
+          const lastUserLine = await api.getUserLastLine(state.manuscript.id, params.uid)
 
           if (lastUserLine) {
             const lineObj = await api.getLine(
@@ -263,42 +261,49 @@ export const actions = {
         dispatch('updateLineViewing', {
           lineId: res.id,
           viewCounter: res.data.views || 0,
-          uid: uid
+          uid: params.uid
         })
         commit('gotLine', Object.assign({ id: res.id }, res.data))
       })
     }
 
   },
-  async getTaskLine({ commit, dispatch, state }, uid) {
+  async getTaskLine({ commit, dispatch, state }, params) {
     const ranges = state.task.ranges
-
-    // For now we take the first one
-    const userTask = await api.getUserTask(state.task.id, uid)
+    const userTask = await api.getUserTask(state.task.id, params.uid, params.isAnonymous)
     dispatch("auth/setUserTask", userTask, { root: true })
+
     let rangeId;
-    const range = ranges.length && userTask && ranges.find((r, i) => {
+    const range = ranges.length && (userTask && ranges.find((r, i) => {
       rangeId = r.id
-      return !userTask.next_general_index[rangeId] || userTask.next_general_index[rangeId] <= r.end_general_index;
-    }) || ranges.find(r => r.id == rangeId);
+      return !userTask.next_general_index || !userTask.next_general_index[rangeId] || userTask.next_general_index[rangeId] <= r.end_general_index;
+    }) || ranges.find(r => r.id == rangeId) || ranges[0]);
 
     if (range) {
       // If the next general index on the user task does not go beyond the task
-      const userNextTaskGeneralIndex = (userTask && userTask.next_general_index[rangeId]) || range.start_general_index;
+      debugger
+      const userNextTaskGeneralIndex = (userTask && userTask.next_general_index && userTask.next_general_index[rangeId]) || range.start_general_index;
       if (userNextTaskGeneralIndex < range.end_general_index) {
         const userNextTaskLine = await api.getLineByGeneralIndex(range.msId, userNextTaskGeneralIndex)
+
+        // Now, are we on the right manuscript?
+        if (range.msId !== state.manuscript) {
+          await dispatch('getManuscriptById', range.msId)
+        }
+
         commit('gotLine', Object.assign({ id: userNextTaskLine.id }, userNextTaskLine.data))
         commit('setRange', range)
+        // Update all other stuff, ms etc
       }
       else {
         // If so, take the user out of the "tasks" routine and give the next line
         dispatch('auth/setUserTranscribeMode', 'regular', { root: true })
+        // Clear the task from the state obj
         commit('setTask', null)
-        api.updateUserParam(uid, { 'transcribe_mode': 'regular' })
 
         dispatch(
           'getNextLine',
-          uid)
+          params.uid)
       }
     }
     else {

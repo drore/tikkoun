@@ -4,18 +4,33 @@ import api from '@/api.js'
 export const state = () => ({
   manuscripts: [],
   env: "prod",
-  help_section: null
+  help_section: null,
+  help_sub_section: null,
+  help_ui: 'popup',
+  help_shown:false
 })
 
 export const mutations = {
   gotManuscripts(state, payload) {
     state.manuscripts = payload
   },
+  changeHelpUI(state, payload) { state.help_ui = payload },
+
   setEnv(state, payload) {
     state.env = payload
   },
+  showHelp(state,payload){
+    state.help_shown = payload
+  },
   showHelpSection(state, payload) {
-    state.help_section = payload
+    const helpParts = payload && payload.split('__')
+    if (!helpParts || !helpParts.length) {
+      state.help_section = payload
+    }
+    else {
+      state.help_section = helpParts[0]
+      state.help_sub_section = helpParts[1]
+    }
   },
 }
 
@@ -24,6 +39,12 @@ export const actions = {
   },
   showHelpSection({ commit }, section) {
     commit('showHelpSection', section)
+  },
+  changeHelpUI({ commit }, ui) {
+    commit('changeHelpUI', ui)
+  },
+  showHelp({commit }, show){
+    commit('showHelp',show)
   },
   async getInitialData({ commit }) {
     if (window.location.host.indexOf('demo') != -1) {

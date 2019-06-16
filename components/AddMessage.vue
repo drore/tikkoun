@@ -14,8 +14,8 @@
       @keyup="updateMessageContent"
       :value="$store.state.conversation.current_message.content"
     ></textarea>
-
-    <input type="button" class="btn-primary" @click="addMessage" value="שלח">
+    
+    <input type="button" class="btn" @click="addMessage" value="שלח">
   </div>
 </template>
 <script>
