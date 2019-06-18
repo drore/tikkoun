@@ -75,8 +75,9 @@ export const mutations = {
       case 'ligature':
         transcription = `${pre}${selection}ﭏ${post}`
         break
-      case 'devine_name':
-        transcription = `${pre}${selection}${state.manuscript.special_char['devine_name']}${post}`
+      case 'divine_name':
+        const divine_name_char = state.manuscript.special_char['divine_name'] || 'ײ'
+        transcription = `${pre}${divine_name_char}${post}`
         break
     }
 
@@ -281,7 +282,6 @@ export const actions = {
 
     if (range) {
       // If the next general index on the user task does not go beyond the task
-      debugger
       const userNextTaskGeneralIndex = (userTask && userTask.next_general_index && userTask.next_general_index[rangeId]) || range.start_general_index;
       if (userNextTaskGeneralIndex < range.end_general_index) {
         const userNextTaskLine = await api.getLineByGeneralIndex(range.msId, userNextTaskGeneralIndex)

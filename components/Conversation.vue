@@ -1,4 +1,6 @@
 <template>
+<div>
+  <h4>{{$t('nav.conversation')}}</h4>
   <div class="pt-2 mt-2">
     <div class="buttons">
       <button
@@ -14,6 +16,7 @@
       <MessageBox v-for="message in messages" :key="message.id" :message="message" :main="true"></MessageBox>
       <span v-if="!messages.length">{{$t('conversation.add_first_message')}}</span>
     </div>
+  </div>
   </div>
 </template>
 <script>

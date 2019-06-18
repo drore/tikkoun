@@ -5,8 +5,9 @@
       v-if="main && message.replyTo"
     >---- Parent</a>
 
-    <div class="message-wrapper" :id="`message_wrapper_${message.id}`">
+    <div class="message-wrapper mb-2 pb-2" :id="`message_wrapper_${message.id}`">
       <div class="message-line">
+        
         <a :href="`${localePath('conversation')}${message.path}`" class="title">{{message.title}}</a>
 
         <div class="content">{{message.content}}</div>
@@ -19,6 +20,7 @@
               class="date"
               v-if="message.createdOn"
             >{{new Date(message.createdOn.seconds * 1000).toLocaleString()}}</span>
+            <span class="context" v-if="message.context" @click="goToContext()">{{context}}</span>
           </div>
           <div class="actions">
             <a
@@ -40,8 +42,21 @@
   </div>
 </template>
 <style scoped lang="scss">
+.message-wrapper{
+      border-bottom: 1px solid #888;
+}
+
 .messages {
   .message-line {
+    
+    .context {
+      font-size: 12px;
+      border-radius: 5px;
+      padding: 2px;
+      background-color: orange;
+      cursor: pointer;
+      color:black;
+    }
     .meta {
       color: #888;
       font-size: 12px;
@@ -75,6 +90,14 @@ export default {
     main: Boolean
   },
   computed: {
+    context() {
+      const contextArr = this.message.context && this.message.context.split('_')
+      if (contextArr) {
+        return `${this.$t('manuscript')} ${contextArr[0]} / ${this.$t(
+          'page'
+        )} ${contextArr[1]} / ${this.$t('line')} ${contextArr[2]}`
+      }
+    },
     replies() {
       const self = this
       const replies = this.$store.state.conversation.messages.filter(
@@ -88,6 +111,13 @@ export default {
     }
   },
   methods: {
+    goToContext() {
+      const contextArr = this.message.context && this.message.context.split('_')
+      if (contextArr) {
+        //transcribe/geneva/452/2
+        this.$router.push({ path: `/transcribe/${contextArr[0]}/${contextArr[1]}/${contextArr[2]}` })
+      }
+    },
     navigateToParent() {
       this.$router.push({ path: `/conversation/${this.message.replyTo}` })
       this.$router.go(-1)
@@ -110,4 +140,3 @@ export default {
   }
 }
 </script>
-

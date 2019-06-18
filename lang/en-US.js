@@ -123,7 +123,8 @@ export default () => {
       'register_screen.invalid':
         'User name already exists in the system. Please try another one',
       'register_screen.contact': 'Contact you via e-mail',
-      'register_screen.show_extra_details': 'Additional details'
+      'register_screen.show_extra_details': 'Additional details',
+      'new_reply':'New reply',
     }
     translations.content = {}
     // TEAM

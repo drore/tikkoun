@@ -52,10 +52,7 @@
             >{{ $t('nav.conversation') }}</nuxt-link>
           </li>
           <li class="nav-item">
-            <b-button
-              v-b-modal.modal-1
-              v-if="isDemo"
-            >{{ $t('nav.research_questionnaire') }}</b-button>
+            <b-button v-b-modal.modal-1 v-if="isDemo">{{ $t('nav.research_questionnaire') }}</b-button>
             <b-modal
               id="modal-1"
               centered
@@ -198,6 +195,20 @@
               >{{getLinesBadge($store.state.auth.user.linesTranscribed)}} - {{$store.state.auth.user.linesTranscribed}}</span>
             </a>
           </li>
+          <li
+            id="tooltip-notifications"
+            class="nav-item d-flex flex-column justify-content-around"
+            style="position:relative;"
+          >
+            <img
+              :src="$store.state.auth.user.photoURL"
+              alt
+              v-if="!$store.state.auth.user.isAnonymous && $store.state.auth.user.photoURL"
+              style="height:30px;width:30px;"
+            >
+
+            <span v-if="notifications.length" class="notifications">{{notifications.length}}</span>
+          </li>
 
           <li class="nav-item dropdown" v-if="$store.state.auth.user">
             <a
@@ -209,12 +220,6 @@
               aria-haspopup="true"
               aria-expanded="false"
             >
-              <img
-                :src="$store.state.auth.user.photoURL"
-                alt
-                v-if="!$store.state.auth.user.isAnonymous && $store.state.auth.user.photoURL"
-                style="height:30px;width:30px;"
-              >
               <span
                 v-if="!$store.state.auth.user.isAnonymous"
               >{{$store.state.auth.user.displayName || $store.state.auth.user.email}}</span>
@@ -233,11 +238,33 @@
         </ul>
       </div>
     </nav>
-    <b-modal ref="modal-stats" id="modal-stats" :title="$t('stats.personal_stats')" ok-only :ok-title="$t('close')">
+    <b-modal
+      ref="modal-stats"
+      id="modal-stats"
+      :title="$t('stats.personal_stats')"
+      ok-only
+      :ok-title="$t('close')"
+    >
       <div class="user-stats">
         <UserStatsChart></UserStatsChart>
       </div>
     </b-modal>
+    <b-tooltip
+      target="tooltip-notifications"
+      :placement="tooltipPlacement"
+      triggers="click"
+      v-if="notifications.length"
+    >
+      <div
+        class="notification mb-2 pb-2"
+        v-for="(notification,i) in notifications"
+        :key="`notification_${i}`"
+        @click="goToNotificationContext(notification)"
+      >
+        <div class="time">{{getNotificationTime(notification)}}</div>
+        <div class="label">{{getNotificationLabel(notification)}}</div>
+      </div>
+    </b-tooltip>
   </div>
 </template>
 <script>
@@ -245,6 +272,7 @@ import UserStatsChart from '~/components/UserStatsChart'
 export default {
   data() {
     return {
+      tooltipPlacement: this.$t('dir') === 'rtl' ? 'bottomright' : 'bottomleft',
       research: {
         q_1: 3,
         q_2: 3,
@@ -257,6 +285,18 @@ export default {
     UserStatsChart
   },
   methods: {
+    getNotificationTime(notification) {
+      return new Date(notification.createdOn.seconds * 1000).toLocaleString();
+    },
+    getNotificationLabel(notification) {
+      return `${this.$t('new_reply')} - ${notification.displayName}`
+    },
+    goToNotificationContext(notification) {
+      this.$router.push(
+        `/${this.$store.state.i18n.locale}/conversation/${notification.href}`
+      )
+      this.$store.dispatch('auth/removeNotification', notification)
+    },
     showStats() {
       this.$refs['modal-stats'].show()
     },
@@ -315,7 +355,10 @@ export default {
     }
   },
   computed: {
-    isDemo(){
+    notifications() {
+      return this.$store.state.auth.user_notifications
+    },
+    isDemo() {
       return this.$store.state.general.env === 'demo'
     },
     manuscripts() {
@@ -331,6 +374,19 @@ export default {
 }
 </script>
 <style lang="scss">
+.notification {
+  cursor: pointer;
+  text-align: right;
+  .time {
+    color: #888;
+  }
+  .label {
+    color: white;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
 .question label {
   font-weight: bold;
 }
@@ -347,5 +403,19 @@ export default {
       color: white;
     }
   }
+}
+.notifications {
+  position: absolute;
+  color: white;
+  background-color: red;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  top: -1px;
+  right: -5px;
 }
 </style>

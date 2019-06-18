@@ -14,7 +14,7 @@
       @keyup="updateMessageContent"
       :value="$store.state.conversation.current_message.content"
     ></textarea>
-    
+
     <input type="button" class="btn" @click="addMessage" value="שלח">
   </div>
 </template>
@@ -27,7 +27,7 @@ export default {
   props: {
     replyTo: Object,
     num_replies: Number,
-    context: String,
+    context: String
   },
   methods: {
     updateMessageContent(event) {
@@ -48,14 +48,22 @@ export default {
           this.$store.state.auth.user.displayName ||
           this.$store.state.auth.user.uid,
         uid: this.$store.state.auth.user.uid,
+        isAnonymous: this.$store.state.auth.user.isAnonymous,
         manuscript:
           this.$store.state.transcribe.manuscript &&
           this.$store.state.transcribe.manuscript.id,
-        content: this.$store.state.conversation.current_message.content,
-        context: this.context,
-        title: this.$store.state.conversation.current_message.title,
-        replyTo: (this.replyTo && this.replyTo.path) || null,
+        content: this.$store.state.conversation.current_message.content || '',
+        title: this.$store.state.conversation.current_message.title || '',
         num_replies: this.num_replies || 0
+      }
+
+      if(this.context){
+        params.context = this.context
+      }
+
+      if(this.replyTo){
+        params.replyTo = this.replyTo.path
+        params.replyToUID = this.replyTo.uid
       }
 
       this.$store.dispatch('conversation/addMessage', params)

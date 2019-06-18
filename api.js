@@ -157,11 +157,37 @@ export default {
         const num_replies = params.num_replies ? params.num_replies + 1 : 1
         delete params.num_replies
         await StoreDB.doc(params.replyTo).set({ num_replies: num_replies }, { merge: true })
+
+        if (params.replyToUID) {
+          // Update notifications on the original message sender
+          await this.updateDocument(`users/${params.uid}/notifications`, null, {
+            href: params.replyTo,
+            createdOn: params.createdOn,
+            displayName: params.displayName
+          })
+        }
       }
 
       const newMessage = await this.updateDocument(`messages`, null, params)
 
       resolve(newMessage)
+    })
+  },
+
+  async getUserNotifications(uid){
+    return new Promise(async (resolve, reject) => {
+      const userNotificationsSnap = await StoreDB.collection(`users/${uid}/notifications`).get();
+      const userNotifications = userNotificationsSnap.docs.map(d => {
+        return Object.assign(d.data(),{id:d.id})
+      })
+      resolve(userNotifications)
+    })
+  },
+
+  async removeNotification(uid,notification){
+    return new Promise(async (resolve, reject) => {
+      await StoreDB.doc(`users/${uid}/notifications/${notification.id}`).delete()
+      resolve(notification)
     })
   },
 
@@ -357,7 +383,7 @@ export default {
       const userTaskDoc = !updateParams.isAnonymous && await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`).get()
 
       let userTaskDocData = userTaskDoc && userTaskDoc.data();
-      
+
       if (!userTaskDocData) {
         const userTaskDocDataJSON = localStorage.getItem(`task_${updateParams.task}`)
         userTaskDocData = userTaskDocDataJSON && JSON.parse(userTaskDocDataJSON)
@@ -455,12 +481,12 @@ export default {
   async getUserTask(taskId, uid, isAnonymous) {
     return new Promise(async (resolve, reject) => {
       let userTask;
-      debugger
-      if(!isAnonymous){
+
+      if (!isAnonymous) {
         const userTaskDoc = await StoreDB.doc(`users/${uid}/tasks/${taskId}`).get()
         userTask = userTaskDoc && userTaskDoc.data()
       }
-      else{
+      else {
         const userTaskJSON = localStorage.getItem(`task_${taskId}`)
         userTask = userTaskJSON && JSON.parse(userTaskJSON)
       }

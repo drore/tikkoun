@@ -97,9 +97,9 @@
           content="main.work_area.button_2"
         />
         <ManipulationButton
-          title="main.work_area.hovers.devine_name"
-          action="devine_name"
-          :t_content="getSpecialChar('devine_name')"
+          title="main.work_area.hovers.divine_name"
+          action="divine_name"
+          :t_content="getSpecialChar('divine_name')"
         />
       </div>
       <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
@@ -143,10 +143,6 @@
 
       <div id="activity-buttons" class="mt-2 d-flex justify-content-between">
         <div>
-          <a href="javascript:;" @click="showHelp()">{{$t('help')}}</a>
-        </div>
-        <div class="sharethis-inline-share-buttons"></div>
-        <div>
           <button
             type="submit"
             class="btn btn-warning"
@@ -154,6 +150,10 @@
             value="Skip"
             @click="skip"
           >{{$t('main.work_area.finish_button_2')}}</button>
+        </div>
+        <div class="sharethis-inline-share-buttons"></div>
+        <div>
+          
           <button
             type="submit"
             class="btn btn-success"
@@ -298,14 +298,12 @@ export default {
   },
 
   methods: {
-    showHelp() {
-      this.$store.dispatch('general/showHelp',true)
-    },
+    
     getSpecialChar(char) {
       const manuscript = this.manuscript
       if (manuscript.special_char) {
-        if (manuscript.special_char['devine_name']) {
-          return manuscript.special_char['devine_name']
+        if (manuscript.special_char['divine_name']) {
+          return manuscript.special_char['divine_name']
         }
       }
 

@@ -6,7 +6,6 @@
         <div class="w-100">
           <div id="work-page" class="d-flex flex-column justify-content-between">
             <div class="header mb-4 row">
-              
               <div class="col-md-10 col-8">
                 <WeeklyTask></WeeklyTask>
                 {{ $t('main.work_area.intro_line_1') }}
@@ -29,16 +28,21 @@
       </div>
       <div id="map-section" class="col-md-4">
         <div class="mb-3 d-flex justify-content-between">
-          <div class="line-info">
-            <a :href="manuscript.descLink" target="_blank">
-              <label :title="manuscript.short_desc">{{manuscript.display_name}}</label>
-            </a>
+          <div class="line-info d-flex justify-content-between w-100">
+            <div>
+              <a href="javascript:;" @click="showHelp()">{{$t('help')}}</a>
+            </div>
+            <div>
+              <a :href="manuscript.descLink" target="_blank">
+                <label :title="manuscript.short_desc">{{manuscript.display_name}}</label>
+              </a>
 
-            <label v-if="line">
-              - Page {{line.page}} /
-              {{manuscript.total_pages}}, Line {{line.line}} /
-              {{manuscript.total_lines}}
-            </label>
+              <label v-if="line">
+                - Page {{line.page}} /
+                {{manuscript.total_pages}}, Line {{line.line}} /
+                {{manuscript.total_lines}}
+              </label>
+            </div>
           </div>
         </div>
         <TranscriptionMap/>
@@ -66,7 +70,12 @@ export default {
     WeeklyTask,
     InfoTabs
   },
-  
+  methods: {
+    showHelp() {
+      this.$store.dispatch('general/showHelp', true)
+    }
+  },
+
   head() {
     return {
       title: `Tikkoun Sofrim - ${this.manuscript.display_name} - Transcribe`
@@ -107,8 +116,10 @@ export default {
     if (user) {
       if (user.transcribe_mode && user.transcribe_mode == 'tasks') {
         this.$store.dispatch('transcribe/GET_TASK').then(() => {
-          debugger
-          this.$store.dispatch('transcribe/getTaskLine', {uid:user.uid, isAnonymous:user.isAnonymous})
+          this.$store.dispatch('transcribe/getTaskLine', {
+            uid: user.uid,
+            isAnonymous: user.isAnonymous
+          })
         })
       } else if (routeParams && routeParams.line) {
         this.$store.dispatch('transcribe/getLine', {
@@ -117,7 +128,10 @@ export default {
           line: +routeParams.line
         })
       } else {
-        this.$store.dispatch('transcribe/getNextLine', {uid:user.uid, isAnonymous:user.isAnonymous}) // Later add line params
+        this.$store.dispatch('transcribe/getNextLine', {
+          uid: user.uid,
+          isAnonymous: user.isAnonymous
+        }) // Later add line params
       }
     }
 
