@@ -174,17 +174,17 @@ export default {
     })
   },
 
-  async getUserNotifications(uid){
+  async getUserNotifications(uid) {
     return new Promise(async (resolve, reject) => {
       const userNotificationsSnap = await StoreDB.collection(`users/${uid}/notifications`).get();
       const userNotifications = userNotificationsSnap.docs.map(d => {
-        return Object.assign(d.data(),{id:d.id})
+        return Object.assign(d.data(), { id: d.id })
       })
       resolve(userNotifications)
     })
   },
 
-  async removeNotification(uid,notification){
+  async removeNotification(uid, notification) {
     return new Promise(async (resolve, reject) => {
       await StoreDB.doc(`users/${uid}/notifications/${notification.id}`).delete()
       resolve(notification)
@@ -371,6 +371,15 @@ export default {
     delete updateParams.generalIndex
     ///
     await this.updateDocument(`transcriptions`, null, updateParams)
+
+    // // Update the task lines
+    // const taskSnap = await StoreDB.doc(`tasks/${updateParams.task}/ranges/${updateParams.rangeId}`).get()
+    // const task = taskSnap.data()
+    // const taskLines = task && task.taskLines || {}
+    // const totalLines = task && task.totalLines || 0
+    // const lineCount = taskLines[params.generalIndex] || 0
+    // taskLines[params.generalIndex] = lineCount + 1
+    // await taskSnap.ref.set({ taskLines: taskLines, totalLines: totalLines + 1 }, { merge: true })
 
 
     if (params.task) {

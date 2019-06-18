@@ -337,8 +337,9 @@ export const onLineTranscriptionAdded = functions.firestore
           .limit(1)
           .get()
 
+        let lineData;
         if (linesSnap.size) {
-          const lineData = linesSnap.docs[0].data()
+          lineData = linesSnap.docs[0].data()
           const transcriptions = (lineData && lineData.transcriptions) || 0
           await linesSnap.docs[0].ref.update({
             transcriptions: transcriptions + 1
@@ -347,6 +348,26 @@ export const onLineTranscriptionAdded = functions.firestore
 
         // Update the number of lines transcribed on the user
         await updateUserStatsIfExists(transcriptionData);
+
+        // Update the task status if this is a task
+        const generalIndex = lineData && lineData.general_index
+        if (transcriptionData.task) {
+          // Update the task range lines
+          const taskRangeSnap = await admin.firestore().doc(`tasks/${transcriptionData.task}/ranges/${transcriptionData.rangeId}`).get()
+          const taskRange = taskRangeSnap.data()
+          const linesCount = taskRange && taskRange.linesCount || {}
+          const totalLines = taskRange && taskRange.totalLines || 0
+          const lineCount = linesCount[generalIndex] || 0
+          linesCount[generalIndex] = lineCount + 1
+          await taskRangeSnap.ref.set({ linesCount: linesCount, totalLines: totalLines + 1 }, { merge: true })
+          
+          // Update the task  lines
+          const taskSnap = await admin.firestore().doc(`tasks/${transcriptionData.task}`).get()
+          const task = taskSnap.data()
+          const taskTotalLines = task && task.totalLines || 0
+          await taskSnap.ref.set({ totalLines: taskTotalLines + 1 }, { merge: true })
+        }
+        
         return null
       } else {
         return null
@@ -359,7 +380,7 @@ export const onLineTranscriptionAdded = functions.firestore
 async function updateUserStatsIfExists(transcriptionData: FirebaseFirestore.DocumentData) {
   const uid = transcriptionData.uid
   const manuscript_id = transcriptionData.manuscript
-  
+
   // TODO: there is a problem here with done_percentage being calculated linesTrascribed / totalLines but includes duplicates....
   // Update total lines transcribed
   await updateUserGeneralStats(uid);

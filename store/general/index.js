@@ -1,4 +1,3 @@
-import manuscriptsManager from '~/manuscriptsManager'
 import api from '@/api.js'
 
 export const state = () => ({
@@ -6,7 +5,7 @@ export const state = () => ({
   env: "prod",
   help_section: null,
   help_sub_section: null,
-  help_ui: 'popup',
+  help_ui: 'docked',
   help_shown:false
 })
 
