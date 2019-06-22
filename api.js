@@ -84,6 +84,13 @@ export default {
       }
     })
   },
+  getManuscriptName(msId) {
+    const manuscriptsJSON = localStorage.getItem('manuscripts');
+    const manuscripts = manuscriptsJSON && JSON.parse(manuscriptsJSON)
+    const manuscript = manuscripts.find(m => m.id === msId)
+
+    return manuscript && manuscript.official_name || '***'
+  },
   async getActiveTask() {
     return new Promise(async (resolve, reject) => {
       const tasks = await StoreDB.collection('tasks')
@@ -95,7 +102,7 @@ export default {
       if (activeTask) {
         const rangesSnap = await StoreDB.collection(`tasks/${activeTask.id}/ranges`).get();
         const ranges = rangesSnap.docs.map(r => {
-          return Object.assign(r.data(), { id: r.id })
+          return Object.assign(r.data(), { id: r.id, msName: this.getManuscriptName(r.data().msId) })
         })
 
         returnObj = Object.assign(activeTask, { ranges: ranges })
@@ -408,18 +415,18 @@ export default {
       next_general_index[params.rangeId] = userNextGeneralIndexForRange
 
       // Are we done?
-      let totalReminingLines = 0;
+      let totalremainingLines = 0;
 
       taskRanges.forEach(range => {
-        let reminingLines = !isNaN(next_general_index[range.id])
+        let remainingLines = !isNaN(next_general_index[range.id])
           ? range.end_general_index - next_general_index[range.id]
           : range.end_general_index - range.start_general_index
 
-        reminingLines = Math.max(reminingLines, 0)
-        totalReminingLines += reminingLines
+        remainingLines = Math.max(remainingLines, 0)
+        totalremainingLines += remainingLines
       })
 
-      const taskObj = { next_general_index: next_general_index, lines: userTaskLines, reminingLines: totalReminingLines }
+      const taskObj = { next_general_index: next_general_index, lines: userTaskLines, remainingLines: totalremainingLines }
       if (!updateParams.isAnonymous) {
         await userTaskDoc.ref.set(taskObj, { merge: true })
       }

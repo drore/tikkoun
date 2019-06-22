@@ -1,11 +1,5 @@
 <template>
   <div class="task-announcement p-2" v-if="task && notDoneWithTask">
-    <!-- <div
-      class="start"
-      @click="changedUserTrancribeMode('tasks')"
-      v-if="$store.state.auth.user.transcribe_mode !== 'tasks'"
-    >{{$t('task.weekly-task')}} - {{task.name}} - {{$t('task.click_to_participate')}}</div>-->
-
     <div class="d-flex justify-content-between">
       <div class="task-info p-2">
         <div class="title">{{task.name}}</div>
@@ -15,29 +9,29 @@
             href="javascript:;"
             v-if="$store.state.auth.user.transcribe_mode !=='tasks'"
             @click="changedUserTrancribeMode('tasks')"
-          >{{$t('back_to_task_mode')}}</a>
+          >{{$t('tasks.back_to_task_mode')}}</a>
           <a
             href="javascript:;"
             v-if="$store.state.auth.user.transcribe_mode ==='tasks'"
             @click="changedUserTrancribeMode('regular')"
-          >{{$t('out_of_task_mode')}}</a>
+          >{{$t('tasks.out_of_task_mode')}}</a>
         </div>
       </div>
       <div class="ranges d-flex justify-content-between">
-        <div v-if="notDoneWithTask">
+        <div v-if="notDoneWithTask" class="d-flex justify-content-between">
           <div
             class="range p-2 m-1"
             v-for="(range,i) in task.ranges"
             :key="`range_${i}`"
-            v-bind:class="{ done: remining[range.id] === 0 }"
+            v-bind:class="{ done: remaining[range.id] === 0 }"
           >
-            <div class="title" v-if="task.ranges.length > 1">{{$t('task.part')}} - {{i+1}}</div>
-            <div>{{$t('lines_remining')}}: {{getReminingLinesForRange(range.id)}}</div>
+            <div class="title" v-if="task.ranges.length > 1">{{range.msName}}</div>
+            <div>{{$t('tasks.lines_remaining')}}: {{getremainingLinesForRange(range.id)}}</div>
           </div>
         </div>
         <div v-if="!notDoneWithTask" class="well-done">
           <marquee>
-            {{$t('task.well_done')}}
+            {{$t('tasks.well_done')}}
             <span style="font-size:20px">🤘</span>
           </marquee>
         </div>
@@ -50,14 +44,14 @@
 export default {
   data() {
     return {
-      remining: {}
+      remaining: {}
     }
   },
   methods: {
     hideTaskAnnouncement() {
       this.$store.dispatch('auth/hideTaskAnnouncement', this.task.id)
     },
-    getReminingLinesForRange(rangeId) {
+    getremainingLinesForRange(rangeId) {
       const range = this.$store.state.transcribe.task.ranges.find(
         r => r.id === rangeId
       )
@@ -70,14 +64,14 @@ export default {
 
 
 
-      let reminingLines = (userNextGeneralIndexForRange && !isNaN(userNextGeneralIndexForRange))
+      let remainingLines = (userNextGeneralIndexForRange && !isNaN(userNextGeneralIndexForRange))
         ? range.end_general_index - userNextGeneralIndexForRange
         : range.end_general_index - range.start_general_index
 
-      reminingLines = Math.max(reminingLines, 0)
-      this.remining[rangeId] = reminingLines
+      remainingLines = Math.max(remainingLines, 0)
+      this.remaining[rangeId] = remainingLines
 
-      return reminingLines
+      return remainingLines
     },
     async changedUserTrancribeMode(mode) {
       await this.$store.dispatch('auth/changeTranscribeMode', mode)
@@ -105,8 +99,8 @@ export default {
       return (
         !this.userTask ||
         !(
-          !isNaN(this.userTask.reminingLines) &&
-          this.userTask.reminingLines === 0
+          !isNaN(this.userTask.remainingLines) &&
+          this.userTask.remainingLines === 0
         )
       )
     },

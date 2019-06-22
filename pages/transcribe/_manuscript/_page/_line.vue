@@ -1,9 +1,9 @@
 <template>
   <div class="transcribe-page container-fluid mt-2">
-    <div class="row">
-      <!-- Column Two work area -->
-      <div id="transcribe-section" class="col-md-8 mb-2">
-        <div class="w-100">
+    <b-row align-v="start">
+      <b-col  md="8">
+        <!-- Column Two work area -->
+        <div id="transcribe-section">
           <div id="work-page" class="d-flex flex-column justify-content-between">
             <div class="header mb-4 row">
               <div class="col-md-10 col-8">
@@ -25,36 +25,17 @@
           </div>
           <TranscriptionLine/>
         </div>
-      </div>
-      <div id="map-section" class="col-md-4">
-        <div class="mb-3 d-flex justify-content-between">
-          <div class="line-info d-flex justify-content-between w-100">
-            <div>
-              <a href="javascript:;" @click="showHelp()">{{$t('help')}}</a>
-            </div>
-            <div>
-              <a :href="manuscript.descLink" target="_blank">
-                <label :title="manuscript.short_desc">{{manuscript.display_name}}</label>
-              </a>
-
-              <label v-if="line">
-                - Page {{line.page}} /
-                {{manuscript.total_pages}}, Line {{line.line}} /
-                {{manuscript.total_lines}}
-              </label>
-            </div>
-          </div>
-        </div>
-        <TranscriptionMap/>
-      </div>
-      <InfoTabs/>
-    </div>
+      </b-col>
+      <b-col md="4">
+        <InfoTabs id="map-section" class="d-flex flex-column"/>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
 <script>
 import TranscriptionLine from '~/components/TranscriptionLine'
-import TranscriptionMap from '~/components/TranscriptionMap'
+
 import WeeklyTask from '~/components/WeeklyTask'
 import InfoTabs from '~/components/InfoTabs'
 
@@ -66,7 +47,7 @@ export default {
   },
   components: {
     TranscriptionLine,
-    TranscriptionMap,
+
     WeeklyTask,
     InfoTabs
   },
@@ -144,13 +125,13 @@ export default {
       manuscript: this.$store.state.transcribe.manuscript.name.toLowerCase(),
       lang: currentLang.iso
     })
+
+    // Adjust style
+    $('#map-section').height(window.innerHeight - 110)
   }
 }
 </script>
 <style lang="scss">
-#map-section {
-  min-height: 300px;
-}
 .line-info {
   direction: ltr;
   text-align: left;

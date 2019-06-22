@@ -1,6 +1,12 @@
 export default () => {
   return new Promise(function (resolve) {
     const translations = {
+      tasks: {
+        'back_to_task_mode':'Join our weekly Parasha transcription',
+        'out_of_task_mode':'Help us cover missing lines in the manuscript',
+        'lines_remaining':'Lines remaining',
+        'part':'Part',
+      },
       dir: 'ltr',
       'main.site_name': 'Tikkoun Sofrim',
       'banner.encourgement.line_1':
@@ -10,7 +16,6 @@ export default () => {
       'nav.project': 'The Project',
       'manuscript_ab':'Manuscript Letters',
       'similar_letters':'Similiar Letters',
-      'lines_remining':'Lines remining',
       'nav.htr': 'What is HTR?',
       'nav.midrash': 'Midrash Tanhuma',
       'nav.team': 'The Team',
@@ -43,9 +48,8 @@ export default () => {
       'main.data_area.page': 'Page',
       manuscripts: 'Manuscript',
       'nav.back': 'Back',
-      'task.part':'Part',
-      'back_to_task_mode':'Back to the weekly task',
-      'out_of_task_mode':'Continue transcribing out of the task context',
+      
+
       'main.data_area.alphabet': 'Alphabet',
       'main.data_area.special': 'Special Characters',
       'main.data_area.editing': 'Editing symbols',

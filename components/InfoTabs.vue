@@ -1,44 +1,48 @@
 <template>
-  <div>
-    <div
-      class="help-docked p-2"
-      v-if="$store.state.general.help_ui === 'docked' &&  $store.state.general.help_shown"
-      :style="getDockedHelpStyle()"
-    >
-      <div slot="modal-header" class="w-100 d-flex justify-content-between">
-        <h4>{{$t('help')}}</h4>
-        <div>
-          <a href="javascript:;" @click="changeHelpUI('popup')">🗗</a>
-          <a href="javascript:;" @click="closeHelpDialog()">🗙</a>
-        </div>
-      </div>
-      <div class="help">
-        <Help></Help>
-      </div>
-    </div>
-    <b-modal ref="modal-help" id="modal-help" :title="$t('help')" centered scrollable :lazy="true">
-      <div slot="modal-header" class="w-100 d-flex justify-content-between">
-        <h4>{{$t('help')}}</h4>
-        <a href="javascript:;" @click="changeHelpUI('docked')">📌</a>
-      </div>
-      <div>
-        <Help></Help>
-      </div>
+  <b-tabs pills>
+    <b-tab :title="$t('main.data_area.page')">
+      <div class="row m-0 w-100 d-flex justify-content-between">
+        <div class="line-info d-flex justify-content-between w-100">
+          <div>
+            <a :href="manuscript.descLink" target="_blank">
+              <label :title="manuscript.short_desc">{{manuscript.display_name}}</label>
+            </a>
 
-      <div slot="modal-footer" class="w-100 d-flex justify-content-between">
-        <div></div>
-        <div>
-          <b-button variant="primary" @click="closeHelpDialog()">🗙</b-button>
+            <label v-if="line">
+              - Page {{line.page}} /
+              {{manuscript.total_pages}}, Line {{line.line}} /
+              {{manuscript.total_lines}}
+            </label>
+          </div>
         </div>
       </div>
-    </b-modal>
-  </div>
+      <TranscriptionMap/>
+    </b-tab>
+    <b-tab :title="$t('main.data_area.alphabet')">
+      <div v-if="content.alphabet">
+        <div v-html="content.alphabet"></div>
+        <div v-html="content.alphabet_ms" v-if="content.alphabet_ms"></div>
+        <div v-html="content.alphabet_similar" v-if="content.alphabet_similar"></div>
+      </div>
+    </b-tab>
+    <b-tab :title="$t('main.data_area.special')">
+      <div v-html="content.special" v-if="content.special"></div>
+    </b-tab>
+    <b-tab :title="$t('main.data_area.editing')">
+      <div v-html="content.marked" v-if="content.marked"></div>
+    </b-tab>
+    <b-tab :title="$t('main.data_area.help')">
+      <div v-html="content.help" v-if="content.help"></div>
+    </b-tab>
+  </b-tabs>
 </template>
 <script>
 import Help from '~/components/Help'
+import TranscriptionMap from '~/components/TranscriptionMap'
 export default {
   components: {
-    Help
+    Help,
+    TranscriptionMap
   },
   watch: {
     help_shown: function(shown) {
@@ -53,87 +57,91 @@ export default {
     }
   },
   computed: {
-    help_shown() {
-      return this.$store.state.general.help_shown
-    }
-  },
-  methods: {
-    getDockedHelpStyle() {
-      const transcribeWidth = $('#transcribe-section').width()
-      const direction = this.$t('dir')
-
-      let left = 0
-      let right = 0
-      let styleStr = ''
-
-      if (direction === 'rtl') {
-        right = `${transcribeWidth + 30}px`
-        left = 0
-      } else {
-        left = `${transcribeWidth + 30}px`
-        right = 0
+    content() {
+      const content = {}
+      if (this.$store.state.content.manuscript_content.length) {
+        this.$store.state.content.manuscript_content.forEach(i => {
+          content[i.token] = i.value
+        })
       }
 
-      return `left:${left};right:${right}`
+      return content
     },
-    changeHelpUI(ui) {
-      this.$store.dispatch('general/changeHelpUI', ui)
-      if (ui === 'docked') {
-        this.$refs['modal-help'].hide()
-      } else {
-        this.$refs['modal-help'].show()
-      }
+    manuscript() {
+      return this.$store.state.transcribe.manuscript
     },
-    closeHelpDialog() {
-      this.$store.dispatch('general/showHelp', false)
+    line() {
+      return this.$store.state.transcribe.selected_line
     }
   }
 }
 </script>
 <style lang="scss">
-.tab-content {
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
 .nav-tabs {
-  padding: 0;
-  .help-item {
-    font-size: 0.8rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  max-width: 500px;
+  overflow: auto;
+  
+}
+.info_content{
+  padding:5px;
+  text-align: justify;
+}
+.tabs {
+  .nav {
+    white-space: nowrap;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 10px;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    overflow-x:auto;
+    .nav-item {
+      font-size: 0.8rem;
+    }
   }
+}
+.tab-content{
+  flex: 0 1 auto;
+  overflow-y:auto;
+      overflow-x: hidden;
+      img{
+        max-width:100%;
+      }
 }
 .info-page .flex-nowrap {
   overflow-x: auto;
   overflow-y: hidden;
 }
-@media (min-width: 500px) {
-  body {
-    .tab-content {
-      width: 450px;
-    }
-  }
-}
-@media (min-width: 768px) {
-  body {
-    .tab-content {
-      width: 250px;
-    }
-  }
-}
-@media (min-width: 1100px) {
-  body {
-    .tab-content {
-      width: 350px;
-    }
-  }
-}
-@media (min-width: 1280px) {
-  body {
-    .tab-content {
-      width: 450px;
-    }
-  }
-}
+// @media (min-width: 500px) {
+//   body {
+//     .tab-content {
+//       width: 450px;
+//     }
+//   }
+// }
+// @media (min-width: 768px) {
+//   body {
+//     .tab-content {
+//       width: 250px;
+//     }
+//   }
+// }
+// @media (min-width: 1100px) {
+//   body {
+//     .tab-content {
+//       width: 350px;
+//     }
+//   }
+// }
+// @media (min-width: 1280px) {
+//   body {
+//     .tab-content {
+//       width: 450px;
+//     }
+//   }
+// }
 
 .info_content {
   .header {
@@ -164,44 +172,5 @@ export default {
       }
     }
   }
-}
-.help-item {
-  cursor: pointer;
-  border-radius: 50%;
-  padding: 20px;
-  margin: 10px;
-  border: 1px solid black;
-  width: 100px;
-  height: 100px;
-  text-align: center;
-  font-size: 15px;
-  background-color: #00003c;
-  color: white;
-  font-weight: bold;
-}
-.mobile {
-  .help-item {
-    font-size: 11px;
-  }
-}
-.help-docked {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  z-index: 19999;
-  background-color: white;
-  box-shadow: 2px 0px 14px 6px #333;
-  width: auto;
-  overflow-y: auto;
-}
-.rtl .help-docked {
-  left: 0;
-  right: auto;
-}
-
-.ltr .help-docked {
-  right: 0;
-  left: auto;
 }
 </style>

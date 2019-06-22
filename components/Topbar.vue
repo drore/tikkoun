@@ -135,6 +135,7 @@
         </ul>
         <ul class="navbar-nav">
           <li class="nav-item dropdown">
+            
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -143,14 +144,18 @@
               data-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false"
-            >{{$t(`lang.${$i18n.locale}`)}}</a>
+            ><img class="flag" :src="require(`../assets/images/flags/${$i18n.locale}.png`)" alt> {{$t(`lang.${$i18n.locale}`)}}</a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <nuxt-link
                 class="dropdown-item"
                 v-for="locale in availableLocales"
                 :key="locale.code"
                 :to="switchLocalePath(locale.code)"
-              >{{ $t(`lang.${locale.code}`) }}</nuxt-link>
+              >
+                <img class="flag" :src="require(`../assets/images/flags/${locale.code}.png`)" alt>
+                <span>{{ $t(`lang.${locale.code}`) }}</span>
+                
+              </nuxt-link>
             </div>
           </li>
           <li class="nav-item dropdown" v-if="$store.state.auth.user">
@@ -269,6 +274,7 @@
 </template>
 <script>
 import UserStatsChart from '~/components/UserStatsChart'
+var images = require.context('~/assets/images/flags', false, /\.png$/)
 export default {
   data() {
     return {
@@ -285,8 +291,9 @@ export default {
     UserStatsChart
   },
   methods: {
+
     getNotificationTime(notification) {
-      return new Date(notification.createdOn.seconds * 1000).toLocaleString();
+      return new Date(notification.createdOn.seconds * 1000).toLocaleString()
     },
     getNotificationLabel(notification) {
       return `${this.$t('new_reply')} - ${notification.displayName}`
@@ -417,5 +424,8 @@ export default {
   justify-content: space-around;
   top: -1px;
   right: -5px;
+}
+.flag{
+  width:25px;
 }
 </style>

@@ -1,6 +1,11 @@
 export default () => {
   return new Promise(function(resolve) {
     const translations = {
+      tasks: {
+        'back_to_task_mode':`Rejoindre la transcription de la Parasha de cette semaine`,
+        'out_of_task_mode':`Aidez-nous à corriger des lignes dans tout le manuscrit`,
+        'lines_remaining':`Lignes restantes`
+      },
       dir: 'ltr',
       'main.site_name': 'Tikkoun Sofrim',
       'banner.encourgement.line_1': `Contribuez à l'étude des manuscrits hébraïques anciens !`,
