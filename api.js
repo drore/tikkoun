@@ -383,10 +383,10 @@ export default {
     // const taskSnap = await StoreDB.doc(`tasks/${updateParams.task}/ranges/${updateParams.rangeId}`).get()
     // const task = taskSnap.data()
     // const taskLines = task && task.taskLines || {}
-    // const totalLines = task && task.totalLines || 0
+    // const totalLinesMade = task && task.totalLinesMade || 0
     // const lineCount = taskLines[params.generalIndex] || 0
     // taskLines[params.generalIndex] = lineCount + 1
-    // await taskSnap.ref.set({ taskLines: taskLines, totalLines: totalLines + 1 }, { merge: true })
+    // await taskSnap.ref.set({ taskLines: taskLines, totalLinesMade: totalLinesMade + 1 }, { merge: true })
 
 
     if (params.task) {

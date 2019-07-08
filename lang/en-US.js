@@ -3,9 +3,10 @@ export default () => {
     const translations = {
       tasks: {
         'back_to_task_mode':'Join our weekly Parasha transcription',
-        'out_of_task_mode':'Help us cover missing lines in the manuscript',
+        'out_of_task_mode':'Help us cover missing lines in the manuscript - out of the weekly Parasha context',
         'lines_remaining':'Lines remaining',
         'part':'Part',
+        'team_effort':`Team effort`
       },
       dir: 'ltr',
       'main.site_name': 'Tikkoun Sofrim',
@@ -341,7 +342,7 @@ export default () => {
     critical editions and enabling textual search of manuscripts in library
     viewers.</p>
   <p>Tikkoun Sofrim is a joined French-Israeli project, developed by
-    the EPHE, PSL, in Paris, the eLijah-Lab at the University of Haifa and
+    the EPHE, PSL, in Paris, the eLijah-Lab and the department of Information Systems at the University of Haifa and
     the National Library, Israel. The project is supported by the
     Maimonides grant funded by the French Ministry of Higher Education and
     Research, the French Ministry of Foreign Affairs and the Israeli

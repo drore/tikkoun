@@ -8,6 +8,115 @@ const cors = require('cors')({
 })
 admin.initializeApp()
 
+exports.update_all_ranges = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    // iterate all tasks
+    const taskDocs = await getTaskDocs();
+    const promises = taskDocs.map(updateTaskRangesLinesCount);
+    await Promise.all(promises)
+
+    res.status(200).send("Updated")
+    return ''
+  })
+})
+
+async function updateTaskRangesLinesCount(taskDoc: any) {
+  const rangesSnap = await getTaskRanges(taskDoc);
+  const promises = rangesSnap.map(updateRangeLinesCount)
+  return Promise.all(promises);
+}
+
+async function updateRangeLinesCount(rangeDoc: any) {
+  return new Promise(async function (resolve, reject) {
+    const taskRange = rangeDoc.data()
+
+    const linesCount = taskRange.linesCount;
+    for (let generalIndex = taskRange.start_general_index; generalIndex <= taskRange.end_general_index; generalIndex++) {
+      // go to the transcriptions and count the number of current transcriptions
+      // before that - get the page and line by the general index
+      const line = await getLineByGeneralIndex(taskRange.msId, generalIndex)
+      //const transcriptionsCount = await getTranscriptionsCountForLine(range.msId, line)
+      linesCount[generalIndex] = line && line.transcriptions
+    }
+
+    let doneLinesCounter = 0
+    Object.keys(linesCount).forEach(lineGeneralIndex => {
+      if (linesCount[lineGeneralIndex] >= taskRange.consensus) {
+        doneLinesCounter++
+      }
+    })
+
+    const updateObj = { donePercentage: 0, linesCount: linesCount }
+    const totalLines = taskRange && taskRange.totalLines
+    if (totalLines) {
+      updateObj.donePercentage = (doneLinesCounter / totalLines) * 100
+    }
+
+    // update range 
+    await rangeDoc.ref.update(updateObj, { merge: true })
+
+    resolve()
+  })
+}
+
+// async function getTranscriptionsCountForLine(msId: string, line: any) {
+//   const transcriptions = await admin.firestore().collection(`transcriptions`).where('manuscript', '==', msId).where('page', '==', line.page).where('line', '==', line.line).get()
+//   return transcriptions.size;
+// }
+
+async function getLineByGeneralIndex(msId: string, generalIndex: number) {
+  const lines = await admin.firestore().collection(`manuscripts/${msId}/lines`).where('general_index', '==', generalIndex).get()
+  return lines.size && lines.docs[0] && lines.docs[0].data()
+}
+
+
+async function getTaskRanges(taskDoc: any) {
+  const rangesSnap = await taskDoc.ref.collection('ranges').get()
+  return rangesSnap.docs;
+}
+
+async function getTaskDocs() {
+  const tasksSnap = await admin.firestore().collection('tasks').where('active', '==', true).get()
+  return tasksSnap.docs;
+}
+
+exports.get_all_users = functions.https.onRequest((req, res) => {
+  // [END trigger]
+  // [START sendError]
+  // Forbidding PUT requests. 
+  //console.log("1123412341234")
+  //return res.status(403).send('Forbidden!')
+  // if (req.method === 'PUT') {
+  //   return res.status(403).send('Forbidden!')
+  // }
+  // [END sendError]
+
+  // [START usingMiddleware]
+  // Enable CORS using the `cors` express middleware.
+  return cors(req, res, () => {
+    const db = admin.firestore()
+    db.collection('users')
+      .where('isAnonymous', '==', false)
+      .get()
+      .then(snapshot => {
+        const users = snapshot.docs.map(d => {
+          return {
+            email: d.data().email,
+            name: d.data().displayName,
+            lines_transcribed: d.data().linesTranscribed
+          }
+        })
+        res.status(200).send(users)
+        return ''
+      })
+      .catch(reason => {
+        res.status(500).send(reason)
+      })
+
+    // [END sendResponse]
+  })
+})
+
 exports.last_day_lines_count = functions.https.onRequest((req, res) => {
   // [END trigger]
   // [START sendError]
@@ -318,6 +427,11 @@ export const updateManuscriptNextLine = functions.firestore
     }
   })
 
+async function getTotalLinesMadeForRange(rangeId: any) {
+  const snaps = await admin.firestore().collection('transcriptions').where('rangeId', '==', rangeId).get()
+  return snaps.size
+}
+
 /**
  * When a transcription is added, update all statistics 
  */
@@ -352,22 +466,43 @@ export const onLineTranscriptionAdded = functions.firestore
         // Update the task status if this is a task
         const generalIndex = lineData && lineData.general_index
         if (transcriptionData.task) {
+
           // Update the task range lines
           const taskRangeSnap = await admin.firestore().doc(`tasks/${transcriptionData.task}/ranges/${transcriptionData.rangeId}`).get()
           const taskRange = taskRangeSnap.data()
           const linesCount = taskRange && taskRange.linesCount || {}
-          const totalLines = taskRange && taskRange.totalLines || 0
+          let totalLinesMade = taskRange && taskRange.totalLinesMade || 0
+          if (!totalLinesMade) {
+            totalLinesMade = await getTotalLinesMadeForRange(transcriptionData.rangeId)
+          }
+
           const lineCount = linesCount[generalIndex] || 0
           linesCount[generalIndex] = lineCount + 1
-          await taskRangeSnap.ref.set({ linesCount: linesCount, totalLines: totalLines + 1 }, { merge: true })
-          
+
+          // Now we'll mark the number of lines above 5 transcriptions
+          const rangeConsensus = taskRange && taskRange.consensus || 5
+          let doneLinesCounter = 0
+          Object.keys(linesCount).forEach(lineGeneralIndex => {
+            if (linesCount[lineGeneralIndex] >= rangeConsensus) {
+              doneLinesCounter++
+            }
+          })
+
+          const updateObj = { donePercentage: 0, doneLines: doneLinesCounter, linesCount: linesCount, totalLinesMade: totalLinesMade + 1 }
+          const totalLines = taskRange && taskRange.totalLines
+          if (totalLines) {
+            updateObj.donePercentage = (doneLinesCounter / totalLines) * 100
+          }
+
+          await taskRangeSnap.ref.set(updateObj, { merge: true })
+
           // Update the task  lines
           const taskSnap = await admin.firestore().doc(`tasks/${transcriptionData.task}`).get()
           const task = taskSnap.data()
-          const taskTotalLines = task && task.totalLines || 0
-          await taskSnap.ref.set({ totalLines: taskTotalLines + 1 }, { merge: true })
+          const taskTotalLinesMade = task && task.totalLinesMade || 0
+          await taskSnap.ref.set({ totalLinesMade: taskTotalLinesMade + 1 }, { merge: true })
         }
-        
+
         return null
       } else {
         return null

@@ -155,13 +155,17 @@ export const actions = {
 
     await api.addTranscription(transcription)
 
-    dispatch('getNextLine', {uid:user.uid, isAnonymous:user.isAnonymous})
+    dispatch('getNextLine', { uid: user.uid, isAnonymous: user.isAnonymous })
   },
 
   async GET_TASK({ commit, state }) {
-    if (!state.task) {
-      commit('setTask', await api.getActiveTask())
-    }
+    return new Promise(async (resolve, reject) =>{
+      if (!state.task) {
+        commit('setTask', await api.getActiveTask())
+      }
+      resolve()
+    })
+    
   },
   async getManuscriptById({ commit }, id) {
     const manuscript = await api.getManuscriptById(id)
@@ -177,12 +181,15 @@ export const actions = {
   },
   async getNextLine({ commit, dispatch, state }, params) {
     let promise
-    const transcribe_mode = localStorage.getItem('transcribe_mode')
-
-    if (state.task && transcribe_mode === 'tasks') {
+    //const transcribe_mode = localStorage.getItem('transcribe_mode') || 'tasks' // default to the task
+    const transcribe_mode = 'tasks'
+    
+    if (!state.selected_line && state.task && transcribe_mode === 'tasks') {
+      console.log("Go grab a task line")
       return dispatch('getTaskLine', params)
     }
     else {
+      console.log("We continue with the current streak",`Transcribe mode is: ${transcribe_mode}`)
       // In case it is already seeded - meaning -> in active session
       if (state.selected_line) {
         // Just go to the next line
@@ -269,41 +276,69 @@ export const actions = {
     }
 
   },
+  backToRegularTranscribing(uid) {
+    // If so, take the user out of the "tasks" routine and give the next line
+    dispatch('auth/setUserTranscribeMode', 'regular', { root: true })
+    // Clear the task from the state obj
+    commit('setTask', null)
+
+    dispatch(
+      'getNextLine',
+      uid)
+  },
   async getTaskLine({ commit, dispatch, state }, params) {
-    const ranges = state.task.ranges
+    let ranges = state.task.ranges
+    // TODO : cache 
     const userTask = await api.getUserTask(state.task.id, params.uid, params.isAnonymous)
     dispatch("auth/setUserTask", userTask, { root: true })
 
     let rangeId;
+    ranges = ranges.filter(r => r.donePercentage < 100)
     const range = ranges.length && (userTask && ranges.find((r, i) => {
       rangeId = r.id
+      
       return !userTask.next_general_index || !userTask.next_general_index[rangeId] || userTask.next_general_index[rangeId] <= r.end_general_index;
     }) || ranges.find(r => r.id == rangeId) || ranges[0]);
 
     if (range) {
-      // If the next general index on the user task does not go beyond the task
-      const userNextTaskGeneralIndex = (userTask && userTask.next_general_index && userTask.next_general_index[rangeId]) || range.start_general_index;
-      if (userNextTaskGeneralIndex < range.end_general_index) {
-        const userNextTaskLine = await api.getLineByGeneralIndex(range.msId, userNextTaskGeneralIndex)
+      let userNextTaskGeneralIndex = (userTask && userTask.next_general_index && userTask.next_general_index[rangeId]) || range.start_general_index;
 
-        // Now, are we on the right manuscript?
-        if (range.msId !== state.manuscript) {
-          await dispatch('getManuscriptById', range.msId)
+      // If the next general index on the user task does not go beyond the task
+      if (userNextTaskGeneralIndex < range.end_general_index) {
+        // If the userNextGeneralIndex point to a line that has been transcribed enough times already
+        let i = userNextTaskGeneralIndex
+        
+        if (range.linesCount[userNextTaskGeneralIndex] && range.linesCount[userNextTaskGeneralIndex] >= range.consensus) {
+          i = range.start_general_index
+          // grab the next line from the range
+          for (; i++; i < range.end_general_index) {
+            if (range.linesCount[i] && range.linesCount[i] < range.consensus) {
+              userNextTaskGeneralIndex = i
+              break
+            }
+          }
         }
 
-        commit('gotLine', Object.assign({ id: userNextTaskLine.id }, userNextTaskLine.data))
-        commit('setRange', range)
-        // Update all other stuff, ms etc
+        console.log(`Line general index: ${userNextTaskGeneralIndex}, ms: ${range.msName}`)
+        // We got it
+        if (userNextTaskGeneralIndex === i) {
+          const userNextTaskLine = await api.getLineByGeneralIndex(range.msId, userNextTaskGeneralIndex)
+
+          // Now, are we on the right manuscript?
+          if (range.msId !== state.manuscript) {
+            await dispatch('getManuscriptById', range.msId)
+          }
+
+          commit('gotLine', Object.assign({ id: userNextTaskLine.id }, userNextTaskLine.data))
+          commit('setRange', range)
+        }
+        else {
+          // We are probably done
+          this.backToRegularTranscribing(params.uid)
+        }
       }
       else {
-        // If so, take the user out of the "tasks" routine and give the next line
-        dispatch('auth/setUserTranscribeMode', 'regular', { root: true })
-        // Clear the task from the state obj
-        commit('setTask', null)
-
-        dispatch(
-          'getNextLine',
-          params.uid)
+        this.backToRegularTranscribing(params.uid)
       }
     }
     else {

@@ -189,35 +189,7 @@ export default {
     },
 
     async loadIntoFB() {
-//       const users = await StoreDB.collection('users').get()
-//       for (let i = 0; i < users.size; i++) {
-//         const userSnap = users.docs[i]
-//         const linesTranscribed = await StoreDB.collection(`transcriptions`).where('manuscript','==','woNEyuFHMZUaKNYclE8a').where('uid','==',userSnap.id).get()
-//         if (linesTranscribed.size) {
-//           const percentage = (linesTranscribed.size / 10863) * 100
-// debugger
-//           await StoreDB.doc(
-//             `users/${userSnap.id}/manuscripts/woNEyuFHMZUaKNYclE8a`
-//           ).set({ linesTranscribed: linesTranscribed.size ,done_percentage: percentage }, { merge: true })
-//         }
-//       }
-      // const linesWithZero = await StoreDB.collection(`manuscripts/KVqHkylpQFUvkQlQrP9U/lines`).get()
-      // debugger;
-
-
-//   const userMSLines = await StoreDB
-//     .collection('transcriptions')
-//     .where('uid', '==', 'duZ6ZqB6dUM7MCN9o5xnC186x333')
-//     .where('manuscript', '==', 'woNEyuFHMZUaKNYclE8a')
-//     .limit(50)
-//     .get();
-// let dailyStats = {}
-//  const userLines = userMSLines.docs.forEach(d => {
-//    const dateString = new Date(d.data().createdOn.seconds*1000).toDateString();
-//    const dayCount = dailyStats[dateString] || 0
-//    dailyStats[dateString] = dayCount+1
-//  })
-//  debugger
+        // Get all 
 
     },
     updateMSContentItem() {

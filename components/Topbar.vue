@@ -51,87 +51,6 @@
               :to="localePath({name:'conversation'})"
             >{{ $t('nav.conversation') }}</nuxt-link>
           </li>
-          <li class="nav-item">
-            <b-button v-b-modal.modal-1 v-if="isDemo">{{ $t('nav.research_questionnaire') }}</b-button>
-            <b-modal
-              id="modal-1"
-              centered
-              @ok="updateResearchForUser"
-              :title="$t('nav.research_questionnaire')"
-            >
-              <p
-                class="my-4"
-              >Answering the following questions will help us give you a better user experience.</p>
-              <div>
-                <h3>I see myself as:</h3>
-
-                <div class="question form-group">
-                  <!-- Conscientiousness -->
-                  <label for="q_1">Dependable, self-disciplined</label>
-                  <div class="d-flex justify-content-between">
-                    <span>Disagree strongly</span>
-                    <span>Agree strongly</span>
-                  </div>
-                  <input
-                    type="range"
-                    class="form-control-range"
-                    min="1"
-                    max="7"
-                    name="q_1"
-                    v-model="research['q_1']"
-                  >
-                </div>
-                <!-- Openness -->
-                <div class="question form-group">
-                  <label for="q_2">Open to new experiences, complex</label>
-                  <div class="d-flex justify-content-between">
-                    <span>Disagree strongly</span>
-                    <span>Agree strongly</span>
-                  </div>
-                  <input
-                    type="range"
-                    class="form-control-range"
-                    min="1"
-                    max="7"
-                    name="q_2"
-                    v-model="research['q_2']"
-                  >
-                </div>
-                <!-- Conscientiousness reveresed -->
-                <div class="question form-group">
-                  <label for="q_3">Disorganized, careless</label>
-                  <div class="d-flex justify-content-between">
-                    <span>Disagree strongly</span>
-                    <span>Agree strongly</span>
-                  </div>
-                  <input
-                    type="range"
-                    class="form-control-range"
-                    min="1"
-                    max="7"
-                    name="q_3"
-                    v-model="research['q_3']"
-                  >
-                </div>
-                <!-- Openness reveresed -->
-                <div class="question form-group">
-                  <label for="q_4">Conventional, uncreative</label>
-                  <div class="d-flex justify-content-between">
-                    <span>Disagree strongly</span>
-                    <span>Agree strongly</span>
-                  </div>
-                  <input
-                    type="range"
-                    class="form-control-range"
-                    min="1"
-                    max="7"
-                    name="q_4"
-                    v-model="research['q_4']"
-                  >
-                </div>
-              </div>
-            </b-modal>
-          </li>
         </ul>
         <ul class="navbar-nav">
           <li class="nav-item dropdown">
@@ -161,7 +80,7 @@
           <li class="nav-item dropdown" v-if="$store.state.auth.user">
             <a
               class="nav-link dropdown-toggle"
-              v-bind:class="{ disabled: $store.state.auth.user.transcribe_mode === 'tasks' }"
+              v-bind:class="{ disabled: inTasksMode() }"
               href="#"
               id="msDropdown"
               role="button"
@@ -208,7 +127,7 @@
             <img
               :src="$store.state.auth.user.photoURL"
               alt
-              v-if="!$store.state.auth.user.isAnonymous && $store.state.auth.user.photoURL"
+              v-if="$store.state.auth.user && !$store.state.auth.user.isAnonymous && $store.state.auth.user.photoURL"
               style="height:30px;width:30px;"
             >
 
@@ -291,7 +210,10 @@ export default {
     UserStatsChart
   },
   methods: {
-
+inTasksMode(){
+      const transcribe_mode = localStorage.getItem('transcribe_mode') || this.$store.state.auth.user.transcribe_mode || 'tasks' // default to the task
+      return transcribe_mode === 'tasks'
+    },
     getNotificationTime(notification) {
       return new Date(notification.createdOn.seconds * 1000).toLocaleString()
     },

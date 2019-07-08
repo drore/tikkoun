@@ -1,13 +1,14 @@
 <template>
   <div class="transcribe-page container-fluid mt-2">
     <b-row align-v="start">
-      <b-col  md="8">
+      <b-col md="8">
         <!-- Column Two work area -->
         <div id="transcribe-section">
-          <div id="work-page" class="d-flex flex-column justify-content-between">
+          <div id="work-page" class="container">
+            <WeeklyTask class="mb-4"></WeeklyTask>
             <div class="header mb-4 row">
               <div class="col-md-10 col-8">
-                <WeeklyTask></WeeklyTask>
+                
                 {{ $t('main.work_area.intro_line_1') }}
                 {{ $t('main.work_area.intro_line_2') }}
               </div>
@@ -90,18 +91,16 @@ export default {
     }
   },
   // Maybe watch on line from store
-  mounted() {
-    this.$store.dispatch('transcribe/GET_TASK')
+  async mounted() {
+    await this.$store.dispatch('transcribe/GET_TASK')
     const routeParams = this.$route.params
     const user = this.$store.state.auth.user
     if (user) {
-      if (user.transcribe_mode && user.transcribe_mode == 'tasks') {
-        this.$store.dispatch('transcribe/GET_TASK').then(() => {
+      if (user.transcribe_mode && user.transcribe_mode == 'tasks' && this.$store.state.transcribe.task) {
           this.$store.dispatch('transcribe/getTaskLine', {
             uid: user.uid,
             isAnonymous: user.isAnonymous
           })
-        })
       } else if (routeParams && routeParams.line) {
         this.$store.dispatch('transcribe/getLine', {
           msId: this.$store.state.transcribe.manuscript.id,

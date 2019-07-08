@@ -14,16 +14,22 @@ export const state = () => ({
 
 export const mutations = {
   setUser(state, payload) {
-    if (payload && payload.isAnonymous) {
-      // Grab some stuff from localStorage
-      payload.transcribe_mode = localStorage.getItem('transcribe_mode')
+    if (payload) {
+      if (payload.isAnonymous) {
+        // Grab some stuff from localStorage
+        payload.transcribe_mode = localStorage.getItem('transcribe_mode')
+      }
+
+      // Override experiment 26-06-2019
+      payload.transcribe_mode = 'tasks'
     }
+    
     state.user = payload
   },
   notificationRemoved(state, payload) {
     let notifications = state.user_notifications
     let indexToRemove = notifications.indexOf(payload)
-    notifications.splice(indexToRemove,1)
+    notifications.splice(indexToRemove, 1)
     state.user_notifications = notifications
   },
   setHiddenTasks(state, payload) {
@@ -77,7 +83,7 @@ export const actions = {
     }
   },
   async removeNotification({ commit, state }, notification) {
-    commit('notificationRemoved', await api.removeNotification(state.user.uid,notification))
+    commit('notificationRemoved', await api.removeNotification(state.user.uid, notification))
   },
   async hideTaskAnnouncement({ commit, state }, taskId) {
     commit('addHiddenTask', taskId)

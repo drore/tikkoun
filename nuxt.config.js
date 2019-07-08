@@ -114,7 +114,6 @@ module.exports = {
   ** Build configuration
   */
   build: {
-    devTools:true,
     /*
     ** You can extend webpack config here
     */

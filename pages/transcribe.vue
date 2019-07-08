@@ -35,7 +35,7 @@ export default {
       this.$store.dispatch('transcribe/GET_MANUSCRIPT')
     }
   },
-  
+
   computed: {
     manuscript() {
       const manuscript = this.$store.state.transcribe.manuscript
@@ -51,10 +51,17 @@ export default {
   }
   background-color: #e7f9f0;
   .range {
-    background-color: orange;
-    &.done {
-      background-color: green;
-      color: white;
+    border: 1px solid #333;
+    border-radius: 5px;
+    position: relative;
+    &:before {
+      content: '';
+      background-color: #8cccac;
+      left: 0;
+      right: 0;
+      position: absolute;
+      bottom: 0;
+      height: var(--percentage);
     }
   }
   .task-info,
@@ -66,8 +73,7 @@ export default {
     }
   }
 }
-.well-done{
-  font-size:25px;
-
+.well-done {
+  font-size: 25px;
 }
 </style>

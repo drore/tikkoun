@@ -13,7 +13,7 @@
               name="username"
               required="required"
               type="text"
-              placeholder="username"
+              :placeholder="$t('login.login_area.username')"
               v-model="username"
             >
           </div>
@@ -22,7 +22,7 @@
               id="password"
               name="password"
               type="password"
-              placeholder="password"
+              :placeholder="$t('login.login_area.password')"
               v-model="password"
             >
           </div>

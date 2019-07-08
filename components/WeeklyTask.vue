@@ -1,43 +1,46 @@
 <template>
-  <div class="task-announcement p-2" v-if="task && notDoneWithTask">
-    <div class="d-flex justify-content-between">
-      <div class="task-info p-2">
-        <div class="title">{{task.name}}</div>
-        <div v-if="task.desc">{{task.desc}}</div>
-        <div>
-          <a
-            href="javascript:;"
-            v-if="$store.state.auth.user.transcribe_mode !=='tasks'"
-            @click="changedUserTrancribeMode('tasks')"
-          >{{$t('tasks.back_to_task_mode')}}</a>
-          <a
-            href="javascript:;"
-            v-if="$store.state.auth.user.transcribe_mode ==='tasks'"
-            @click="changedUserTrancribeMode('regular')"
-          >{{$t('tasks.out_of_task_mode')}}</a>
-        </div>
-      </div>
-      <div class="ranges d-flex justify-content-between">
-        <div v-if="notDoneWithTask" class="d-flex justify-content-between">
-          <div
-            class="range p-2 m-1"
-            v-for="(range,i) in task.ranges"
-            :key="`range_${i}`"
-            v-bind:class="{ done: remaining[range.id] === 0 }"
-          >
+  <b-row class="task-announcement p-2" v-if="task && notDoneWithTask">
+    <b-col md="8" class="task-info">
+      <div class="title">{{task.name}}</div>
+      <div v-if="task.desc">{{task.desc}}</div>
+      <!-- <div>
+        <a
+          href="javascript:;"
+          v-if="!inTasksMode"
+          @click="changedUserTrancribeMode('tasks')"
+        >{{$t('tasks.back_to_task_mode')}}</a>
+        <a
+          href="javascript:;"
+          v-if="inTasksMode"
+          @click="changedUserTrancribeMode('regular')"
+        >{{$t('tasks.out_of_task_mode')}}</a>
+      </div> -->
+    </b-col>
+    <b-col md="4" class="ranges">
+      <b-row v-if="notDoneWithTask">
+        <div
+          class="range p-2 m-1 col"
+          v-for="(range,i) in task.ranges"
+          :key="`range_${i}`"
+          :style="`--percentage: ${Math.min(range.donePercentage,100)}%`"
+          v-bind:class="{ done: remaining[range.id] === 0 }"
+        >
+          <div class="remaining">
             <div class="title" v-if="task.ranges.length > 1">{{range.msName}}</div>
-            <div>{{$t('tasks.lines_remaining')}}: {{getremainingLinesForRange(range.id)}}</div>
+            <div class="gague team" style="white-space:nowrap">{{$t('tasks.team_effort')}}: {{`${Math.min(range.donePercentage && range.donePercentage.toFixed(2),100) || 0}%`}}</div>
+            <!-- <div class="gague team" style="white-space:nowrap">{{$t('tasks.personal_effort')}}: {{`${range.donePercentage && range.donePercentage.toFixed(2) || 0}%`}}</div> -->
+            <!-- <div>{{$t('tasks.lines_remaining')}}: {{getRemainingLinesForRange(range.id)}}</div> -->
           </div>
         </div>
-        <div v-if="!notDoneWithTask" class="well-done">
-          <marquee>
-            {{$t('tasks.well_done')}}
-            <span style="font-size:20px">🤘</span>
-          </marquee>
-        </div>
+      </b-row>
+      <div v-if="!notDoneWithTask" class="well-done">
+        <marquee>
+          {{$t('tasks.well_done')}}
+          <span style="font-size:20px">🤘</span>
+        </marquee>
       </div>
-    </div>
-  </div>
+    </b-col>
+  </b-row>
 </template>
 
 <script>
@@ -51,27 +54,13 @@ export default {
     hideTaskAnnouncement() {
       this.$store.dispatch('auth/hideTaskAnnouncement', this.task.id)
     },
-    getremainingLinesForRange(rangeId) {
+    getRemainingLinesForRange(rangeId) {
       const range = this.$store.state.transcribe.task.ranges.find(
         r => r.id === rangeId
       )
-      const user_task = this.userTask
-
-      const userNextGeneralIndexForRange =
-        user_task &&
-        user_task.next_general_index &&
-        user_task.next_general_index[rangeId]
-
-
-
-      let remainingLines = (userNextGeneralIndexForRange && !isNaN(userNextGeneralIndexForRange))
-        ? range.end_general_index - userNextGeneralIndexForRange
-        : range.end_general_index - range.start_general_index
-
-      remainingLines = Math.max(remainingLines, 0)
-      this.remaining[rangeId] = remainingLines
-
-      return remainingLines
+      const totalLines = range.totalLines || (range.end_general_index - range.start_general_index)
+      const doneLines = range.doneLines || 0
+      return totalLines - doneLines
     },
     async changedUserTrancribeMode(mode) {
       await this.$store.dispatch('auth/changeTranscribeMode', mode)
@@ -82,6 +71,10 @@ export default {
     }
   },
   computed: {
+    inTasksMode(){
+      const transcribe_mode = localStorage.getItem('transcribe_mode') || this.$store.state.auth.user.transcribe_mode || 'tasks' // default to the task
+      return transcribe_mode === 'tasks'
+    },
     hideTask() {
       return (
         this.$store.state.auth.hidden_tasks &&
@@ -115,4 +108,8 @@ export default {
 </script>
 
 <style>
+.remaining {
+  z-index: 10;
+  position: relative;
+}
 </style>

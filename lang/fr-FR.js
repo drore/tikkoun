@@ -4,7 +4,8 @@ export default () => {
       tasks: {
         'back_to_task_mode':`Rejoindre la transcription de la Parasha de cette semaine`,
         'out_of_task_mode':`Aidez-nous à corriger des lignes dans tout le manuscrit`,
-        'lines_remaining':`Lignes restantes`
+        'lines_remaining':`Lignes restantes`,
+        'team_effort':`effort d'équipe`
       },
       dir: 'ltr',
       'main.site_name': 'Tikkoun Sofrim',
@@ -40,7 +41,7 @@ export default () => {
       'login.login_area.password': 'Mot de passe',
       'Login.login_area.login': 'Se connecter',
       'login.login_area.register': `S'enregistrer`,
-      'manuscript_ab':'Manuscript Letters',
+      'manuscript_ab':'manuscrit Letters',
       'similar_letters':'Similiar Letters',
       'login.login_area.geust': 'Entrer sans compte',
       'login.login_area.invalid': 'Identifiants incorrects !',
@@ -70,7 +71,7 @@ export default () => {
       'main.work_area.over_ligature': 'ﭏ',
       'main.work_area.over_upper': '˙',
       'nav.research_questionnaire':'השתתף במחקר',
-      manuscripts:'Manuscript',
+      manuscripts:'manuscrit',
       'main.work_area.finish_line_1': `Après avoir corrigé toutes les erreurs, ou si la transcription n'en comportait aucune, cliquez sur "Terminé".`,
       wrong_creds: 'identifiant ou mot de passe incorrect',
       'main.work_area.finish_line_2': `Si vous souhaitez passer cette ligne sans la corriger, cliquez sur "Passer".`,
