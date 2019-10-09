@@ -60,11 +60,13 @@ export default {
           self.map.removeLayer(layer)
         })
 
+        const manuscript = this.$store.state.transcribe.manuscript
+        
         // No let's do this!
-        const top = res.top_on_page
-        const bottom = res.bottom_on_page
-        const left = res.left_on_page
-        const right = res.right_on_page
+        const top = res.top_on_page + (manuscript.top_buffer || 0);
+        const bottom = res.bottom_on_page+ (manuscript.top_buffer || 0);
+        const left = res.left_on_page+ (manuscript.left_buffer || 0);
+        const right = res.right_on_page+ (manuscript.left_buffer || 0);
 
         const height = bottom - top
         const width = right - left

@@ -23,9 +23,9 @@
             data-parent="#sidebarAccordion"
           >
             <div class="card-body">
-              <!-- <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>-->
-              <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
-              <hr>
+              <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>
+              <!-- <a href="javascript:;" @click="loadIntoFB">Load into firebase</a> -->
+              <hr />
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@
           >
             <div class="card-body">
               <a href="javascript:;" @click="getManuscriptContent">{{$t('get_manuscript_content')}}</a>
-              <hr>
+              <hr />
               <select name="langs" v-model="lang" @change="getManuscriptContent">
                 <option
                   :value="locale.iso"
@@ -60,7 +60,7 @@
               </select>
               <a href="javascript:;" @click="addMSContentItem">{{$t('add')}}</a>
               <div v-if="manuscript_content">
-                <hr>
+                <hr />
                 <ul class="manuscript_content_tokens">
                   <li
                     v-for="(contentItem,i) in manuscript_content"
@@ -107,19 +107,19 @@
           <div class="field">
             <label for="value">
               Manuscript:
-              <input type="text" v-model="msContentItem.manuscript">
+              <input type="text" v-model="msContentItem.manuscript" />
             </label>
           </div>
           <div class="field">
             <label for="lang">
               Lang:
-              <input type="text" v-model="msContentItem.lang">
+              <input type="text" v-model="msContentItem.lang" />
             </label>
           </div>
           <div class="field">
             <label for="token">
               Token:
-              <input type="text" v-model="msContentItem.token">
+              <input type="text" v-model="msContentItem.token" />
             </label>
           </div>
           <div class="field">
@@ -127,7 +127,7 @@
               Content: (
               <a href="javascript:;" @click="showWysiwyg = !showWysiwyg">Html / Wysiwyg</a>) --
               <a href="javascript:;" @click="updateMSContentItem">{{$t('update')}}</a>
-              <wysiwyg v-model="msContentItem.value" v-if="showWysiwyg"/>
+              <wysiwyg v-model="msContentItem.value" v-if="showWysiwyg" />
               <textarea
                 v-model="msContentItem.value"
                 v-if="!showWysiwyg"
@@ -150,7 +150,6 @@ import {
   auth
 } from '~/plugins/firebase.js'
 import manuscriptsManager from '~/manuscriptsManager'
-import firebase from '~/plugins/firebase'
 export default {
   data() {
     return {
@@ -188,10 +187,6 @@ export default {
       })
     },
 
-    async loadIntoFB() {
-        // Get all 
-
-    },
     updateMSContentItem() {
       this.$store.dispatch('content/updateMSContentItem', this.msContentItem)
     },

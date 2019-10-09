@@ -181,9 +181,7 @@ export const actions = {
   },
   async getNextLine({ commit, dispatch, state }, params) {
     let promise
-    //const transcribe_mode = localStorage.getItem('transcribe_mode') || 'tasks' // default to the task
-    const transcribe_mode = 'tasks'
-    
+    const transcribe_mode = localStorage.getItem('transcribe_mode')
     if (!state.selected_line && state.task && transcribe_mode === 'tasks') {
       console.log("Go grab a task line")
       return dispatch('getTaskLine', params)

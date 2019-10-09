@@ -19,9 +19,6 @@ export const mutations = {
         // Grab some stuff from localStorage
         payload.transcribe_mode = localStorage.getItem('transcribe_mode')
       }
-
-      // Override experiment 26-06-2019
-      payload.transcribe_mode = 'tasks'
     }
     
     state.user = payload

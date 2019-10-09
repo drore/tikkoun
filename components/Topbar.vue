@@ -54,7 +54,6 @@
         </ul>
         <ul class="navbar-nav">
           <li class="nav-item dropdown">
-            
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -63,7 +62,10 @@
               data-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false"
-            ><img class="flag" :src="require(`../assets/images/flags/${$i18n.locale}.png`)" alt> {{$t(`lang.${$i18n.locale}`)}}</a>
+            >
+              <img class="flag" :src="require(`../assets/images/flags/${$i18n.locale}.png`)" alt />
+              {{$t(`lang.${$i18n.locale}`)}}
+            </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <nuxt-link
                 class="dropdown-item"
@@ -71,9 +73,8 @@
                 :key="locale.code"
                 :to="switchLocalePath(locale.code)"
               >
-                <img class="flag" :src="require(`../assets/images/flags/${locale.code}.png`)" alt>
+                <img class="flag" :src="require(`../assets/images/flags/${locale.code}.png`)" alt />
                 <span>{{ $t(`lang.${locale.code}`) }}</span>
-                
               </nuxt-link>
             </div>
           </li>
@@ -129,7 +130,7 @@
               alt
               v-if="$store.state.auth.user && !$store.state.auth.user.isAnonymous && $store.state.auth.user.photoURL"
               style="height:30px;width:30px;"
-            >
+            />
 
             <span v-if="notifications.length" class="notifications">{{notifications.length}}</span>
           </li>
@@ -210,8 +211,10 @@ export default {
     UserStatsChart
   },
   methods: {
-inTasksMode(){
-      const transcribe_mode = localStorage.getItem('transcribe_mode') || this.$store.state.auth.user.transcribe_mode || 'tasks' // default to the task
+    inTasksMode() {
+      const transcribe_mode =
+        localStorage.getItem('transcribe_mode') ||
+        this.$store.state.auth.user.transcribe_mode
       return transcribe_mode === 'tasks'
     },
     getNotificationTime(notification) {
@@ -347,7 +350,7 @@ inTasksMode(){
   top: -1px;
   right: -5px;
 }
-.flag{
-  width:25px;
+.flag {
+  width: 25px;
 }
 </style>

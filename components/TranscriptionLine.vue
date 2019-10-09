@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img :src="currLineImage" v-if="$device.isMobile" style="width:100%">
+    <img :src="currLineImage" v-if="$device.isMobile" style="width:100%" />
     <div id="v-viewer-container" v-if="!$device.isMobile">
       <div
         v-if="!line"
@@ -24,7 +24,7 @@
             alt="Image of line in page"
             id="original-line-image"
             style="display:none"
-          >
+          />
         </template>
       </viewer>
     </div>
@@ -41,7 +41,7 @@
         @keyup="change"
         @mouseup="select"
         @select="select"
-      >
+      />
     </div>
     <!-- Transcribe toolbar -->
     <div class="mt-3 p-10 row" dir="ltr">
@@ -153,7 +153,6 @@
         </div>
         <div class="sharethis-inline-share-buttons"></div>
         <div>
-          
           <button
             type="submit"
             class="btn btn-success"
@@ -245,10 +244,10 @@ export default {
         }
 
         this.polygonObj = {
-          top: res.top_on_page,
-          bottom: res.bottom_on_page,
-          left: res.left_on_page,
-          right: res.right_on_page
+          top: res.top_on_page + (this.manuscript.top_buffer || 0),
+          bottom: res.bottom_on_page + (this.manuscript.top_buffer || 0),
+          left: res.left_on_page + (this.manuscript.left_buffer || 0),
+          right: res.right_on_page + (this.manuscript.left_buffer || 0)
         }
 
         this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
@@ -298,7 +297,6 @@ export default {
   },
 
   methods: {
-    
     getSpecialChar(char) {
       const manuscript = this.manuscript
       if (manuscript.special_char) {
