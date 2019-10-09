@@ -61,29 +61,33 @@ export default {
         })
 
         const manuscript = this.$store.state.transcribe.manuscript
-        
+
         // No let's do this!
-        const top = res.top_on_page + (manuscript.top_buffer || 0);
-        const bottom = res.bottom_on_page+ (manuscript.top_buffer || 0);
-        const left = res.left_on_page+ (manuscript.left_buffer || 0);
-        const right = res.right_on_page+ (manuscript.left_buffer || 0);
+        const top = res.top_on_page + (manuscript.top_buffer || 0)
+        const bottom = res.bottom_on_page + (manuscript.top_buffer || 0)
+        const left = res.left_on_page + (manuscript.left_buffer || 0)
+        const right = res.right_on_page + (manuscript.left_buffer || 0)
 
         const height = bottom - top
         const width = right - left
 
-        // For geneva, strip the file extension
+        let img_file_name = res.color_img_file_name || res.iiif_url
         let color_img_file_name
-        if (res.color_img_file_name.indexOf('.jpg') != -1) {
-          color_img_file_name = res.color_img_file_name.split('.jpg')[0]
-        } else {
-          color_img_file_name = res.color_img_file_name
-        }
+        let fullPageImgSrc = img_file_name
 
         // Now the full image
-        const baseURL = this.$store.state.transcribe.manuscript.base_url
-        const fullPageImgSrc = `${baseURL}${color_img_file_name}.${
-          this.$store.state.transcribe.manuscript.image_extension
-        }/info.json`
+        if (!res.iiif_url) {
+          // For geneva, strip the file extension
+          if (img_file_name.indexOf('.jpg') != -1) {
+            color_img_file_name = img_file_name.split('.jpg')[0]
+          } else {
+            color_img_file_name = img_file_name
+          }
+          const baseURL = this.$store.state.transcribe.manuscript.base_url
+          fullPageImgSrc = `${baseURL}${color_img_file_name}.${
+            this.$store.state.transcribe.manuscript.image_extension
+          }/info.json`
+        }
 
         const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)
         // TODO: move to store? is this MS specific?

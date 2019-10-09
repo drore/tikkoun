@@ -17,6 +17,7 @@ export default {
   },
   getLine(msId, page, line) {
     return new Promise((resolve, reject) => {
+      debugger
       StoreDB.collection(`manuscripts/${msId}/lines`)
         .where('page', '==', page)
         .where('line', '==', line)

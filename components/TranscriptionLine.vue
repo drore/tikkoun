@@ -235,12 +235,14 @@ export default {
           eventLabel: this.manuscript.id
         })
 
+        let img_file_name = res.color_img_file_name || res.iiif_url;
+
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
         // For geneva, strip the file extension
-        if (res.color_img_file_name.indexOf('.jpg') != -1) {
-          this.color_img_file_name = res.color_img_file_name.split('.jpg')[0]
+        if (img_file_name.indexOf('.jpg') != -1) {
+          this.color_img_file_name = img_file_name.split('.jpg')[0]
         } else {
-          this.color_img_file_name = res.color_img_file_name
+          this.color_img_file_name = img_file_name
         }
 
         this.polygonObj = {
@@ -249,6 +251,15 @@ export default {
           left: res.left_on_page + (this.manuscript.left_buffer || 0),
           right: res.right_on_page + (this.manuscript.left_buffer || 0)
         }
+
+        if (img_file_name.indexOf('info.json') != -1) {
+          this.color_img_file_name = img_file_name.split('info.json')[0]
+        }
+
+        if (img_file_name.indexOf(`.${this.manuscript.image_extension}`) != -1) {
+          this.color_img_file_name = img_file_name.split(`.${this.manuscript.image_extension}`)[0]
+        }
+
 
         this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
         this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
@@ -264,6 +275,7 @@ export default {
         const fullWidth =
           this.manuscript.full_width || parseInt($('#work-page').width()) * 3
         const baseURL = this.manuscript.base_url
+        
         const imageFilePart = `${baseURL}${
           this.color_img_file_name
         }.${image_extension_1}/`
