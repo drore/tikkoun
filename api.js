@@ -111,14 +111,19 @@ export default {
       resolve(returnObj)
     })
   },
-  async getLeaderBoard() {
+  async getLeaderBoard(params) {
     return new Promise(async (resolve, reject) => {
-      const leadersSnap = await StoreDB.collection('users').orderBy('linesTranscribed', 'desc').limit(10).get()
+      const count = params && params.count || 10
+      const leadersSnap = await StoreDB.collection('users').orderBy('linesTranscribed', 'desc').limit(count).get()
       const leaders = leadersSnap.docs.map((l, i) => {
-        const leaderObj = {
+        let leaderObj = {
           rank: i + 1,
           linesTranscribed: l.data().linesTranscribed
         }
+        if (params && params.return_full) {
+          leaderObj = Object.assign(l.data(), leaderObj)
+        }
+
         return leaderObj
       })
       resolve(leaders)
@@ -136,10 +141,11 @@ export default {
   },
   async getManuscript(name) {
     return new Promise(async (resolve, reject) => {
+
       let query = null
       if (!name) {
         //query = StoreDB.collection('manuscripts').limit(1)
-        name = 'geneva'
+        name = 'bnf150'
       }
       // First look in the 
       query = StoreDB.collection('manuscripts')
@@ -342,8 +348,10 @@ export default {
 
   async getManuscripts() {
     return new Promise(async (resolve, reject) => {
+      debugger
       const manuscriptsQuerySnapshot = await StoreDB.collection('manuscripts').get()
       const manuscripts = manuscriptsQuerySnapshot.docs.map(snap => {
+
         const msData = snap.data()
         return Object.assign(msData, { id: snap.id })
       })

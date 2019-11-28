@@ -1,11 +1,14 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 
+
 const { Parser } = require('json2csv')
+const axios = require('axios')
 
 const cors = require('cors')({
   origin: true
 })
+
 admin.initializeApp()
 
 exports.update_all_ranges = functions.https.onRequest((req, res) => {
@@ -408,11 +411,34 @@ export const updateManuscriptNextLine = functions.firestore
           .get()
       }
 
+      // How far along are we?
+      let doneLines = {
+        transcription: 0,
+        quality: 0
+      }
+      if (msDocData) {
+        if (!msDocData.doneLines || needToBumpThreshold) {
+          console.log("Bumpin...")
+          const doneLinesSnap = await admin
+            .firestore()
+            .collection(`manuscripts/${manuscript_id}/lines`)
+            .where('transcriptions', '>=', transcriptions_threshold)
+            .get()
+
+          doneLines.transcription = doneLinesSnap.size
+        }
+        else {
+          doneLines = msDocData.doneLines
+          doneLines.transcription++
+        }
+      }
+
       const lineData = lineSnap.size && lineSnap.docs[0].data()
       if (lineData) {
         msDoc.ref.update({
           next_line: lineData.line,
-          next_page: lineData.page
+          next_page: lineData.page,
+          doneLines: doneLines
         })
           .catch(() => {
             return null
@@ -451,13 +477,27 @@ export const onLineTranscriptionAdded = functions.firestore
           .limit(1)
           .get()
 
-        let lineData;
+        let lineData: any;
         if (linesSnap.size) {
           lineData = linesSnap.docs[0].data()
-          const transcriptions = (lineData && lineData.transcriptions) || 0
-          await linesSnap.docs[0].ref.update({
-            transcriptions: transcriptions + 1
-          })
+
+          // https://us-central1-tikkoun-sofrim.cloudfunctions.net/hello_world
+          // Score func (sorry for the name ;) )
+
+          if (lineData && lineData.AT) {
+            const scoreRes: any = await getLineScore(manuscript_id, lineData.page, lineData.line, lineData.AT)
+            const transcriptions = (lineData && lineData.transcriptions) || 0
+
+            const updateObj = {
+              transcriptions: transcriptions + 1,
+              score: scoreRes.Score,
+              suggestedLine: scoreRes.SuggestedLine
+            }
+
+            console.log("updateObj", updateObj)
+
+            await linesSnap.docs[0].ref.update(updateObj)
+          }
         }
 
         // Update the number of lines transcribed on the user
@@ -502,7 +542,6 @@ export const onLineTranscriptionAdded = functions.firestore
           const taskTotalLinesMade = task && task.totalLinesMade || 0
           await taskSnap.ref.set({ totalLinesMade: taskTotalLinesMade + 1 }, { merge: true })
         }
-
         return null
       } else {
         return null
@@ -522,6 +561,41 @@ async function updateUserStatsIfExists(transcriptionData: FirebaseFirestore.Docu
 
   // Update manuscript lines transcribed
   await updateUserManuscriptStats(uid, manuscript_id);
+}
+
+// async function getLineScoreAndUpdate(msId: string, page: number, line: number, AT: string) {
+//   return new Promise(async function (resolve, reject) {
+//     const lineScore = await getLineScore(msId, page, line, AT)
+
+//     const updateObj = {
+//       score: lineScore.Score,
+//       suggestedLine: lineScore.SuggestedLine
+//     }
+
+//     const lineSnaps = await admin.firestore().collection(`manuscripts/${msId}/lines`).where('page', '==', page).where('line', '==', line).get()
+//     const lineDocRef = lineSnaps.docs[0]
+//     await lineDocRef.exists && lineDocRef.ref.update(updateObj)
+//     resolve()
+//   })
+// }
+
+async function getLineScore(msId: string, page: number, line: number, AT: string) {
+  const userTranscriptionsSnap = await admin
+    .firestore()
+    .collection(`transcriptions`)
+    .where('manuscript', '==', msId)
+    .where('page', '==', page)
+    .where('line', '==', line)
+    .get()
+
+  const scoreObj = {
+    "AT": `${AT}`,
+    "UserTranscriptions": userTranscriptionsSnap.docs.map(t => t.data().transcription)
+  }
+
+  const response = await axios.post('https://us-central1-tikkoun-sofrim.cloudfunctions.net/hello_world', scoreObj)
+  console.log("scoreResObj", response.data)
+  return response.data
 }
 
 async function updateUserGeneralStats(uid: any) {
@@ -586,7 +660,7 @@ async function updateUserManuscriptStats(uid: any, manuscript_id: any) {
   if (msLinesTranscribedByNow) {
     const msDonePercentage = userManuscriptData && userManuscriptData.done_percentage;
     // The percentage is used here to reverse calc the ms lines num
-    msLines = await getMSLines(manuscript_id, msDonePercentage, msLinesTranscribedByNow);
+    msLines = await getMSLinesCount(manuscript_id, msDonePercentage, msLinesTranscribedByNow);
     // Plus this one
     linesTranscribed = msLinesTranscribedByNow + 1
   }
@@ -666,16 +740,16 @@ async function makeTheActualUpdate(linesTranscribed: number, msLines: any, userM
  * @param msDonePercentage The percetage done thus far
  * @param msLinesTranscribedByNow Lines transcribed by now
  */
-async function getMSLines(manuscript_id: any, msDonePercentage: number, msLinesTranscribedByNow: number) {
-  let msLines;
+async function getMSLinesCount(manuscript_id: any, msDonePercentage: number, msLinesTranscribedByNow: number) {
+  let msLinesCount;
   if (msDonePercentage) {
-    msLines = msLinesTranscribedByNow / (msDonePercentage / 100);
+    msLinesCount = msLinesTranscribedByNow / (msDonePercentage / 100);
   }
   else {
     const msDoc = await admin.firestore().doc(`manuscripts/${manuscript_id}`).get();
     const msDocData = msDoc.data();
-    msLines = msDocData && msDocData.total_lines;
+    msLinesCount = msDocData && msDocData.total_lines;
   }
 
-  return msLines;
+  return msLinesCount;
 }

@@ -16,8 +16,12 @@ export default {
     })
   },
   getLine(msId, page, line) {
+    // Unforuntelly, BNF has line 0 lines... quick fix
+    if(line == 0){
+      line++
+    }
+
     return new Promise((resolve, reject) => {
-      debugger
       StoreDB.collection(`manuscripts/${msId}/lines`)
         .where('page', '==', page)
         .where('line', '==', line)
@@ -26,6 +30,7 @@ export default {
         .then(res => {
           const lineSnap = res.docs[0]
           resolve({ data: lineSnap.data(), id: lineSnap.id })
+        }).catch(err => {
         })
     })
   },

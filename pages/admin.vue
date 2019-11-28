@@ -23,8 +23,9 @@
             data-parent="#sidebarAccordion"
           >
             <div class="card-body">
-              <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a>
+              <!-- <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a> -->
               <!-- <a href="javascript:;" @click="loadIntoFB">Load into firebase</a> -->
+              <a href="javascript:;" @click="scoreGeneva">Score Geneva</a>
               <hr />
             </div>
           </div>
@@ -178,6 +179,11 @@ export default {
     }
   },
   methods: {
+    scoreGeneva(){
+      // axios.get('https://us-central1-tikkoun-sofrim.cloudfunctions.net/score_ms?msId=KVqHkylpQFUvkQlQrP9U&from=0&to=2').then(function(res){
+      //   debugger
+      // })
+    },
     // Manuscript content
     getManuscriptContent() {
       this.showWysiwyg = true

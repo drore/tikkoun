@@ -212,10 +212,11 @@ export default {
   },
   methods: {
     inTasksMode() {
-      const transcribe_mode =
-        localStorage.getItem('transcribe_mode') ||
-        this.$store.state.auth.user.transcribe_mode
-      return transcribe_mode === 'tasks'
+      // const transcribe_mode =
+      //   localStorage.getItem('transcribe_mode') ||
+      //   this.$store.state.auth.user.transcribe_mode
+      // return transcribe_mode === 'tasks'
+      return false;
     },
     getNotificationTime(notification) {
       return new Date(notification.createdOn.seconds * 1000).toLocaleString()

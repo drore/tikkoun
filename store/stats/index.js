@@ -21,7 +21,7 @@ export const actions = {
     commit('gotUserDailyMSStats', await api.getUserDailyMSStats(params.uid))
   },
   async getLeaderBoard({ commit }, params) {
-    commit('gotLeaderBoard', await api.getLeaderBoard())
+    commit('gotLeaderBoard', await api.getLeaderBoard(params))
   },
 }
 
