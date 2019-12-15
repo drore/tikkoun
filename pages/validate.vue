@@ -28,7 +28,7 @@
   </div>
 </template>
 <script>
-import { StoreDB } from '~/plugins/firebase.js'
+
 import UserStatsChart from '~/components/UserStatsChart'
 export default {
   data() {

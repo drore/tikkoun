@@ -24,8 +24,8 @@
           >
             <div class="card-body">
               <!-- <a href="javascript:;" @click="tsvJSON">{{$t('tsv_to_json')}}</a> -->
-              <!-- <a href="javascript:;" @click="loadIntoFB">Load into firebase</a> -->
-              <a href="javascript:;" @click="scoreGeneva">Score Geneva</a>
+              <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
+              <!-- <a href="javascript:;" @click="scoreGeneva">Score Geneva</a> -->
               <hr />
             </div>
           </div>
@@ -151,6 +151,7 @@ import {
   auth
 } from '~/plugins/firebase.js'
 import manuscriptsManager from '~/manuscriptsManager'
+import { reject } from 'q'
 export default {
   data() {
     return {
@@ -179,7 +180,69 @@ export default {
     }
   },
   methods: {
-    scoreGeneva(){
+    async loadIntoFB() {
+      fetch('/manuscripts/vatican44_2b.xlsx')
+        .then(function(res) {
+          /* get the data as a Blob */
+          if (!res.ok) throw new Error('fetch failed')
+          return res.arrayBuffer()
+        })
+        .then(function(ab) {
+          /* parse the data when it is received */
+          var data = new Uint8Array(ab)
+          var workbook = XLSX.read(data, {
+            type: 'array'
+          })
+
+          /******************************************************************
+           * DO SOMETHING WITH workbook: Converting Excel value to Json       *
+           ********************************************************************/
+          var first_sheet_name = workbook.SheetNames[0]
+          /* Get worksheet */
+          var worksheet = workbook.Sheets[first_sheet_name]
+
+          var _JsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true })
+          /************************ End of conversion ************************/
+
+          console.log(_JsonData)
+          let promises = []
+          const self = this
+          $.each(_JsonData, function(index, value) {
+            if(index < 200){
+promises.push(
+              new Promise((resolve, reject) => {
+                if(!value.AT){
+                  debugger
+                }
+                StoreDB.collection(
+                  `manuscripts/7QehBIZflpGBdqlO4HeS/lines`
+                ).add({
+                  AT: value.AT || '',
+                  bottom_on_page: value.bottom,
+                  general_index: index,
+                  iiif_url: value.iiif_url,
+                  left_on_page: value.left,
+                  line: value.line,
+                  page: value.page,
+                  right_on_page: value.right,
+                  top_on_page: value.top,
+                  views: 0
+                }).then(res => {
+console.log(`line ${index} inserted`)
+                })
+                
+              })
+            )
+            }
+            
+          })
+
+          Promise.all(promises).then(res => {
+            debugger
+          })
+        })
+    },
+    scoreGeneva() {
       // axios.get('https://us-central1-tikkoun-sofrim.cloudfunctions.net/score_ms?msId=KVqHkylpQFUvkQlQrP9U&from=0&to=2').then(function(res){
       //   debugger
       // })
