@@ -13,7 +13,7 @@
     "precommit": "npm run lint"
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.8.0",
+    "@nuxtjs/axios": "^5.9.0",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.1.0",
     "chart.js": "^2.9.3",
@@ -22,16 +22,15 @@
     "firebase": "^5.11.1",
     "firebase-tools": "^6.12.0",
     "fs": "0.0.1-security",
-    "jquery": "^3.4.1",
-    "nuxt": "^2.10.2",
+    "nuxt": "^2.11.0",
     "nuxt-device-detect": "^1.1.5",
     "nuxt-i18n": "^5.12.7",
     "popper.js": "^1.16.0",
     "v-viewer": "^1.5.1",
-    "vue": "^2.6.10",
+    "vue": "^2.6.11",
     "vue-chartjs": "^3.5.0",
     "vue-wysiwyg": "^1.7.2",
-    "webpack": "^4.41.2"
+    "webpack": "^4.41.4"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^0.0.1",

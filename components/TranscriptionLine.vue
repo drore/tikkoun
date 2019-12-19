@@ -151,7 +151,7 @@
             @click="skip"
           >{{$t('main.work_area.finish_button_2')}}</button>
         </div>
-        <div class="sharethis-inline-share-buttons"></div>
+        
         <div>
           <button
             type="submit"
@@ -210,9 +210,7 @@ export default {
     ManipulationButton,
     Conversation
   },
-  mounted() {
-    window.__sharethis__.initialize()
-  },
+
   computed: {
     line() {
       return this.$store.state.transcribe.selected_line
@@ -235,7 +233,7 @@ export default {
           eventLabel: this.manuscript.id
         })
 
-        let img_file_name = res.color_img_file_name || res.iiif_url;
+        let img_file_name = res.color_img_file_name || res.iiif_url
 
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
         // For geneva, strip the file extension
@@ -256,10 +254,13 @@ export default {
           this.color_img_file_name = img_file_name.split('info.json')[0]
         }
 
-        if (img_file_name.indexOf(`.${this.manuscript.image_extension}`) != -1) {
-          this.color_img_file_name = img_file_name.split(`.${this.manuscript.image_extension}`)[0]
+        if (
+          img_file_name.indexOf(`.${this.manuscript.image_extension}`) != -1
+        ) {
+          this.color_img_file_name = img_file_name.split(
+            `.${this.manuscript.image_extension}`
+          )[0]
         }
-
 
         this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
         this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
@@ -272,10 +273,11 @@ export default {
         const image_extension_2 =
           this.manuscript.image_extension_2 || this.manuscript.image_extension
 
-        const fullWidth =
-          this.manuscript.full_width || parseInt($('#work-page').width()) * 3
+        const workPageWidth = document.getElementById('work-page').width * 3
+
+        const fullWidth = this.manuscript.full_width || workPageWidth
         const baseURL = this.manuscript.base_url
-        
+
         const imageFilePart = `${baseURL}${
           this.color_img_file_name
         }.${image_extension_1}/`
@@ -300,10 +302,8 @@ export default {
         },${extendedWidth},${this.polygonObj.height}/${endPart}`
 
         this.images = [this.currLineImage]
-
-        $('#v-viewer-container').height(
-          this.polygonObj.height / this.manuscript.factor
-        )
+        const polygonObjHeight = this.polygonObj.height / this.manuscript.factor
+        document.getElementById('v-viewer-container').height = polygonObjHeight
       }
     }
   },
@@ -357,17 +357,17 @@ export default {
     },
     resetFontSize() {
       const imgElement = $('.viewer-canvas>img')
-      jQuery('#trw').fitText(this.fitTextFactor, {
-        minFontSize: '8px',
-        maxFontSize: '35px'
-      })
+      // jQuery('#trw').fitText(this.fitTextFactor, {
+      //   minFontSize: '8px',
+      //   maxFontSize: '35px'
+      // })
     },
     changeFontSize(change) {
       this.fitTextFactor += change
-      jQuery('#trw').fitText(this.fitTextFactor, {
-        minFontSize: '8px',
-        maxFontSize: '35px'
-      })
+      // jQuery('#trw').fitText(this.fitTextFactor, {
+      //   minFontSize: '8px',
+      //   maxFontSize: '35px'
+      // })
     },
     select(e) {
       this.$store.dispatch('transcribe/setSelectedTextRange', {

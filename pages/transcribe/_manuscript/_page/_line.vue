@@ -126,7 +126,12 @@ export default {
     })
 
     // Adjust style
-    $('#map-section').height(window.innerHeight - 110)
+    const mapSectionHeight = window.innerHeight - 110;
+    const mapSectionElem = document.getElementById('map-section')
+    if(mapSectionElem){
+mapSectionElem.height = mapSectionHeight
+    }
+    
   }
 }
 </script>

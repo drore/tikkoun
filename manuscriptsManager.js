@@ -1,20 +1,7 @@
 import axios from 'axios'
 import { StoreDB } from '~/plugins/firebase.js'
+
 export default {
-  getRandomLine(msId) {
-    return new Promise((resolve, reject) => {
-      StoreDB.collection(`manuscripts/${msId}/lines`)
-        .where('views', '<', 21)
-        .where('transcriptions', '<', 6)
-        .get()
-        .then(res => {
-          const totalLines = res.size
-          const randomLineIndex = Math.floor(Math.random() * totalLines)
-          const randomLineSnap = res.docs[randomLineIndex]
-          resolve({ data: randomLineSnap.data(), id: randomLineSnap.id })
-        })
-    })
-  },
   getLine(msId, page, line) {
     // Unforuntelly, BNF has line 0 lines... quick fix
     if(line == 0){

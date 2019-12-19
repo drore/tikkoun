@@ -1,130 +1,71 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <nuxt-link
-        class="navbar-brand"
-        :to="localePath({name:'transcribe-manuscript-page-line'})"
-      >{{ $t('main.site_name') }}</nuxt-link>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <b-navbar toggleable="lg" type="dark" variant="dark">
+      <b-navbar-brand>
+        <nuxt-link
+          class="navbar-brand"
+          :to="localePath({name:'transcribe-manuscript-page-line'})"
+        >{{ $t('main.site_name') }}</nuxt-link>
+      </b-navbar-brand>
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item
+            href="localePath({name:'transcribe-manuscript-page-line'})"
+            v-if="$store.state.auth.user"
+          >{{ $t('nav.start') }}</b-nav-item>
 
-      <div id="navbarSupportedContent" class="collapse navbar-collapse justify-content-between">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <nuxt-link
-              class="nav-link"
-              :to="localePath({name:'transcribe-manuscript-page-line'})"
-              v-if="$store.state.auth.user"
-            >{{ $t('nav.start') }}</nuxt-link>
-          </li>
-
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >{{ $t('nav.about') }}</a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <b-nav-item-dropdown :text="$t('nav.about')">
+            <b-dropdown-item href="#">
               <nuxt-link class="dropdown-item" :to="localePath('project')">{{ $t('nav.project') }}</nuxt-link>
+            </b-dropdown-item>
+            <b-dropdown-item href="#">
               <nuxt-link class="dropdown-item" :to="localePath('htr')">{{ $t('nav.htr') }}</nuxt-link>
+            </b-dropdown-item>
+            <b-dropdown-item href="#">
               <nuxt-link class="dropdown-item" :to="localePath('team')">{{ $t('nav.team') }}</nuxt-link>
+            </b-dropdown-item>
+            <b-dropdown-item href="#">
               <nuxt-link class="dropdown-item" :to="localePath('stats')">{{ $t('nav.stats') }}</nuxt-link>
-            </div>
-          </li>
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+          <b-nav-item href="localePath({name:'conversation'})">{{ $t('nav.conversation') }}</b-nav-item>
+        </b-navbar-nav>
 
-          <li class="nav-item">
-            <nuxt-link
-              class="nav-link"
-              :to="localePath({name:'conversation'})"
-            >{{ $t('nav.conversation') }}</nuxt-link>
-          </li>
-        </ul>
-        <ul class="navbar-nav">
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
+        <b-navbar-nav v-bind:class="{ 'mr-auto': direction === 'rtl', 'ml-auto': direction !== 'rtl' }"> 
+          <b-nav-item-dropdown>
+            <template v-slot:button-content>
+              
+                <img
+                  class="flag"
+                  :src="require(`../assets/images/flags/${$i18n.locale}.png`)"
+                  :alt="$i18n.locale"
+                />
+                {{$t(`lang.${$i18n.locale}`)}}
+              
+            </template>
+            <b-dropdown-item
+              v-for="locale in availableLocales"
+              :key="locale.code"
+              :href="switchLocalePath(locale.code)"
             >
-              <img class="flag" :src="require(`../assets/images/flags/${$i18n.locale}.png`)" alt />
-              {{$t(`lang.${$i18n.locale}`)}}
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <nuxt-link
-                class="dropdown-item"
-                v-for="locale in availableLocales"
-                :key="locale.code"
-                :to="switchLocalePath(locale.code)"
-              >
-                <img class="flag" :src="require(`../assets/images/flags/${locale.code}.png`)" alt />
-                <span>{{ $t(`lang.${locale.code}`) }}</span>
-              </nuxt-link>
-            </div>
-          </li>
-          <li class="nav-item dropdown" v-if="$store.state.auth.user">
-            <a
-              class="nav-link dropdown-toggle"
-              v-bind:class="{ disabled: inTasksMode() }"
-              href="#"
-              id="msDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >{{$t('manuscripts')}}</a>
-
-            <div class="dropdown-menu" aria-labelledby="msDropdown">
-              <a
-                class="dropdown-item"
-                :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:manuscript.name }})"
-                v-for="(manuscript,i) in manuscripts"
-                :key="i"
-              >{{manuscript.display_name}}</a>
-            </div>
-          </li>
-          <li
-            class="nav-item"
+              <img class="flag" :src="require(`../assets/images/flags/${locale.code}.png`)" alt />
+              <span>{{ $t(`lang.${locale.code}`) }}</span>
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+          <b-nav-item-dropdown :text="$t('manuscripts')" v-if="$store.state.auth.user">
+            <b-dropdown-item
+              v-for="(manuscript,i) in manuscripts"
+              :key="i"
+              :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:manuscript.name }})"
+            >>{{manuscript.display_name}}</b-dropdown-item>
+          </b-nav-item-dropdown>
+          <b-nav-item
             v-if="$store.state.auth.user && $store.state.auth.user.linesTranscribed"
             @click="showStats"
-          >
-            <a class="nav-link" v-if="$device.isMobile">
-              {{$t('lines_made')}}:
-              <span
-                title="Number of lines transcribed"
-              >{{$store.state.auth.user.linesTranscribed}}</span>
-            </a>
-            <a
-              class="nav-link lines-made"
-              v-if="!$device.isMobile"
-              :style="getLinesTranscribedStyle($store.state.auth.user.linesTranscribed)"
-            >
-              <span
-                title="Number of lines transcribed"
-              >{{getLinesBadge($store.state.auth.user.linesTranscribed)}} - {{$store.state.auth.user.linesTranscribed}}</span>
-            </a>
-          </li>
-          <li
-            id="tooltip-notifications"
-            class="nav-item d-flex flex-column justify-content-around"
-            style="position:relative;"
-          >
+            :style="getLinesTranscribedStyle($store.state.auth.user.linesTranscribed)"
+          >{{getLinesBadge($store.state.auth.user.linesTranscribed)}} - {{$store.state.auth.user.linesTranscribed}}</b-nav-item>
+          <b-nav-item id="tooltip-notifications" style="position:relative;">
             <img
               :src="$store.state.auth.user.photoURL"
               alt
@@ -133,36 +74,28 @@
             />
 
             <span v-if="notifications.length" class="notifications">{{notifications.length}}</span>
-          </li>
-
-          <li class="nav-item dropdown" v-if="$store.state.auth.user">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <span
-                v-if="!$store.state.auth.user.isAnonymous"
-              >{{$store.state.auth.user.displayName || $store.state.auth.user.email}}</span>
-              <span v-if="$store.state.auth.user.isAnonymous">{{$t('anonymous')}}</span>
-            </a>
-
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          </b-nav-item>
+          <b-nav-item-dropdown>
+            <template v-slot:button-content>
+            
+                <span
+                  v-if="!$store.state.auth.user.isAnonymous"
+                >{{$store.state.auth.user.displayName || $store.state.auth.user.email}}</span>
+                <span v-if="$store.state.auth.user.isAnonymous">{{$t('anonymous')}}</span>
+             
+            </template>
+            <b-dropdown-item v-if="!$store.state.auth.user.isAnonymous">
               <nuxt-link
                 class="dropdown-item"
                 :to="localePath('profile')"
-                v-if="!$store.state.auth.user.isAnonymous"
               >{{ $t('nav.profile') }}</nuxt-link>
-              <a href="javascript:;" class="dropdown-item" @click="logout">{{ $t('nav.logout') }}</a>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </nav>
+            </b-dropdown-item>
+
+            <b-dropdown-item @click="logout">{{ $t('nav.logout') }}</b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
     <b-modal
       ref="modal-stats"
       id="modal-stats"
@@ -192,9 +125,11 @@
     </b-tooltip>
   </div>
 </template>
+
 <script>
 import UserStatsChart from '~/components/UserStatsChart'
 var images = require.context('~/assets/images/flags', false, /\.png$/)
+
 export default {
   data() {
     return {
@@ -216,7 +151,7 @@ export default {
       //   localStorage.getItem('transcribe_mode') ||
       //   this.$store.state.auth.user.transcribe_mode
       // return transcribe_mode === 'tasks'
-      return false;
+      return false
     },
     getNotificationTime(notification) {
       return new Date(notification.createdOn.seconds * 1000).toLocaleString()

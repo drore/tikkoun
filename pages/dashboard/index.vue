@@ -18,7 +18,8 @@
     <div class="users">
       <h2>Users</h2>
       <div class="user" v-for="(leader,i) in leaders" :key="i">
-        <div class="name">{{leader.displayName || leader.email}}</div>
+        <div class="name">****************</div>
+        <!-- <div class="name">{{leader.displayName || leader.email}}</div> -->
         <div class="lines">Lines: {{leader.linesTranscribed}}</div>
         <hr />
         <div class="last_visit">Last login: {{getReadableTime(leader.lastLogin)}}</div>
