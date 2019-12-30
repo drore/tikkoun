@@ -1,25 +1,54 @@
 <template>
-  <div id="map"></div>
+  <div id="map-wrap">
+    <div class="lds-dual-ring" v-if="loading"></div>
+    <div id="seadragon-viewer" style="width:100%; height:500px;"></div>
+  </div>
 </template>
+<style>
+#map-wrap {
+  height: 500px;
+  width: 100%;
+  overflow: hidden;
+  text-align: center;
+}
+.highlight {
+  background-color: red;
+  opacity: 0.3;
+}
+.lds-dual-ring {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid green;
+  border-color: green transparent green transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+</style>
 <script>
+import axios from 'axios'
+import OpenSeadragon from 'openseadragon'
 export default {
   data() {
     return {
-      map: null
-    }
-  },
-  head() {
-    return {
-      link: [
-        {
-          rel: 'stylesheet',
-          href: 'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css'
-        },
-        {
-          rel: 'stylesheet',
-          href: 'https://unpkg.com/leaflet-draw@0.4.10/dist/leaflet.draw.css'
-        }
-      ]
+      viewer: null,
+      loading: true
     }
   },
   computed: {
@@ -27,50 +56,14 @@ export default {
       return this.$store.state.transcribe.selected_line
     }
   },
-  mounted() {
-    // get line
-    const self = this
-
-    const L = window.L
-
-    this.map = L.map('map', {
-      center: [0, 0],
-      minZoom: 0,
-      zoom: 0,
-      zoomSnap: 0,
-      zoomDelta: 0.25,
-      crs: L.CRS.Simple,
-      dragging: !L.Browser.mobile
-    })
-
-    this.map.attributionControl.setPrefix('')
-    this.map.attributionControl.addAttribution(
-      self.$store.state.transcribe.manuscript.attribution
-    )
-  },
   watch: {
     // whenever question changes, this function will run
-    line: function(res) {
+    line: async function(res) {
       if (res) {
-        const self = this
-        const L = window.L
-
-        // Clear map
-        this.map.eachLayer(function(layer) {
-          self.map.removeLayer(layer)
-        })
-
+        this.loading = true
         const manuscript = this.$store.state.transcribe.manuscript
 
-        // No let's do this!
-        const top = res.top_on_page + (manuscript.top_buffer || 0)
-        const bottom = res.bottom_on_page + (manuscript.top_buffer || 0)
-        const left = res.left_on_page + (manuscript.left_buffer || 0)
-        const right = res.right_on_page + (manuscript.left_buffer || 0)
-
-        const height = bottom - top
-        const width = right - left
-
+        // Now let's do this!
         let img_file_name = res.color_img_file_name || res.iiif_url
         let color_img_file_name
         let fullPageImgSrc = img_file_name
@@ -89,37 +82,37 @@ export default {
           }/info.json`
         }
 
-        const pageTileLayer = L.tileLayer.iiif(fullPageImgSrc)
-        // TODO: move to store? is this MS specific?
-        const factor = this.$store.state.transcribe.manuscript.factor
-        const imageLayer = pageTileLayer.addTo(this.map)
+        const iiif_json = await axios.get(fullPageImgSrc)
+        const iiif_data = iiif_json.data
+        const factor = iiif_data.width
 
-        const linePolygonLayer = L.polygon(
-          [
-            [-top / factor, left / factor], // top_left
-            [-top / factor, right / factor], // top_right
-            [-bottom / factor, right / factor], // bottom_right
-            [-bottom / factor, left / factor] // bottom_left
-          ],
-          {
-            color: 'blue',
-            fillColor: '#f03',
-            fillOpacity: 0.1,
-            weight: 1
-          }
-        ).addTo(this.map)
+        // Fix for current cantalope implementation
+        iiif_data['@id'] = iiif_data['@id'].replace(':8080', '')
+        iiif_data['@id'] = iiif_data['@id'].replace('-4.0.3', '')
+        iiif_data['@id'] = iiif_data['@id'].replace('http://', 'https://')
+
+        if (this.viewer) {
+          this.viewer.destroy()
+        }
+
+        this.viewer = OpenSeadragon({
+          id: 'seadragon-viewer',
+          tileSources: [iiif_json.data],
+          overlays: [
+            {
+              id: 'overlay',
+              x: res.left_on_page / factor,
+              y: res.top_on_page / factor,
+              width: res.right_on_page / factor - res.left_on_page / factor,
+              height: res.bottom_on_page / factor - res.top_on_page / factor,
+              className: 'highlight'
+            }
+          ]
+        })
+
+        this.loading = false
       }
     }
   }
 }
 </script>
-<style scoped lang="scss">
-#map {
-  min-height: 500px;
-  height: 35vw;
-  border-radius: 10px;
-  background-color: black;
-}
-</style>
-
-

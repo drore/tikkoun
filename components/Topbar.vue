@@ -11,7 +11,7 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item
-            href="localePath({name:'transcribe-manuscript-page-line'})"
+            :href="localePath({name:'transcribe-manuscript-page-line'})"
             v-if="$store.state.auth.user"
           >{{ $t('nav.start') }}</b-nav-item>
 
@@ -29,20 +29,21 @@
               <nuxt-link class="dropdown-item" :to="localePath('stats')">{{ $t('nav.stats') }}</nuxt-link>
             </b-dropdown-item>
           </b-nav-item-dropdown>
-          <b-nav-item href="localePath({name:'conversation'})">{{ $t('nav.conversation') }}</b-nav-item>
+          <b-nav-item :href="localePath({name:'conversation'})">{{ $t('nav.conversation') }}</b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav v-bind:class="{ 'mr-auto': direction === 'rtl', 'ml-auto': direction !== 'rtl' }"> 
+        <b-navbar-nav
+          v-bind:class="{ 'mr-auto': $t('dir') === 'rtl', 'ml-auto': $t('dir') !== 'rtl' }"
+        >
           <b-nav-item-dropdown>
             <template v-slot:button-content>
-              
-                <img
-                  class="flag"
-                  :src="require(`../assets/images/flags/${$i18n.locale}.png`)"
-                  :alt="$i18n.locale"
-                />
-                {{$t(`lang.${$i18n.locale}`)}}
-              
+              <img
+                class="flag"
+                :src="require(`../assets/images/flags/${$i18n.locale}.png`)"
+                :alt="$i18n.locale"
+              />
+
+              {{$t(`lang.${$i18n.locale}`)}}
             </template>
             <b-dropdown-item
               v-for="locale in availableLocales"
@@ -58,7 +59,7 @@
               v-for="(manuscript,i) in manuscripts"
               :key="i"
               :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:manuscript.name }})"
-            >>{{manuscript.display_name}}</b-dropdown-item>
+            >{{manuscript.display_name}}</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-nav-item
             v-if="$store.state.auth.user && $store.state.auth.user.linesTranscribed"
@@ -69,7 +70,7 @@
             <img
               :src="$store.state.auth.user.photoURL"
               alt
-              v-if="$store.state.auth.user && !$store.state.auth.user.isAnonymous && $store.state.auth.user.photoURL"
+              v-if="isAnonymous && $store.state.auth.user.photoURL"
               style="height:30px;width:30px;"
             />
 
@@ -77,18 +78,13 @@
           </b-nav-item>
           <b-nav-item-dropdown>
             <template v-slot:button-content>
-            
-                <span
-                  v-if="!$store.state.auth.user.isAnonymous"
-                >{{$store.state.auth.user.displayName || $store.state.auth.user.email}}</span>
-                <span v-if="$store.state.auth.user.isAnonymous">{{$t('anonymous')}}</span>
-             
+              <span
+                v-if="isAnonymous"
+              >{{$store.state.auth.user.displayName || $store.state.auth.user.email}}</span>
+              <span v-if="$store.state.auth.user && $store.state.auth.user.isAnonymous">{{$t('anonymous')}}</span>
             </template>
-            <b-dropdown-item v-if="!$store.state.auth.user.isAnonymous">
-              <nuxt-link
-                class="dropdown-item"
-                :to="localePath('profile')"
-              >{{ $t('nav.profile') }}</nuxt-link>
+            <b-dropdown-item v-if="isAnonymous">
+              <nuxt-link class="dropdown-item" :to="localePath('profile')">{{ $t('nav.profile') }}</nuxt-link>
             </b-dropdown-item>
 
             <b-dropdown-item @click="logout">{{ $t('nav.logout') }}</b-dropdown-item>
@@ -223,6 +219,9 @@ export default {
     }
   },
   computed: {
+    isAnonymous(){
+return this.$store.state.auth.user && !this.$store.state.auth.user.isAnonymous
+    },
     notifications() {
       return this.$store.state.auth.user_notifications
     },

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nuxt-child v-if="manuscript"/>
+    <nuxt-child v-if="manuscript" />
   </div>
 </template>
 <script>
@@ -9,7 +9,6 @@ export default {
   data() {
     return {
       manuscriptRequested: false,
-      motivational_message: ''
     }
   },
   beforeDestroy() {
@@ -38,8 +37,7 @@ export default {
 
   computed: {
     manuscript() {
-      const manuscript = this.$store.state.transcribe.manuscript
-      return manuscript
+      return this.$store.state.transcribe.manuscript
     }
   }
 }
@@ -68,8 +66,6 @@ export default {
   .range {
     .title {
       font-weight: bold;
-    }
-    .desc {
     }
   }
 }

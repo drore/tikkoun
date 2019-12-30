@@ -179,6 +179,9 @@ export default {
       return unsorted
     }
   },
+  head(){
+//https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js
+  },
   methods: {
     async loadIntoFB() {
       fetch('/manuscripts/vatican44_2b.xlsx')

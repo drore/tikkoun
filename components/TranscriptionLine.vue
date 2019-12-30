@@ -1,33 +1,6 @@
 <template>
   <div>
-    <img :src="currLineImage" v-if="$device.isMobile" style="width:100%" />
-    <div id="v-viewer-container" v-if="!$device.isMobile">
-      <div
-        v-if="!line"
-        style="font-size:20px;text-align:center;width:100%"
-        class="m-2"
-      >{{$t('loading')}}</div>
-      <viewer
-        id="v-viewer"
-        :options="viewerOptions"
-        :images="images"
-        @inited="viewerInited"
-        class="viewer"
-        ref="viewer"
-        v-if="line"
-      >
-        <template slot-scope="scope">
-          <img
-            v-for="src in scope.images"
-            :src="src"
-            :key="src"
-            alt="Image of line in page"
-            id="original-line-image"
-            style="display:none"
-          />
-        </template>
-      </viewer>
-    </div>
+    <img :src="lineURL" style="width:100%" />
 
     <div style="margin-top:20px">
       <input
@@ -35,7 +8,7 @@
         type="text"
         name="transcribed"
         autocomplete="off"
-        style="font-family:Corsive;"
+        style="font-family:Corsive;font-size: 1.7rem;"
         class="w-100 p-2"
         :value="transcription"
         @keyup="change"
@@ -43,6 +16,7 @@
         @select="select"
       />
     </div>
+
     <!-- Transcribe toolbar -->
     <div class="mt-3 p-10 row" dir="ltr">
       <div class="btn-group col mt-2" role="group" aria-label="First group" dir="ltr">
@@ -151,7 +125,7 @@
             @click="skip"
           >{{$t('main.work_area.finish_button_2')}}</button>
         </div>
-        
+
         <div>
           <button
             type="submit"
@@ -175,6 +149,7 @@
 import ManipulationButton from '~/components/ManipulationButton'
 import Conversation from '~/components/Conversation'
 import { setTimeout } from 'timers'
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -182,35 +157,15 @@ export default {
       prevLine: null,
       fitTextFactor: 2.5,
       imagefilters: { contrast: 1, brightness: 1, invert: 0 },
-      viewer: null,
-      images: [],
       polygon: {},
       color_img_file_name: null,
-      currLineImage: '',
-      viewerOptions: {
-        inline: true,
-        button: false,
-        navbar: false,
-        title: false,
-        toolbar: false,
-        tooltip: false,
-        movable: true,
-        zoomable: true,
-        rotatable: false,
-        scalable: false,
-        transition: true,
-        fullscreen: false,
-        keyboard: false,
-        backdrop: false,
-        url: 'data-source'
-      }
+      lineURL: ''
     }
   },
   components: {
     ManipulationButton,
     Conversation
   },
-
   computed: {
     line() {
       return this.$store.state.transcribe.selected_line
@@ -224,91 +179,82 @@ export default {
   },
   watch: {
     // whenever question changes, this function will run
-    line: function(res) {
+    line: async function(res) {
       if (res) {
         // Send analytics show line event
-        ga('send', 'event', {
-          eventCategory: 'Site_Actions',
-          eventAction: 'show_line',
-          eventLabel: this.manuscript.id
-        })
-
-        let img_file_name = res.color_img_file_name || res.iiif_url
+        this.$gtag.event('show_line', {
+            eventCategory: 'Site_Actions',
+            eventAction: 'show_line',
+            eventLabel: this.manuscript.id
+          })
 
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
-        // For geneva, strip the file extension
-        if (img_file_name.indexOf('.jpg') != -1) {
-          this.color_img_file_name = img_file_name.split('.jpg')[0]
-        } else {
-          this.color_img_file_name = img_file_name
-        }
 
-        this.polygonObj = {
-          top: res.top_on_page + (this.manuscript.top_buffer || 0),
-          bottom: res.bottom_on_page + (this.manuscript.top_buffer || 0),
-          left: res.left_on_page + (this.manuscript.left_buffer || 0),
-          right: res.right_on_page + (this.manuscript.left_buffer || 0)
-        }
-
-        if (img_file_name.indexOf('info.json') != -1) {
-          this.color_img_file_name = img_file_name.split('info.json')[0]
-        }
-
-        if (
-          img_file_name.indexOf(`.${this.manuscript.image_extension}`) != -1
-        ) {
-          this.color_img_file_name = img_file_name.split(
-            `.${this.manuscript.image_extension}`
-          )[0]
-        }
-
-        this.polygonObj.height = this.polygonObj.bottom - this.polygonObj.top
-        this.polygonObj.width = this.polygonObj.right - this.polygonObj.left
-
-        const default_file_name = this.manuscript.default_file_name || 'default'
-
-        const image_extension_1 =
-          this.manuscript.image_extension_1 || this.manuscript.image_extension
-
-        const image_extension_2 =
-          this.manuscript.image_extension_2 || this.manuscript.image_extension
-
-        const workPageWidth = document.getElementById('work-page').width * 3
-
-        const fullWidth = this.manuscript.full_width || workPageWidth
-        const baseURL = this.manuscript.base_url
-
-        const imageFilePart = `${baseURL}${
-          this.color_img_file_name
-        }.${image_extension_1}/`
-        const endPart = `${fullWidth},/0/${default_file_name}.${image_extension_2}`
-
-        const extendedImgFactor = 20
-        const widthFactor = extendedImgFactor
-        const heightFactor = extendedImgFactor / 4
-
-        // The scheme is left, top, width, height
-        let left = this.polygonObj.left - this.polygonObj.width / widthFactor
-        left = left < 0 ? 0 : left
-
-        const extendedWidth =
-          this.polygonObj.width * ((widthFactor + 2) / widthFactor)
-
-        const width = this.polygonObj.width
-        const height = this.polygonObj.height
-
-        this.currLineImage = `${imageFilePart}${left},${
-          this.polygonObj.top
-        },${extendedWidth},${this.polygonObj.height}/${endPart}`
-
-        this.images = [this.currLineImage]
-        const polygonObjHeight = this.polygonObj.height / this.manuscript.factor
-        document.getElementById('v-viewer-container').height = polygonObjHeight
+        // Parse local presentation setup vars and assemble the IIIF URL for the line image
+        this.lineURL = this.getLineURL(res)
       }
     }
   },
 
   methods: {
+    changeFontSize(by) {},
+    getLineURL(res) {
+      let img_file_name = res.color_img_file_name || res.iiif_url
+
+      // For geneva, strip the file extension
+      if (img_file_name.indexOf('.jpg') != -1) {
+        this.color_img_file_name = img_file_name.split('.jpg')[0]
+      } else {
+        this.color_img_file_name = img_file_name
+      }
+
+      this.polygonObj = this.getLinePolygon(res)
+
+      if (img_file_name.indexOf('info.json') != -1) {
+        this.color_img_file_name = img_file_name.split('info.json')[0]
+      }
+
+      if (img_file_name.indexOf(`.${this.manuscript.image_extension}`) != -1) {
+        this.color_img_file_name = img_file_name.split(
+          `.${this.manuscript.image_extension}`
+        )[0]
+      }
+
+      const default_file_name = this.manuscript.default_file_name || 'default'
+
+      const image_extension_1 =
+        this.manuscript.image_extension_1 || this.manuscript.image_extension
+
+      const image_extension_2 =
+        this.manuscript.image_extension_2 || this.manuscript.image_extension
+
+      const workPageWidth = document.getElementById('work-page').offsetWidth * 3
+
+      const fullWidth = this.manuscript.full_width || workPageWidth
+
+      const imageFilePart = `${this.manuscript.base_url}${
+        this.color_img_file_name
+      }.${image_extension_1}/`
+      const endPart = `${fullWidth},/0/${default_file_name}.${image_extension_2}`
+
+      // The scheme is left, top, width, height
+      return `${imageFilePart}${this.polygonObj.left},${this.polygonObj.top},${
+        this.polygonObj.width
+      },${this.polygonObj.height}/${endPart}`
+    },
+    getLinePolygon(res) {
+      let polygonObj = {
+        top: res.top_on_page,
+        bottom: res.bottom_on_page,
+        left: res.left_on_page,
+        right: res.right_on_page
+      }
+
+      polygonObj.height = polygonObj.bottom - polygonObj.top
+      polygonObj.width = polygonObj.right - polygonObj.left
+
+      return polygonObj
+    },
     getSpecialChar(char) {
       const manuscript = this.manuscript
       if (manuscript.special_char) {
@@ -319,20 +265,7 @@ export default {
 
       return 'ײ'
     },
-    viewerInited(viewer) {
-      const self = this
-      self.viewer = viewer
-      self.viewer.options.viewed = function(event) {
-        const image = event.detail.image
-        const originalImage = event.detail.originalImage
-        const ratio = originalImage.width / this.viewer.element.offsetWidth
-        self.viewer.zoomTo(1 / ratio)
-        self.viewer.moveTo(0, 15)
 
-        // Adjust the font size inside the input
-        self.resetFontSize()
-      }
-    },
     setCursorPosition() {
       const cursorLocation = this.$store.state.transcribe.selected_line
         .selected_range.end
@@ -355,20 +288,7 @@ export default {
         self.setCursorPosition()
       })
     },
-    resetFontSize() {
-      const imgElement = $('.viewer-canvas>img')
-      // jQuery('#trw').fitText(this.fitTextFactor, {
-      //   minFontSize: '8px',
-      //   maxFontSize: '35px'
-      // })
-    },
-    changeFontSize(change) {
-      this.fitTextFactor += change
-      // jQuery('#trw').fitText(this.fitTextFactor, {
-      //   minFontSize: '8px',
-      //   maxFontSize: '35px'
-      // })
-    },
+
     select(e) {
       this.$store.dispatch('transcribe/setSelectedTextRange', {
         start: e.target.selectionStart,
@@ -390,7 +310,7 @@ export default {
         })
         .then(res => {
           this.$store.dispatch('auth/updateUserLinesTranscribed')
-          ga('send', 'event', {
+          this.$gtag.event('done_line', {
             eventCategory: 'Transcribe_Actions',
             eventAction: 'done_line',
             eventLabel: this.manuscript.id
@@ -405,7 +325,7 @@ export default {
           skipped: true
         })
         .then(res => {
-          ga('send', 'event', {
+          this.$gtag.event('skipped_line', {
             eventCategory: 'Transcribe_Actions',
             eventAction: 'skipped_line',
             eventLabel: this.manuscript.id
@@ -424,11 +344,6 @@ export default {
   height: 10vh;
 }
 
-#v-viewer-container {
-  min-height: 10vw;
-  border: 1px solid #888;
-  overflow: hidden;
-}
 .line-image-buttons {
   display: flex;
   flex-direction: column;

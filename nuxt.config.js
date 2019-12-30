@@ -13,15 +13,8 @@ module.exports = {
       { name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' },
       { hid: 'description', name: 'description', content: pkg.description }
     ],
-    script: [
-      { src: 'https://code.jquery.com/jquery-3.3.1.min.js' },
-      { src: 'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js' },
-      { src: 'https://unpkg.com/leaflet-draw@0.4.10/dist/leaflet.draw.js' },
-      { src: 'https://unpkg.com/leaflet-iiif@2.0.1/leaflet-iiif.js' }
-    ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
-
   /*
   ** Customize the progress-bar color
   */
@@ -30,8 +23,7 @@ module.exports = {
   ** Global CSS
   */
   css: [
-    { src: 'assets/styles.css', lang: 'css' },
-    { src: 'vue-wysiwyg/dist/vueWysiwyg.css', lang: 'css' }
+    { src: 'assets/styles.css', lang: 'css' }
   ],
   router: {
     middleware: ['router-auth']
@@ -40,11 +32,8 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
-
-    '~plugins/v-viewer.js',
-
+    '~plugins/gtag.js',
     '~plugins/i18n.js',
-    '~plugins/vue-wysiwyg',
     '~plugins/firebase.js',
     '~plugins/fireauth.js'
   ],
@@ -52,6 +41,7 @@ module.exports = {
   /*
   ** Nuxt.js modules
   */
+
   modules: [
     'bootstrap-vue/nuxt',
     'nuxt-device-detect',

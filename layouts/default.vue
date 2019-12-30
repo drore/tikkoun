@@ -11,7 +11,7 @@ import Footer from '~/components/Footer'
 export default {
   data() {
     return {
-      cache_buster: '1008'
+      cache_buster: '1009'
     }
   },
   components: {
@@ -24,7 +24,6 @@ export default {
     }
   },
   mounted() {
-    ga('create', 'UA-133908181-1')
     // Check the cache buster - if It's different then the one on the localStorage, remove all localStorage
     const cacheBuster = localStorage.getItem('cache_buster')
     if (cacheBuster && cacheBuster != this.cache_buster) {

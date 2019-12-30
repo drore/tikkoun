@@ -14,28 +14,28 @@
               {{manuscript.total_lines}}
             </label>
           </div>
-          <div v-if="line">
+          <!-- <div v-if="line">
             <div>t: {{line.transcriptions}}</div>
             <div>v: {{line.views}}</div>
-          </div>
+          </div> -->
         </div>
       </div>
       <TranscriptionMap />
     </b-tab>
-    <b-tab :title="$t('main.data_area.alphabet')">
+    <b-tab :title="$t('main.data_area.alphabet')" lazy>
       <div v-if="content.alphabet">
         <div v-html="content.alphabet"></div>
         <div v-html="content.alphabet_ms" v-if="content.alphabet_ms"></div>
         <div v-html="content.alphabet_similar" v-if="content.alphabet_similar"></div>
       </div>
     </b-tab>
-    <b-tab :title="$t('main.data_area.special')">
+    <b-tab :title="$t('main.data_area.special')" lazy>
       <div v-html="content.special" v-if="content.special"></div>
     </b-tab>
-    <b-tab :title="$t('main.data_area.editing')">
+    <b-tab :title="$t('main.data_area.editing')" lazy>
       <div v-html="content.marked" v-if="content.marked"></div>
     </b-tab>
-    <b-tab :title="$t('main.data_area.help')">
+    <b-tab :title="$t('main.data_area.help')" lazy>
       <div v-html="content.help" v-if="content.help"></div>
     </b-tab>
   </b-tabs>

@@ -2,27 +2,11 @@
 <html {{ HTML_ATTRS }}>
 
 <head>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script src="https://www.googletagmanager.com/gtag/js?id=UA-133908181-1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    if (location.hostname == 'localhost') {
-      gtag('set', 'sendHitTask', null);
-    }
-
-    gtag('config', 'UA-133908181-1');
-  </script>
   {{ HEAD }}
-
 </head>
 
 <body {{ BODY_ATTRS }}>
   {{ APP }}
-  <script type="text/javascript" lang="javascript"
-    src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js"></script>
 </body>
 
 </html>
