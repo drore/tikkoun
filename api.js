@@ -261,6 +261,11 @@ export default {
     )
   },
   async getLine(msId, page, line) {
+    // Unforuntelly, BNF has line 0 lines... quick fix
+    if (line == 0) {
+      line++
+    }
+
     return new Promise((resolve, reject) => {
       StoreDB.collection(`manuscripts/${msId}/lines/`)
         .where('page', '==', page)
@@ -269,7 +274,8 @@ export default {
         .get()
         .then(res => {
           if (res.size) {
-            resolve(res.docs[0].data())
+            const lineSnap = res.docs[0]
+            resolve({ data: lineSnap.data(), id: lineSnap.id })
           } else {
             reject()
           }
@@ -517,7 +523,36 @@ export default {
 
       resolve(userTask)
     })
-
+  },
+  getPrevLine(msId, current_index) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection(`manuscripts/${msId}/lines`)
+        .where('general_index', '<', current_index)
+        .limit(1)
+        .get()
+        .then(res => {
+          if (res.docs.length) {
+            const lineSnap = res.docs[0]
+            return resolve({ data: lineSnap.data(), id: lineSnap.id })
+          }
+        })
+    })
+  },
+  getNextLine(msId, current_index) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection(`manuscripts/${msId}/lines`)
+        .where('general_index', '>', current_index)
+        .limit(1)
+        .get()
+        .then(res => {
+          if (res.docs.length) {
+            const lineSnap = res.docs[0]
+            return resolve({ data: lineSnap.data(), id: lineSnap.id })
+          } else {
+            return resolve(this.getLine(msId, 1, 1))
+          }
+        })
+    })
   },
   updateDocument(collection, docId, doc) {
     if (!docId) {
