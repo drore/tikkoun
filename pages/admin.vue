@@ -15,7 +15,7 @@
               >{{$t('utilities')}}</button>
             </h5>
           </div>
-
+<a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
           <div
             id="utilities"
             class="collapse"
@@ -179,12 +179,14 @@ export default {
       return unsorted
     }
   },
-  head(){
-//https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js
-  },
+  // head(){
+  //   return {
+  //     script: [{src:`https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js`},{src:'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'}]
+  //   }
+  // },
   methods: {
     async loadIntoFB() {
-      fetch('/manuscripts/vatican44_2b.xlsx')
+      fetch('/manuscripts/vatican44_vol1.xlsx')
         .then(function(res) {
           /* get the data as a Blob */
           if (!res.ok) throw new Error('fetch failed')
@@ -218,7 +220,7 @@ promises.push(
                   debugger
                 }
                 StoreDB.collection(
-                  `manuscripts/7QehBIZflpGBdqlO4HeS/lines`
+                  `manuscripts/iQGJhjkvUGaPTp8cusYu/lines`
                 ).add({
                   AT: value.AT || '',
                   bottom_on_page: value.bottom,

@@ -11,7 +11,7 @@ import Footer from '~/components/Footer'
 export default {
   data() {
     return {
-      cache_buster: '1009'
+      cache_buster: '1010'
     }
   },
   components: {

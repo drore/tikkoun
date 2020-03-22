@@ -42,7 +42,6 @@
                 :src="require(`../assets/images/flags/${$i18n.locale}.png`)"
                 :alt="$i18n.locale"
               />
-
               {{$t(`lang.${$i18n.locale}`)}}
             </template>
             <b-dropdown-item
@@ -81,7 +80,9 @@
               <span
                 v-if="isAnonymous"
               >{{$store.state.auth.user.displayName || $store.state.auth.user.email}}</span>
-              <span v-if="$store.state.auth.user && $store.state.auth.user.isAnonymous">{{$t('anonymous')}}</span>
+              <span
+                v-if="$store.state.auth.user && $store.state.auth.user.isAnonymous"
+              >{{$t('anonymous')}}</span>
             </template>
             <b-dropdown-item v-if="isAnonymous">
               <nuxt-link class="dropdown-item" :to="localePath('profile')">{{ $t('nav.profile') }}</nuxt-link>
@@ -219,8 +220,10 @@ export default {
     }
   },
   computed: {
-    isAnonymous(){
-return this.$store.state.auth.user && !this.$store.state.auth.user.isAnonymous
+    isAnonymous() {
+      return (
+        this.$store.state.auth.user && !this.$store.state.auth.user.isAnonymous
+      )
     },
     notifications() {
       return this.$store.state.auth.user_notifications
@@ -230,6 +233,7 @@ return this.$store.state.auth.user && !this.$store.state.auth.user.isAnonymous
     },
     manuscripts() {
       const manuscripts = this.$store.state.general.manuscripts
+      debugger
       return manuscripts.filter(m => {
         return !m.hidden
       })
