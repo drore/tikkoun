@@ -10,6 +10,7 @@ export const state = () => ({
   transcription: null,
   task: null,
   hide_task: false,
+  showManuscriptSelector: true //TODO: remove
 })
 
 export const mutations = {
@@ -104,6 +105,12 @@ export const mutations = {
   resetTranscription(state) {
     state.transcription = state.selected_line.AT
   },
+  toggleManuscriptsSelector(state){
+    state.showManuscriptSelector = !state.showManuscriptSelector
+  },
+  closeManuscriptsSelector(state){
+    state.showManuscriptSelector = false
+  }
 }
 
 export const actions = {
@@ -113,6 +120,12 @@ export const actions = {
   },
   clear({ commit }) {
     commit('clear')
+  },
+  closeManuscriptsSelector({ commit }) {
+    commit('closeManuscriptsSelector')
+  },
+  toggleManuscriptsSelector({ commit }) {
+    commit('toggleManuscriptsSelector')
   },
   resetTranscription({ commit }) {
     commit('resetTranscription')
@@ -220,7 +233,8 @@ export const actions = {
             promise = manuscriptsManager.getLine(
               state.manuscript.id,
               state.manuscript.next_page,
-              state.manuscript.next_line
+              state.manuscript.next_line,
+              params.uid
             )
           }
         } else {
@@ -231,7 +245,8 @@ export const actions = {
             const lineObj = await api.getLine(
               state.manuscript.id,
               lastUserLine.page,
-              lastUserLine.line
+              lastUserLine.line,
+              params.uid
             )
 
             const res = await api.getLineByGeneralIndex(
@@ -249,14 +264,16 @@ export const actions = {
               promise = manuscriptsManager.getLine(
                 state.manuscript.id,
                 state.manuscript.next_page,
-                state.manuscript.next_line
+                state.manuscript.next_line,
+                params.uid
               )
             }
           } else {
             promise = manuscriptsManager.getLine(
               state.manuscript.id,
               state.manuscript.next_page,
-              state.manuscript.next_line
+              state.manuscript.next_line,
+              params.uid
             )
           }
         }
@@ -269,7 +286,8 @@ export const actions = {
           viewCounter: res.data.views || 0,
           uid: params.uid
         })
-        commit('gotLine', Object.assign({ id: res.id }, res.data))
+        
+        commit('gotLine', Object.assign({ id: res.id, userLineData: res.userLineData }, res.data))
       })
     }
 
@@ -327,7 +345,7 @@ export const actions = {
             await dispatch('getManuscriptById', range.msId)
           }
 
-          commit('gotLine', Object.assign({ id: userNextTaskLine.id }, userNextTaskLine.data))
+          commit('gotLine', Object.assign({ id: userNextTaskLine.id, userLineData: res.userLineData }, userNextTaskLine.data))
           commit('setRange', range)
         }
         else {
@@ -345,14 +363,14 @@ export const actions = {
   },
   getLine({ commit, dispatch, state }, params) {
     manuscriptsManager
-      .getLine(params.msId, params.page, params.line)
+      .getLine(params.msId, params.page, params.line, params.uid)
       .then(res => {
         dispatch('updateLineViewing', {
           lineId: res.id,
           viewCounter: res.data.views || 0
         })
 
-        commit('gotLine', Object.assign({ id: res.id }, res.data))
+        commit('gotLine', Object.assign({ id: res.id, userLineData: res.userLineData }, res.data))
       })
   }
 }

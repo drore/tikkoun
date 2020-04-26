@@ -1,19 +1,29 @@
 <template>
   <div id="map-wrap">
     <div class="lds-dual-ring" v-if="loading"></div>
-    <div id="seadragon-viewer" style="width:100%; height:500px;"></div>
+    <div id="seadragon-viewer" style></div>
   </div>
 </template>
-<style>
+<style lang="scss">
+#seadragon-viewer {
+  @media (min-width: 960px) {
+    height: 100%;
+  }
+  width: 100%;
+  height: 50rem;
+}
 #map-wrap {
-  height: 500px;
+  @media (min-width: 960px) {
+    height: 100%;
+  }
+  height: 50rem;
   width: 100%;
   overflow: hidden;
   text-align: center;
 }
 .highlight {
-  background-color: red;
-  opacity: 0.3;
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 1px solid #888;
 }
 .lds-dual-ring {
   display: inline-block;
@@ -21,7 +31,7 @@
   height: 80px;
 }
 .lds-dual-ring:after {
-  content: " ";
+  content: ' ';
   display: block;
   width: 64px;
   height: 64px;
@@ -39,7 +49,6 @@
     transform: rotate(360deg);
   }
 }
-
 </style>
 <script>
 import axios from 'axios'

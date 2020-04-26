@@ -5,7 +5,7 @@
     <div class="buttons">
       <button
         name="new"
-        class="btn btn-tikkoun btn-sm"
+        class="btn btn-tikkoun"
         type="submit"
         @click="showNewMessageBox = true"
       >{{$t('conversation.new')}}</button>

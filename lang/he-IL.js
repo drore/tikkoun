@@ -74,6 +74,8 @@ export default () => {
       'main.data_area.conversation': 'הערות',
       'nav.stats': 'סטטיסטיקה',
       'main.work_area.video': 'https://www.youtube.com/watch?v=Gwb751U6MVk',
+      'main.work_area.go_to_next_needed_line_1':'שורה זו תוקנה על ידך, כל הכבוד!',
+      'main.work_area.go_to_next_needed_line_2':'העבירו אותי לשורה חדשה',
       'main.work_area.video_hover': 'סרטון הדרכה',
       'main.work_area.video_text': 'סרטון הדרכה',
       'nav.research_questionnaire': 'השתתף במחקר',

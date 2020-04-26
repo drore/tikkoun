@@ -10,11 +10,6 @@
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
-          <b-nav-item
-            :href="localePath({name:'transcribe-manuscript-page-line'})"
-            v-if="$store.state.auth.user"
-          >{{ $t('nav.start') }}</b-nav-item>
-
           <b-nav-item-dropdown :text="$t('nav.about')">
             <b-dropdown-item href="#">
               <nuxt-link class="dropdown-item" :to="localePath('project')">{{ $t('nav.project') }}</nuxt-link>
@@ -53,29 +48,12 @@
               <span>{{ $t(`lang.${locale.code}`) }}</span>
             </b-dropdown-item>
           </b-nav-item-dropdown>
-          <b-nav-item-dropdown :text="$t('manuscripts')" v-if="$store.state.auth.user">
-            <b-dropdown-item
-              v-for="(manuscript,i) in manuscripts"
-              :key="i"
-              :href="localePath({ name: 'transcribe-manuscript-page-line', params: { manuscript:manuscript.name }})"
-            >{{manuscript.display_name}}</b-dropdown-item>
-          </b-nav-item-dropdown>
-          <b-nav-item
-            v-if="$store.state.auth.user && $store.state.auth.user.linesTranscribed"
-            @click="showStats"
-            :style="getLinesTranscribedStyle($store.state.auth.user.linesTranscribed)"
-          >{{getLinesBadge($store.state.auth.user.linesTranscribed)}} - {{$store.state.auth.user.linesTranscribed}}</b-nav-item>
-          <b-nav-item id="tooltip-notifications" style="position:relative;">
-            <img
-              :src="$store.state.auth.user.photoURL"
-              alt
-              v-if="isAnonymous && $store.state.auth.user.photoURL"
-              style="height:30px;width:30px;"
-            />
 
-            <span v-if="notifications.length" class="notifications">{{notifications.length}}</span>
-          </b-nav-item>
-          <b-nav-item-dropdown>
+          <b-nav-item
+            v-if="$store.state.auth.user"
+            @click="toggleManuscriptsSelector"
+          >{{$t('manuscripts')}}</b-nav-item>
+          <b-nav-item-dropdown v-if="$store.state.auth.user">
             <template v-slot:button-content>
               <span
                 v-if="isAnonymous"
@@ -86,10 +64,27 @@
             </template>
             <b-dropdown-item v-if="isAnonymous">
               <nuxt-link class="dropdown-item" :to="localePath('profile')">{{ $t('nav.profile') }}</nuxt-link>
+              
             </b-dropdown-item>
-
             <b-dropdown-item @click="logout">{{ $t('nav.logout') }}</b-dropdown-item>
+            
           </b-nav-item-dropdown>
+          <b-nav-item id="tooltip-notifications" style="position:relative;">
+            <img
+              :src="$store.state.auth.user.photoURL"
+              alt
+              v-if="isAnonymous && $store.state.auth.user.photoURL"
+              style="height:30px;width:30px;"
+            />
+            <span
+              v-if="$store.state.auth.user && !notifications.length"
+              :title="getLinesBadge($store.state.auth.user.linesTranscribed)"
+              :style="getLinesTranscribedStyle($store.state.auth.user.linesTranscribed)"
+            >{{$store.state.auth.user.linesTranscribed}}</span>
+
+            <span v-if="notifications.length" class="notifications">{{notifications.length}}</span>
+          </b-nav-item>
+          
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
@@ -143,6 +138,9 @@ export default {
     UserStatsChart
   },
   methods: {
+    toggleManuscriptsSelector() {
+      this.$store.dispatch('general/setSidebarContent', 'manuscripts')
+    },
     inTasksMode() {
       // const transcribe_mode =
       //   localStorage.getItem('transcribe_mode') ||
@@ -191,14 +189,15 @@ export default {
       return badge
     },
     getLinesTranscribedStyle(linesTranscribed) {
-      let style = 'background-color: '
+      let style = 'font-weight:bold;color: '
       if (linesTranscribed < 20) {
-        return (style += 'grey;color:black;')
+        return (style += 'grey;')
       } else if (linesTranscribed > 100) {
         return (style += '#64bb9b;')
       } else if (linesTranscribed > 1000) {
-        return (style += '#2ee600;color:black;')
+        return (style += '#2ee600;')
       }
+      
     },
     getTranscribePath() {
       if (
@@ -233,7 +232,7 @@ export default {
     },
     manuscripts() {
       const manuscripts = this.$store.state.general.manuscripts
-      debugger
+
       return manuscripts.filter(m => {
         return !m.hidden
       })
@@ -245,6 +244,12 @@ export default {
 }
 </script>
 <style lang="scss">
+.navbar {
+  z-index: 2000;
+}
+.navbar-brand{
+  font-size:1.6rem;
+}
 .notification {
   cursor: pointer;
   text-align: right;

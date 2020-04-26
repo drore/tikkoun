@@ -15,7 +15,7 @@
               >{{$t('utilities')}}</button>
             </h5>
           </div>
-<a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
+          <a href="javascript:;" @click="loadIntoFB">Load into firebase</a>
           <div
             id="utilities"
             class="collapse"
@@ -179,11 +179,19 @@ export default {
       return unsorted
     }
   },
-  // head(){
-  //   return {
-  //     script: [{src:`https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js`},{src:'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'}]
-  //   }
-  // },
+  head() {
+    return {
+      script: [
+        {
+          src: `https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js`
+        },
+        {
+          src:
+            'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'
+        }
+      ]
+    }
+  },
   methods: {
     async loadIntoFB() {
       fetch('/manuscripts/vatican44_vol1.xlsx')
@@ -213,33 +221,31 @@ export default {
           let promises = []
           const self = this
           $.each(_JsonData, function(index, value) {
-            if(index < 200){
-promises.push(
-              new Promise((resolve, reject) => {
-                if(!value.AT){
-                  debugger
-                }
-                StoreDB.collection(
-                  `manuscripts/iQGJhjkvUGaPTp8cusYu/lines`
-                ).add({
-                  AT: value.AT || '',
-                  bottom_on_page: value.bottom,
-                  general_index: index,
-                  iiif_url: value.iiif_url,
-                  left_on_page: value.left,
-                  line: value.line,
-                  page: value.page,
-                  right_on_page: value.right,
-                  top_on_page: value.top,
-                  views: 0
-                }).then(res => {
-console.log(`line ${index} inserted`)
+            if (index > 999) {
+              promises.push(
+                new Promise((resolve, reject) => {
+                  if (!value.AT) {
+                    debugger
+                  }
+                  StoreDB.collection(`manuscripts/iQGJhjkvUGaPTp8cusYu/lines`)
+                    .add({
+                      AT: value.AT || '',
+                      bottom_on_page: value.bottom,
+                      general_index: index,
+                      iiif_url: value.iiif_url,
+                      left_on_page: value.left,
+                      line: value.line,
+                      page: value.page,
+                      right_on_page: value.right,
+                      top_on_page: value.top,
+                      views: 0
+                    })
+                    .then(res => {
+                      console.log(`line ${index} inserted`)
+                    })
                 })
-                
-              })
-            )
+              )
             }
-            
           })
 
           Promise.all(promises).then(res => {
@@ -282,7 +288,5 @@ console.log(`line ${index} inserted`)
   padding: 0;
   max-height: 500px;
   overflow-y: auto;
-  li {
-  }
 }
 </style>

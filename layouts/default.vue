@@ -1,22 +1,19 @@
 <template>
-  <div v-bind:class="{ rtl: direction === 'rtl' }">
-    <Topbar/>
-    <nuxt/>
-    <Footer/>
+  <div class="wrapper" v-bind:class="{ rtl: direction === 'rtl' }">
+    <Topbar />
+    <nuxt class="content flex-grow-1" />
   </div>
 </template>
 <script>
 import Topbar from '~/components/Topbar'
-import Footer from '~/components/Footer'
 export default {
   data() {
     return {
-      cache_buster: '1010'
+      cache_buster: '1015'
     }
   },
   components: {
-    Topbar,
-    Footer
+    Topbar
   },
   computed: {
     direction() {
@@ -36,3 +33,21 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  place-content: flex-start;
+  max-height: 100vh;
+  .content{
+    flex-shrink: 1;
+    max-height: inherit;
+    display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+   place-content: flex-start;
+  }
+}
+</style>

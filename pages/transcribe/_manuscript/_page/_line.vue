@@ -1,56 +1,50 @@
 <template>
-  <div class="transcribe-page container-fluid mt-2">
-    <b-row align-v="start">
-      <b-col md="8">
-        <!-- Column Two work area -->
-        <div id="transcribe-section">
-          <div id="work-page" class="container">
-            <WeeklyTask class="mb-4"></WeeklyTask>
-            <div class="header mb-4 row">
-              <div class="col-md-10 col-8">
-                
-                {{ $t('main.work_area.intro_line_1') }}
-                {{ $t('main.work_area.intro_line_2') }}
-              </div>
-              <div class="video_tut col-md-2 col-4">
-                <a
-                  :href="$t('main.work_area.video')"
-                  :title="$t('main.work_area.video_hover')"
-                  target="_blank"
-                >
-                  <img src="/images/video_thumb.png">
-                  {{ $t('main.work_area.video_hover') }}
-                </a>
-              </div>
-            </div>
-          </div>
-          <TranscriptionLine/>
-        </div>
-      </b-col>
-      <b-col md="4">
-        <InfoTabs id="map-section" class="d-flex flex-column"/>
-      </b-col>
-    </b-row>
+  <div class="transcribe-page d-flex flex-grow-1">
+    <HelpSection />
+    <main class="d-flex flex-fill flex-column">
+      <div class="flex-fill container-fluid h-100">
+        <b-row class="h-100">
+          <b-col md="8" id="work-page" class="p-2">
+            <MSBreadcrumbs class="mb-2" />
+            <WellDone :line="line" />
+            <TranscriptionLine :line="line" />
+          </b-col>
+          <b-col md="4" class="p-2" style="background-color:black;">
+            
+            <TranscriptionMap />
+          </b-col>
+        </b-row>
+      </div>
+    </main>
   </div>
 </template>
 
 <script>
+import WellDone from '~/components/WellDone'
+import HelpSection from '~/components/HelpSection'
+import TranscriptionIntro from '~/components/TranscriptionIntro'
 import TranscriptionLine from '~/components/TranscriptionLine'
+import MSBreadcrumbs from '~/components/MSBreadcrumbs'
+import TranscriptionMap from '~/components/TranscriptionMap'
 
 import WeeklyTask from '~/components/WeeklyTask'
-import InfoTabs from '~/components/InfoTabs'
 
 export default {
   data() {
     return {
-      show_side: false
+      show_side: false,
+      show_help: false,
+      transcribeSectionWeight: 8
     }
   },
   components: {
     TranscriptionLine,
-
+    TranscriptionIntro,
+    MSBreadcrumbs,
+    WellDone,
     WeeklyTask,
-    InfoTabs
+    TranscriptionMap,
+    HelpSection
   },
   methods: {
     showHelp() {
@@ -96,16 +90,21 @@ export default {
     const routeParams = this.$route.params
     const user = this.$store.state.auth.user
     if (user) {
-      if (user.transcribe_mode && user.transcribe_mode == 'tasks' && this.$store.state.transcribe.task) {
-          this.$store.dispatch('transcribe/getTaskLine', {
-            uid: user.uid,
-            isAnonymous: user.isAnonymous
-          })
+      if (
+        user.transcribe_mode &&
+        user.transcribe_mode == 'tasks' &&
+        this.$store.state.transcribe.task
+      ) {
+        this.$store.dispatch('transcribe/getTaskLine', {
+          uid: user.uid,
+          isAnonymous: user.isAnonymous
+        })
       } else if (routeParams && routeParams.line) {
         this.$store.dispatch('transcribe/getLine', {
           msId: this.$store.state.transcribe.manuscript.id,
           page: +routeParams.page,
-          line: +routeParams.line
+          line: +routeParams.line,
+          uid: user.uid
         })
       } else {
         this.$store.dispatch('transcribe/getNextLine', {
@@ -126,28 +125,18 @@ export default {
     })
 
     // Adjust style
-    const mapSectionHeight = window.innerHeight - 110;
+    const mapSectionHeight = window.innerHeight - 110
     const mapSectionElem = document.getElementById('map-section')
-    if(mapSectionElem){
-mapSectionElem.height = mapSectionHeight
+    if (mapSectionElem) {
+      mapSectionElem.height = mapSectionHeight
     }
-    
   }
 }
 </script>
-<style lang="scss">
-.line-info {
-  direction: ltr;
-  text-align: left;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.video_tut {
-  a {
-    img {
-      width: 100%;
-      border: 1px solid black;
-    }
-  }
+<style lang="scss" scoped>
+.transcribe-page {
+  overflow: hidden;
+  flex-shrink: 1;
+  max-height: inherit;
 }
 </style>

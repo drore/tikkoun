@@ -58,6 +58,8 @@ export default () => {
       'close': "Close",
       'main.data_area.conversation': 'Comments',
       'main.work_area.video': 'https://www.youtube.com/watch?v=Gwb751U6MVk',
+      'main.work_area.go_to_next_needed_line_1':'You have already corrected this line, well done!',
+      'main.work_area.go_to_next_needed_line_2':'Click here for an uncorrected one',
       'main.work_area.video_hover': 'Video Tutorial',
       'main.work_area.video_text': 'For a tutorial see &#127910; ',
       'main.work_area.intro_line_1':

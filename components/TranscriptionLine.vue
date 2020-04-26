@@ -8,7 +8,7 @@
         type="text"
         name="transcribed"
         autocomplete="off"
-        style="font-family:Corsive;font-size: 1.7rem;"
+        style="font-size: 1.7rem;font-weight:bold"
         class="w-100 p-2"
         :value="transcription"
         @keyup="change"
@@ -79,36 +79,14 @@
       <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
         <button
           :title="$t('main.work_area.hovers.over_reset')"
-          class="btn btn-tikkoun btn-sm"
+          class="btn btn-tikkoun"
           type="button"
           @click="reset"
         >
-          <span style="font-size: larger;">{{$t('main.work_area.button_5')}}</span>
+          <span>{{$t('main.work_area.button_5')}}</span>
         </button>
       </div>
-      <!-- right part -->
-      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
-        <button
-          :title="$t('main.work_area.hovers.over_alef_minus')"
-          class="btn btn-tikkoun btn-sm"
-          type="button"
-          @click="changeFontSize(0.1)"
-        >
-          <span style="font-size: smaller;">
-            <b>א-</b>
-          </span>
-        </button>
-        <button
-          :title="$t('main.work_area.hovers.over_alef_plus')"
-          class="btn btn-tikkoun btn-sm"
-          type="button"
-          @click="changeFontSize(-0.1)"
-        >
-          <span style="font-size: larger;">
-            <b>א+</b>
-          </span>
-        </button>
-      </div>
+
     </div>
 
     <div id="activity" class="mt-2 align-self-center w-60">
@@ -197,7 +175,6 @@ export default {
   },
 
   methods: {
-    changeFontSize(by) {},
     getLineURL(res) {
       let img_file_name = res.color_img_file_name || res.iiif_url
 
@@ -336,6 +313,10 @@ export default {
 }
 </script>
 <style lang="scss">
+.btn-tikkoun{
+  font-size:1.4rem;
+  background-color:#efefef;
+}
 #trw {
   direction: rtl;
 }

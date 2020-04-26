@@ -69,7 +69,4 @@ export default {
     }
   }
 }
-.well-done {
-  font-size: 25px;
-}
 </style>

@@ -1,27 +1,5 @@
 <template>
   <b-tabs pills>
-    <b-tab :title="$t('main.data_area.page')">
-      <div class="row m-0 w-100 d-flex justify-content-between">
-        <div class="line-info d-flex justify-content-between w-100">
-          <div v-if="line">
-            <a :href="manuscript.descLink" target="_blank">
-              <label :title="manuscript.short_desc">{{manuscript.display_name}}</label>
-            </a>
-
-            <label>
-              - Page {{line.page}} /
-              {{manuscript.total_pages}}, Line {{line.line}} /
-              {{manuscript.total_lines}}
-            </label>
-          </div>
-          <!-- <div v-if="line">
-            <div>t: {{line.transcriptions}}</div>
-            <div>v: {{line.views}}</div>
-          </div> -->
-        </div>
-      </div>
-      <TranscriptionMap />
-    </b-tab>
     <b-tab :title="$t('main.data_area.alphabet')" lazy>
       <div v-if="content.alphabet">
         <div v-html="content.alphabet"></div>
@@ -42,11 +20,10 @@
 </template>
 <script>
 import Help from '~/components/Help'
-import TranscriptionMap from '~/components/TranscriptionMap'
+
 export default {
   components: {
-    Help,
-    TranscriptionMap
+    Help
   },
   watch: {
     help_shown: function(shown) {
@@ -81,12 +58,7 @@ export default {
 }
 </script>
 <style lang="scss">
-.nav-tabs {
-  flex-wrap: nowrap;
-  white-space: nowrap;
-  max-width: 500px;
-  overflow: auto;
-}
+
 .info_content {
   padding: 5px;
   text-align: justify;
@@ -101,12 +73,11 @@ export default {
     flex-wrap: nowrap;
     overflow-x: auto;
     .nav-item {
-      font-size: 0.8rem;
+      font-size: 1.2rem;
     }
   }
 }
 .tab-content {
-  flex: 0 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
   img {
@@ -117,34 +88,6 @@ export default {
   overflow-x: auto;
   overflow-y: hidden;
 }
-// @media (min-width: 500px) {
-//   body {
-//     .tab-content {
-//       width: 450px;
-//     }
-//   }
-// }
-// @media (min-width: 768px) {
-//   body {
-//     .tab-content {
-//       width: 250px;
-//     }
-//   }
-// }
-// @media (min-width: 1100px) {
-//   body {
-//     .tab-content {
-//       width: 350px;
-//     }
-//   }
-// }
-// @media (min-width: 1280px) {
-//   body {
-//     .tab-content {
-//       width: 450px;
-//     }
-//   }
-// }
 
 .info_content {
   .header {
@@ -175,5 +118,11 @@ export default {
       }
     }
   }
+}
+.line-info {
+  direction: ltr;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
 }
 </style>

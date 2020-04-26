@@ -1,7 +1,7 @@
 <template>
-  <button :title="$t(title)" class="btn btn-tikkoun btn-sm" type="button" @click="manipulateLine">
-    <span style="font-size: larger;" v-if="content">{{$t(content)}}</span>
-    <span style="font-size: larger;" v-if="t_content">{{t_content}}</span>
+  <button :title="$t(title)" class="btn btn-tikkoun" type="button" @click="manipulateLine">
+    <span v-if="content">{{$t(content)}}</span>
+    <span v-if="t_content">{{t_content}}</span>
   </button>
 </template>
 <script>

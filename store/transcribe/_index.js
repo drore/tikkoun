@@ -1,6 +1,5 @@
 import manuscriptsManager from '~/manuscriptsManager'
 import api from '@/api.js'
-import { STATUS_CODES } from 'http';
 
 export const state = () => ({
   selected_line: null,
@@ -182,6 +181,7 @@ export const actions = {
   },
   async getNextLine({ commit, dispatch, state }, params) {
     let promise
+    
     const transcribe_mode = localStorage.getItem('transcribe_mode')
     if (!state.selected_line && state.task && transcribe_mode === 'tasks') {
       console.log("Go grab a task line")
@@ -221,7 +221,8 @@ export const actions = {
             promise = manuscriptsManager.getLine(
               state.manuscript.id,
               state.manuscript.next_page,
-              state.manuscript.next_line
+              state.manuscript.next_line,
+              params.uid
             )
           }
         } else {
@@ -232,7 +233,8 @@ export const actions = {
             const lineObj = await api.getLine(
               state.manuscript.id,
               lastUserLine.page,
-              lastUserLine.line
+              lastUserLine.line,
+              params.uid
             )
 
             const res = await api.getLineByGeneralIndex(
@@ -250,14 +252,16 @@ export const actions = {
               promise = manuscriptsManager.getLine(
                 state.manuscript.id,
                 state.manuscript.next_page,
-                state.manuscript.next_line
+                state.manuscript.next_line,
+                params.uid
               )
             }
           } else {
             promise = manuscriptsManager.getLine(
               state.manuscript.id,
               state.manuscript.next_page,
-              state.manuscript.next_line
+              state.manuscript.next_line,
+              params.uid
             )
           }
         }
@@ -270,7 +274,8 @@ export const actions = {
           viewCounter: res.data.views || 0,
           uid: params.uid
         })
-        commit('gotLine', Object.assign({ id: res.id }, res.data))
+        
+        commit('gotLine', Object.assign({ id: res.id, userLineData: res.userLineData }, res.data))
       })
     }
 
@@ -328,7 +333,7 @@ export const actions = {
             await dispatch('getManuscriptById', range.msId)
           }
 
-          commit('gotLine', Object.assign({ id: userNextTaskLine.id }, userNextTaskLine.data))
+          commit('gotLine', Object.assign({ id: userNextTaskLine.id, userLineData: res.userLineData }, userNextTaskLine.data))
           commit('setRange', range)
         }
         else {
@@ -346,14 +351,14 @@ export const actions = {
   },
   getLine({ commit, dispatch, state }, params) {
     manuscriptsManager
-      .getLine(params.msId, params.page, params.line)
+      .getLine(params.msId, params.page, params.line, params.uid)
       .then(res => {
         dispatch('updateLineViewing', {
           lineId: res.id,
           viewCounter: res.data.views || 0
         })
 
-        commit('gotLine', Object.assign({ id: res.id }, res.data))
+        commit('gotLine', Object.assign({ id: res.id, userLineData: res.userLineData }, res.data))
       })
   }
 }

@@ -145,7 +145,7 @@ export default {
       let query = null
       if (!name) {
         //query = StoreDB.collection('manuscripts').limit(1)
-        name = 'bnf150'
+        name = 'vatican44_vol1'
       }
       // First look in the 
       query = StoreDB.collection('manuscripts')
@@ -260,7 +260,7 @@ export default {
       msContentItem
     )
   },
-  async getLine(msId, page, line) {
+  async getLine(msId, page, line, uid) {
     // Unforuntelly, BNF has line 0 lines... quick fix
     if (line == 0) {
       line++
@@ -272,10 +272,13 @@ export default {
         .where('line', '==', line)
         .limit(1)
         .get()
-        .then(res => {
+        .then(async res => {
           if (res.size) {
             const lineSnap = res.docs[0]
-            resolve({ data: lineSnap.data(), id: lineSnap.id })
+            // Check if the line is already done by the user
+            const doneByUser = await StoreDB.doc(`users/${uid}/lines/${lineSnap.id}`).get()
+
+            resolve({ data: lineSnap.data(), id: lineSnap.id, userLineData: doneByUser.data()  })
           } else {
             reject()
           }
@@ -354,7 +357,6 @@ export default {
 
   async getManuscripts() {
     return new Promise(async (resolve, reject) => {
-      debugger
       const manuscriptsQuerySnapshot = await StoreDB.collection('manuscripts').get()
       const manuscripts = manuscriptsQuerySnapshot.docs.map(snap => {
 
