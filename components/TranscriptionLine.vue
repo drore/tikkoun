@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div class="link-to-new-site">
+      <a
+        href="javascript:;"
+        @click="goToOldInterface"
+      >קחו אותי לממשק תיקון סופרים הישן והטוב :)</a>
+    </div>
+
     <img :src="lineURL" style="width:100%" />
 
     <div style="margin-top:20px">
@@ -175,6 +182,12 @@ export default {
   },
 
   methods: {
+    goToOldInterface() {
+      // Add marker in local storage
+      localStorage.removeItem("new_interface")
+      window.location.replace('https://tikkoun-sofrim.web.app')
+      return false
+    },
     getLineURL(res) {
       let img_file_name = res.color_img_file_name || res.iiif_url
 
@@ -324,7 +337,16 @@ export default {
   overflow: auto;
   height: 10vh;
 }
-
+.link-to-new-site {
+  padding: 10px;
+  background-color: #efefef;
+  a {
+    color: white;
+    background-color: navy;
+    padding: 5px;
+    border: 1px solid #333;
+  }
+}
 .line-image-buttons {
   display: flex;
   flex-direction: column;
