@@ -75,6 +75,8 @@ export default () => {
       'nav.stats': 'סטטיסטיקה',
       'main.work_area.video': 'https://www.youtube.com/watch?v=Gwb751U6MVk',
       'main.work_area.video_hover': 'סרטון הדרכה',
+      'main.new_interface_pre':'אנחנו עובדים על הדור הבא של תיקון ומעוניינים בחוות דעתכם -',
+      'main.new_interface_button':'קחו אותי לממשק החדש',
       'main.work_area.video_text': 'סרטון הדרכה',
       'nav.research_questionnaire': 'השתתף במחקר',
       'conversation.disclaimer': 'ברוכים הבאים לפורום "תיקון סופרים" - אנא שימו לב כי הודעות שנכתבות כאן חשופות לכלל משתמשי האתר הרשומים',

@@ -55,6 +55,8 @@ export default () => {
       'main.data_area.special': 'Caract\u00E8res sp\u00E9ciaux',
       'main.data_area.editing': 'marquage \u00E9ditorial',
       'main.data_area.help': 'Aide',
+      'main.new_interface_pre':'Nous testons une nouvelle interface utilisateur - ',
+      'main.new_interface_button':'Allons-y!',
       'nav.stats':'Statistiques',
       'main.data_area.conversation': 'Conversation',
       'conversation.new':'Nouveau message',

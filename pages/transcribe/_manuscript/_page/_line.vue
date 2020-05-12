@@ -4,39 +4,39 @@
       <b-col md="8">
         <!-- Column Two work area -->
         <div id="transcribe-section">
+          <div class="link-to-new-site">
+              {{$t('main.new_interface_pre')}}
+              <a href="javascript:;" @click="goToNewInterface">
+                {{$t('main.new_interface_button')}}
+               
+              </a>
+            </div>
           <div id="work-page" class="container">
             <WeeklyTask class="mb-4"></WeeklyTask>
-            <div class="link-to-new-site">
-      אנחנו עובדים על הדור הבא של תיקון ומעוניינים בחוות דעתכם -
-      <a
-        href="javascript:;"
-        @click="goToNewInterface"
-      >קחו אותי לממשק החדש</a>
-    </div>
+            
             <div class="header mb-4 row">
               <div class="col-md-10 col-8">
-                
                 {{ $t('main.work_area.intro_line_1') }}
                 {{ $t('main.work_area.intro_line_2') }}
               </div>
-              
+
               <div class="video_tut col-md-2 col-4">
                 <a
                   :href="$t('main.work_area.video')"
                   :title="$t('main.work_area.video_hover')"
                   target="_blank"
                 >
-                  <img src="/images/video_thumb.png">
+                  <img src="/images/video_thumb.png" />
                   {{ $t('main.work_area.video_hover') }}
                 </a>
               </div>
             </div>
           </div>
-          <TranscriptionLine/>
+          <TranscriptionLine />
         </div>
       </b-col>
       <b-col md="4">
-        <InfoTabs id="map-section" class="d-flex flex-column"/>
+        <InfoTabs id="map-section" class="d-flex flex-column" />
       </b-col>
     </b-row>
   </div>
@@ -63,8 +63,8 @@ export default {
   methods: {
     goToNewInterface() {
       // Add marker in local storage
-      localStorage.setItem("new_interface", true)
-      window.location.replace('https://tikkoun-demo.web.app')
+      localStorage.setItem('new_interface', true)
+      window.location.replace('https://tikkoun-demo.firebaseapp.com')
       return false
     },
     showHelp() {
@@ -110,11 +110,15 @@ export default {
     const routeParams = this.$route.params
     const user = this.$store.state.auth.user
     if (user) {
-      if (user.transcribe_mode && user.transcribe_mode == 'tasks' && this.$store.state.transcribe.task) {
-          this.$store.dispatch('transcribe/getTaskLine', {
-            uid: user.uid,
-            isAnonymous: user.isAnonymous
-          })
+      if (
+        user.transcribe_mode &&
+        user.transcribe_mode == 'tasks' &&
+        this.$store.state.transcribe.task
+      ) {
+        this.$store.dispatch('transcribe/getTaskLine', {
+          uid: user.uid,
+          isAnonymous: user.isAnonymous
+        })
       } else if (routeParams && routeParams.line) {
         this.$store.dispatch('transcribe/getLine', {
           msId: this.$store.state.transcribe.manuscript.id,
@@ -140,19 +144,18 @@ export default {
     })
 
     // Adjust style
-    const mapSectionHeight = window.innerHeight - 110;
+    const mapSectionHeight = window.innerHeight - 110
     const mapSectionElem = document.getElementById('map-section')
-    if(mapSectionElem){
-mapSectionElem.height = mapSectionHeight
+    if (mapSectionElem) {
+      mapSectionElem.height = mapSectionHeight
     }
-    
   }
 }
 </script>
 <style lang="scss">
 .link-to-new-site {
   padding: 10px;
-  margin-bottom:5px;
+  margin-bottom: 5px;
   background-color: #efefef;
   a {
     color: white;
