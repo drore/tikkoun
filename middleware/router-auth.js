@@ -1,4 +1,8 @@
 export default function({ store, redirect, route }) {
+  if (route && route.query.from_demo) {
+    localStorage.removeItem('new_interface')
+  }
+
   if (store.state.auth.user) {
     if (isAdminRoute(route) && !userIsAdmin(store.state.auth.user)) {
       redirect(`/${store.state.i18n.locale}`)
@@ -25,7 +29,7 @@ function isProtectedRoute(route) {
   return false
 }
 
-function userIsAdmin(user){
+function userIsAdmin(user) {
   return true
   return user && user.role && user.role === 'admin'
 }
