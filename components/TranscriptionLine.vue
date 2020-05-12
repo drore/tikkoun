@@ -185,7 +185,7 @@ export default {
     goToOldInterface() {
       // Add marker in local storage
       localStorage.removeItem("new_interface")
-      window.location.replace('https://tikkoun-sofrim.web.app')
+      window.location.replace('http://tikkoun-sofrim.firebaseapp.com/')
       return false
     },
     getLineURL(res) {
