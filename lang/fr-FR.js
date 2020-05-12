@@ -52,6 +52,7 @@ export default () => {
       'nav.back':'Back',
       'close':"Fermer",
       'main.data_area.alphabet': 'Alphabet',
+      'main.new_interface_button':`Récupérez l'interface régulière`,
       'main.data_area.special': 'Caract\u00E8res sp\u00E9ciaux',
       'main.data_area.editing': 'marquage \u00E9ditorial',
       'main.data_area.help': 'Aide',

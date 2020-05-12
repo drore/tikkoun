@@ -4,7 +4,7 @@
       <a
         href="javascript:;"
         @click="goToOldInterface"
-      >קחו אותי לממשק תיקון סופרים הישן והטוב :)</a>
+      >{{$t('main.new_interface_button')}}</a>
     </div>
 
     <img :src="lineURL" style="width:100%" />

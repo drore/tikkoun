@@ -77,6 +77,7 @@ export default () => {
       'main.work_area.go_to_next_needed_line_1':'שורה זו תוקנה על ידך, כל הכבוד!',
       'main.work_area.go_to_next_needed_line_2':'העבירו אותי לשורה חדשה',
       'main.work_area.video_hover': 'סרטון הדרכה',
+      'main.new_interface_button':'קחו אותי לממשק תיקון סופרים הישן והטוב :)',
       'main.work_area.video_text': 'סרטון הדרכה',
       'nav.research_questionnaire': 'השתתף במחקר',
       'conversation.disclaimer': 'ברוכים הבאים לפורום "תיקון סופרים" - אנא שימו לב כי הודעות שנכתבות כאן חשופות לכלל משתמשי האתר הרשומים',

@@ -56,6 +56,7 @@ export default () => {
       'main.data_area.editing': 'Editing symbols',
       'main.data_area.help': 'Help',
       'close': "Close",
+      'main.new_interface_button':'Get the good and old interface back',
       'main.data_area.conversation': 'Comments',
       'main.work_area.video': 'https://www.youtube.com/watch?v=Gwb751U6MVk',
       'main.work_area.go_to_next_needed_line_1':'You have already corrected this line, well done!',
