@@ -6,12 +6,20 @@
         <div id="transcribe-section">
           <div id="work-page" class="container">
             <WeeklyTask class="mb-4"></WeeklyTask>
+            <div class="link-to-new-site">
+      אנחנו עובדים על הדור הבא של תיקון ומעוניינים בחוות דעתכם -
+      <a
+        href="javascript:;"
+        @click="goToNewInterface"
+      >קחו אותי לממשק החדש</a>
+    </div>
             <div class="header mb-4 row">
               <div class="col-md-10 col-8">
                 
                 {{ $t('main.work_area.intro_line_1') }}
                 {{ $t('main.work_area.intro_line_2') }}
               </div>
+              
               <div class="video_tut col-md-2 col-4">
                 <a
                   :href="$t('main.work_area.video')"
@@ -53,6 +61,12 @@ export default {
     InfoTabs
   },
   methods: {
+    goToNewInterface() {
+      // Add marker in local storage
+      localStorage.setItem("new_interface", true)
+      window.location.replace('https://tikkoun-demo.web.app')
+      return false
+    },
     showHelp() {
       this.$store.dispatch('general/showHelp', true)
     }
@@ -136,6 +150,17 @@ mapSectionElem.height = mapSectionHeight
 }
 </script>
 <style lang="scss">
+.link-to-new-site {
+  padding: 10px;
+  margin-bottom:5px;
+  background-color: #efefef;
+  a {
+    color: white;
+    background-color: navy;
+    padding: 5px;
+    border: 1px solid #333;
+  }
+}
 .line-info {
   direction: ltr;
   text-align: left;

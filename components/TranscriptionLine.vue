@@ -1,5 +1,6 @@
 <template>
   <div>
+    
     <img :src="lineURL" style="width:100%" />
 
     <div style="margin-top:20px">
@@ -197,6 +198,7 @@ export default {
   },
 
   methods: {
+    
     changeFontSize(by) {},
     getLineURL(res) {
       let img_file_name = res.color_img_file_name || res.iiif_url
@@ -336,6 +338,7 @@ export default {
 }
 </script>
 <style lang="scss">
+
 #trw {
   direction: rtl;
 }
