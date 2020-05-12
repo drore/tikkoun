@@ -233,7 +233,7 @@ export default {
     },
     manuscripts() {
       const manuscripts = this.$store.state.general.manuscripts
-      debugger
+      
       return manuscripts.filter(m => {
         return !m.hidden
       })

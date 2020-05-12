@@ -7,7 +7,7 @@
           {{$t('login.center.Intro_line_1')}}
           {{$t('login.center.Intro_line_2')}}
         </div>
-        <hr>
+        <hr />
         <div class="lead" style="color:green">
           {{$t('version_text')}}
           <a href="mailto:dror.elovits@gmail.com">{{$t('support')}}</a>
@@ -15,9 +15,9 @@
       </div>
     </div>
     <div class="container">
-      <LoginForm v-if="shownSection === 'login'"/>
+      <LoginForm v-if="shownSection === 'login'" />
 
-      <RegistrationForm v-if="shownSection === 'registration'"/>
+      <RegistrationForm v-if="shownSection === 'registration'" />
     </div>
   </div>
 </template>
@@ -31,9 +31,9 @@ export default {
     LoginForm,
     RegistrationForm
   },
-  beforeMount(){
+  beforeMount() {
     const locale = localStorage.getItem('locale')
-    if(locale){
+    if (locale) {
       this.switchLocalePath(locale)
     }
   },
