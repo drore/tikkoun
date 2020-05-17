@@ -183,9 +183,7 @@ export default {
 
   methods: {
     goToOldInterface() {
-      // Add marker in local storage
-      localStorage.removeItem("new_interface")
-      window.location.replace('http://tikkoun-sofrim.firebaseapp.com/')
+      window.location.replace('http://tikkoun-sofrim.firebaseapp.com?from_demo=true')
       return false
     },
     getLineURL(res) {
