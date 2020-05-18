@@ -4,6 +4,8 @@ import { STATUS_CODES } from 'http'
 
 export const state = () => ({
   selected_line: null,
+  // User transcriptions for the selected line (expert mode)
+  user_transcriptions: null,
   next_line: null,
   prev_line: null,
   manuscript: null,
@@ -15,6 +17,9 @@ export const state = () => ({
 export const mutations = {
   setRange(state, payload) {
     state.range = payload
+  },
+  gotUserTranscriptions(state, payload) {
+    state.user_transcriptions = payload
   },
   gotLine(state, payload) {
     state.selected_line = Object.assign(
@@ -101,6 +106,15 @@ export const mutations = {
   },
   gotManuscript(state, payload) {
     state.manuscript = payload
+  },
+  markUserTranscription(state, payload) {
+    const userTranscriptions = state.user_transcriptions.concat([])
+    const specificTranscription = userTranscriptions.find(
+      t => t.id === payload.transcriptionId
+    )
+    specificTranscription.correct = payload.mark
+
+    state.user_transcriptions = userTranscriptions
   },
   resetTranscription(state) {
     state.transcription = state.selected_line.AT
@@ -382,6 +396,11 @@ export const actions = {
       console.error('Task has no range, please contact tikkoun support')
     }
   },
+  getLineUserTranscriptions({ commit }, params) {
+    api.getLineUserTranscriptions(params).then(res => {
+      commit('gotUserTranscriptions', res)
+    })
+  },
   getLine({ commit, dispatch, state }, params) {
     manuscriptsManager
       .getLine(params.msId, params.page, params.line, params.uid)
@@ -393,6 +412,11 @@ export const actions = {
 
         commit('gotLine', Object.assign({ id: res.id }, res.data))
       })
+  },
+  markUserTranscription({ commit }, params) {
+    api.markUserTranscription(params.transcriptionId, params.mark).then(res => {
+      commit('markUserTranscription', params)
+    })
   }
 }
 

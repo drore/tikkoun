@@ -4,7 +4,8 @@
       <b-col md="8">
         <!-- Column Two work area -->
         <div id="transcribe-section">
-          <div class="link-to-new-site">
+          <a href="javascript:;" @click="toggleExpertMode" v-if="isExpert">Toggle Expert Mode</a>
+          <div class="link-to-new-site" v-if="!inExpertMode">
             {{$t('main.new_interface_pre')}}
             <a
               href="javascript:;"
@@ -14,7 +15,7 @@
           <div id="work-page" class="container">
             <WeeklyTask class="mb-4"></WeeklyTask>
 
-            <div class="header mb-4 row">
+            <div class="header mb-4 row" v-if="!inExpertMode">
               <div class="col-md-10 col-8">
                 {{ $t('main.work_area.intro_line_1') }}
                 {{ $t('main.work_area.intro_line_2') }}
@@ -70,6 +71,9 @@ export default {
     InfoTabs
   },
   methods: {
+    toggleExpertMode() {
+      this.$store.dispatch('general/toggleExpertMode')
+    },
     goToNewInterface() {
       // Add marker in local storage
       localStorage.setItem('new_interface', true)
@@ -87,6 +91,12 @@ export default {
     }
   },
   computed: {
+    isExpert() {
+      return this.$store.state.auth.user.expert
+    },
+    inExpertMode() {
+      return this.$store.state.general.expert_mode
+    },
     line() {
       return this.$store.state.transcribe.selected_line
     },

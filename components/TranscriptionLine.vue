@@ -1,6 +1,20 @@
 <template>
   <div>
-    
+    <div class="expert-data d-flex justify-content-between" v-if="inExpertMode && line">
+      <div>
+        <div class="label">Views</div>
+        <div class="value">{{line.views}}</div>
+      </div>
+      <div>
+        <div class="label">Transcriptions</div>
+        <div class="value">{{line.transcriptions}}</div>
+      </div>
+      <div>
+        <div class="label">Score</div>
+        <div class="value">{{line.score}}</div>
+      </div>
+    </div>
+
     <img :src="lineURL" style="width:100%" />
 
     <div style="margin-top:20px">
@@ -111,8 +125,73 @@
         </button>
       </div>
     </div>
+    <div class="expert-interface" v-if="inExpertMode">
+      <div class="user-transcriptions">
+        <a href="javascript:;" @click="getUserTranscriptions">Get user transcriptions</a>
+        <div
+          class="user-transcription d-flex justify-content-between"
+          v-for="userTranscription in userTranscriptions"
+          :key="userTranscription.id"
+        >
+          <div class="actions d-flex">
+            <a
+              href="javascript:;"
+              @click="function(){markUserTranscription(userTranscription.id,false)}"
+              :class="{ marked: !userTranscription.correct }"
+            >&#10006;</a>
+            <a
+              href="javascript:;"
+              @click="function(){markUserTranscription(userTranscription.id,true)}"
+              :class="{ marked: userTranscription.correct }"
+            >&#10004;</a>
+          </div>
+          <!-- <div class="user-data">{{userTranscription.uid}}</div> -->
+          <div class="transcription">{{userTranscription.transcription}}</div>
+        </div>
+      </div>
+      <hr />
+      <div id="activity-buttons" class="mt-2 d-flex justify-content-between">
+        <div>
+          <button
+            type="submit"
+            class="btn btn-secondary"
+            name="status"
+            value="Previous line"
+            @click="goToPreviousLine"
+          >Previous line</button>
+        </div>
+        <div>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            name="status"
+            value="Skip"
+            @click="() => {expertRule(false)}"
+          >&#10006;</button>
+        </div>
 
-    <div id="activity" class="mt-2 align-self-center w-60">
+        <div>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            name="status"
+            value="Done"
+            @click="() => {expertRule(true)}"
+          >&#10004;</button>
+        </div>
+        <div>
+          <button
+            type="submit"
+            class="btn btn-secondary"
+            name="status"
+            value="Next line"
+            @click="goToNextLine"
+          >Next line</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="activity" class="mt-2 align-self-center w-60" v-if="!inExpertMode">
       <div>{{$t('main.work_area.finish_line_1')}}</div>
       <div>{{$t('main.work_area.finish_line_2')}}</div>
 
@@ -138,7 +217,7 @@
         </div>
       </div>
     </div>
-    <div>
+    <div v-if="!inExpertMode">
       <Conversation
         v-if="manuscript && line"
         :context="`${manuscript.name}_${line.page}_${line.line}`"
@@ -168,8 +247,17 @@ export default {
     Conversation
   },
   computed: {
+    isExpert() {
+      return this.$store.state.auth.user.expert
+    },
+    inExpertMode() {
+      return this.$store.state.general.expert_mode
+    },
     line() {
       return this.$store.state.transcribe.selected_line
+    },
+    userTranscriptions() {
+      return this.$store.state.transcribe.user_transcriptions
     },
     manuscript() {
       return this.$store.state.transcribe.manuscript
@@ -184,10 +272,10 @@ export default {
       if (res) {
         // Send analytics show line event
         this.$gtag.event('show_line', {
-            eventCategory: 'Site_Actions',
-            eventAction: 'show_line',
-            eventLabel: this.manuscript.id
-          })
+          eventCategory: 'Site_Actions',
+          eventAction: 'show_line',
+          eventLabel: this.manuscript.id
+        })
 
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
 
@@ -198,8 +286,28 @@ export default {
   },
 
   methods: {
-    
     changeFontSize(by) {},
+    expertRule(rule) {
+      this.$store.dispatch('transcribe/markUserTranscription', {
+        transcriptionId: transcriptionId,
+        mark: mark
+      })
+    },
+    goToPreviousLine() {},
+    goToNextLine() {},
+    markUserTranscription(transcriptionId, mark) {
+      this.$store.dispatch('transcribe/markUserTranscription', {
+        transcriptionId: transcriptionId,
+        mark: mark
+      })
+    },
+    getUserTranscriptions() {
+      this.$store.dispatch('transcribe/getLineUserTranscriptions', {
+        manuscript: this.$store.state.transcribe.manuscript.id,
+        page: this.line.page,
+        line: this.line.line
+      })
+    },
     getLineURL(res) {
       let img_file_name = res.color_img_file_name || res.iiif_url
 
@@ -337,8 +445,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-
+<style lang="scss" scoped>
 #trw {
   direction: rtl;
 }
@@ -346,7 +453,22 @@ export default {
   overflow: auto;
   height: 10vh;
 }
-
+.expert-data {
+  .label,
+  .value {
+    padding: 5px;
+    text-align: center;
+  }
+  .label {
+    font-weight: bold;
+    background-color: lightgrey;
+  }
+  .value {
+  }
+}
+.marked {
+  background-color: yellow !important;
+}
 .line-image-buttons {
   display: flex;
   flex-direction: column;

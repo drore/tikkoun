@@ -14,10 +14,6 @@
               {{manuscript.total_lines}}
             </label>
           </div>
-          <!-- <div v-if="line">
-            <div>t: {{line.transcriptions}}</div>
-            <div>v: {{line.views}}</div>
-          </div> -->
         </div>
       </div>
       <TranscriptionMap />

@@ -19,13 +19,25 @@ export default {
   getUserDailyMSStats(uid) {
     return new Promise(async (resolve, reject) => {
       const dailyStats = {}
-      const userMSCollection = await StoreDB.collection(`users/${uid}/manuscripts`).get()
+      const userMSCollection = await StoreDB.collection(
+        `users/${uid}/manuscripts`
+      ).get()
       const promises = []
       userMSCollection.docs.forEach(ms => {
-        promises.push(new Promise(async (res, rej) => {
-          const userMSDoc = await StoreDB.doc(`users/${uid}/manuscripts/${ms.id}`).get()
-          res({ id: ms.id, dailyStats: userMSDoc.exists && userMSDoc.data() && userMSDoc.data().dailyStats })
-        }))
+        promises.push(
+          new Promise(async (res, rej) => {
+            const userMSDoc = await StoreDB.doc(
+              `users/${uid}/manuscripts/${ms.id}`
+            ).get()
+            res({
+              id: ms.id,
+              dailyStats:
+                userMSDoc.exists &&
+                userMSDoc.data() &&
+                userMSDoc.data().dailyStats
+            })
+          })
+        )
       })
       Promise.all(promises).then(res => {
         res.forEach(msStats => {
@@ -85,11 +97,11 @@ export default {
     })
   },
   getManuscriptName(msId) {
-    const manuscriptsJSON = localStorage.getItem('manuscripts');
+    const manuscriptsJSON = localStorage.getItem('manuscripts')
     const manuscripts = manuscriptsJSON && JSON.parse(manuscriptsJSON)
     const manuscript = manuscripts.find(m => m.id === msId)
 
-    return manuscript && manuscript.official_name || '***'
+    return (manuscript && manuscript.official_name) || '***'
   },
   async getActiveTask() {
     return new Promise(async (resolve, reject) => {
@@ -97,12 +109,19 @@ export default {
         .where('active', '==', true)
         .get()
 
-      const activeTask = tasks.size && Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id })
+      const activeTask =
+        tasks.size &&
+        Object.assign(tasks.docs[0].data(), { id: tasks.docs[0].id })
       let returnObj = null
       if (activeTask) {
-        const rangesSnap = await StoreDB.collection(`tasks/${activeTask.id}/ranges`).get();
+        const rangesSnap = await StoreDB.collection(
+          `tasks/${activeTask.id}/ranges`
+        ).get()
         const ranges = rangesSnap.docs.map(r => {
-          return Object.assign(r.data(), { id: r.id, msName: this.getManuscriptName(r.data().msId) })
+          return Object.assign(r.data(), {
+            id: r.id,
+            msName: this.getManuscriptName(r.data().msId)
+          })
         })
 
         returnObj = Object.assign(activeTask, { ranges: ranges })
@@ -113,8 +132,11 @@ export default {
   },
   async getLeaderBoard(params) {
     return new Promise(async (resolve, reject) => {
-      const count = params && params.count || 10
-      const leadersSnap = await StoreDB.collection('users').orderBy('linesTranscribed', 'desc').limit(count).get()
+      const count = (params && params.count) || 10
+      const leadersSnap = await StoreDB.collection('users')
+        .orderBy('linesTranscribed', 'desc')
+        .limit(count)
+        .get()
       const leaders = leadersSnap.docs.map((l, i) => {
         let leaderObj = {
           rank: i + 1,
@@ -133,34 +155,38 @@ export default {
     return new Promise(async (resolve, reject) => {
       const manuscript = await StoreDB.doc(`manuscripts/${id}`).get()
 
-      const msObj = Object.assign({
-        id: id
-      }, manuscript.data());
+      const msObj = Object.assign(
+        {
+          id: id
+        },
+        manuscript.data()
+      )
       resolve(msObj)
     })
   },
   async getManuscript(name) {
     return new Promise(async (resolve, reject) => {
-
       let query = null
       if (!name) {
         //query = StoreDB.collection('manuscripts').limit(1)
         name = 'bnf150'
       }
-      // First look in the 
+      // First look in the
       query = StoreDB.collection('manuscripts')
         .where('name', '==', name)
         .limit(1)
 
       const manuscripts = await query.get()
-      const manuscriptDoc = manuscripts.docs[0];
+      const manuscriptDoc = manuscripts.docs[0]
       const manuscriptData = manuscriptDoc.data()
-      const msObj = Object.assign({
-        id: manuscriptDoc.id
-      }, manuscriptData);
+      const msObj = Object.assign(
+        {
+          id: manuscriptDoc.id
+        },
+        manuscriptData
+      )
       resolve(msObj)
-
-    });
+    })
   },
   async addConversationMessage(params) {
     return new Promise(async (resolve, reject) => {
@@ -169,7 +195,10 @@ export default {
       if (params.replyTo) {
         const num_replies = params.num_replies ? params.num_replies + 1 : 1
         delete params.num_replies
-        await StoreDB.doc(params.replyTo).set({ num_replies: num_replies }, { merge: true })
+        await StoreDB.doc(params.replyTo).set(
+          { num_replies: num_replies },
+          { merge: true }
+        )
 
         if (params.replyToUID) {
           // Update notifications on the original message sender
@@ -189,7 +218,9 @@ export default {
 
   async getUserNotifications(uid) {
     return new Promise(async (resolve, reject) => {
-      const userNotificationsSnap = await StoreDB.collection(`users/${uid}/notifications`).get();
+      const userNotificationsSnap = await StoreDB.collection(
+        `users/${uid}/notifications`
+      ).get()
       const userNotifications = userNotificationsSnap.docs.map(d => {
         return Object.assign(d.data(), { id: d.id })
       })
@@ -199,7 +230,9 @@ export default {
 
   async removeNotification(uid, notification) {
     return new Promise(async (resolve, reject) => {
-      await StoreDB.doc(`users/${uid}/notifications/${notification.id}`).delete()
+      await StoreDB.doc(
+        `users/${uid}/notifications/${notification.id}`
+      ).delete()
       resolve(notification)
     })
   },
@@ -209,7 +242,9 @@ export default {
     return new Promise((resolve, reject) => {
       // Try to read from local cache
 
-      let content = localStorage.getItem(`manuscript_content_${manuscriptName}_${lang}`)
+      let content = localStorage.getItem(
+        `manuscript_content_${manuscriptName}_${lang}`
+      )
       if (!content) {
         StoreDB.collection('manuscript_content')
           .where('manuscript', '==', manuscriptName)
@@ -261,14 +296,36 @@ export default {
     )
   },
 
-  async getUserLineTranscription(uid, lineDocId){
+  async getUserLineTranscription(uid, lineDocId) {
     return new Promise((resolve, reject) => {
       StoreDB.doc(`users/${uid}/lines/${lineDocId}`)
-      .get().then(res => {
-        resolve(res.data())
+        .get()
+        .then(res => {
+          resolve(res.data())
+        })
+    })
+  },
+
+  async markUserTranscription(transcriptionId, correct){
+    return new Promise((resolve, reject) => {
+      StoreDB.doc(`transcriptions/${transcriptionId}`).update({correct:correct}).then(res => {
+        resolve(res)
       })
     })
-    
+  },
+
+  async getLineUserTranscriptions(params) {
+    return new Promise((resolve, reject) => {
+      StoreDB.collection('transcriptions')
+        .where('manuscript', '==', params.manuscript)
+        .where('page', '==', params.page)
+        .where('line', '==', params.line)
+        .get()
+        .then(res => {
+          const lines = res.docs.map(d => Object.assign(d.data(),{id:d.id}))
+          resolve(lines)
+        })
+    })
   },
 
   async getLine(msId, page, line, uid) {
@@ -286,9 +343,15 @@ export default {
         .then(async res => {
           if (res.size) {
             const lineSnap = res.docs[0]
-            const lineData = lineSnap.data();
-            const userLineStatus = await this.getUserLineTranscription(uid, lineSnap.id)
-            resolve({ data: Object.assign(lineData,{userLineStatus}), id: lineSnap.id })
+            const lineData = lineSnap.data()
+            const userLineStatus = await this.getUserLineTranscription(
+              uid,
+              lineSnap.id
+            )
+            resolve({
+              data: Object.assign(lineData, { userLineStatus }),
+              id: lineSnap.id
+            })
           } else {
             reject()
           }
@@ -367,10 +430,10 @@ export default {
 
   async getManuscripts() {
     return new Promise(async (resolve, reject) => {
-      debugger
-      const manuscriptsQuerySnapshot = await StoreDB.collection('manuscripts').get()
+      const manuscriptsQuerySnapshot = await StoreDB.collection(
+        'manuscripts'
+      ).get()
       const manuscripts = manuscriptsQuerySnapshot.docs.map(snap => {
-
         const msData = snap.data()
         return Object.assign(msData, { id: snap.id })
       })
@@ -381,10 +444,12 @@ export default {
 
   async getUserTemperament(uid) {
     return new Promise(async (resolve, reject) => {
-      const userTemperament = await StoreDB.doc(`research/umap/users/${uid}`).get()
+      const userTemperament = await StoreDB.doc(
+        `research/umap/users/${uid}`
+      ).get()
       let temperament = null
       if (userTemperament.exists) {
-        const traits = userTemperament.data();
+        const traits = userTemperament.data()
         temperament = `${traits.openness}${traits.conscientiousness}`
       }
 
@@ -394,7 +459,10 @@ export default {
 
   async updateUserTemperament(params) {
     return new Promise(async (resolve, reject) => {
-      await StoreDB.doc(`research/umap/users/${params.uid}`).set(params.userTraits, { merge: true })
+      await StoreDB.doc(`research/umap/users/${params.uid}`).set(
+        params.userTraits,
+        { merge: true }
+      )
     })
   },
 
@@ -415,34 +483,42 @@ export default {
     // taskLines[params.generalIndex] = lineCount + 1
     // await taskSnap.ref.set({ taskLines: taskLines, totalLinesMade: totalLinesMade + 1 }, { merge: true })
 
-
     if (params.task) {
-      const taskRangesSnap = await StoreDB.collection(`tasks/${params.task}/ranges`).get()
+      const taskRangesSnap = await StoreDB.collection(
+        `tasks/${params.task}/ranges`
+      ).get()
       const taskRanges = taskRangesSnap.docs.map(rs => {
         return Object.assign(rs.data(), { id: rs.id })
       })
 
       //Update the task record on the user profile - point to the next line in the task
-      const userTaskDoc = !updateParams.isAnonymous && await StoreDB.doc(`users/${updateParams.uid}/tasks/${updateParams.task}`).get()
+      const userTaskDoc =
+        !updateParams.isAnonymous &&
+        (await StoreDB.doc(
+          `users/${updateParams.uid}/tasks/${updateParams.task}`
+        ).get())
 
-      let userTaskDocData = userTaskDoc && userTaskDoc.data();
+      let userTaskDocData = userTaskDoc && userTaskDoc.data()
 
       if (!userTaskDocData) {
-        const userTaskDocDataJSON = localStorage.getItem(`task_${updateParams.task}`)
+        const userTaskDocDataJSON = localStorage.getItem(
+          `task_${updateParams.task}`
+        )
         userTaskDocData = userTaskDocDataJSON && JSON.parse(userTaskDocDataJSON)
       }
-      const userTaskLines = (userTaskDocData && userTaskDocData.lines) || [];
+      const userTaskLines = (userTaskDocData && userTaskDocData.lines) || []
       const lineUID = `${params.manuscript}_${params.lineId}`
       if (userTaskLines.indexOf(lineUID) == -1) {
         userTaskLines.push(lineUID)
       }
 
-      const next_general_index = userTaskDocData && userTaskDocData.next_general_index || {}
+      const next_general_index =
+        (userTaskDocData && userTaskDocData.next_general_index) || {}
       const userNextGeneralIndexForRange = params.generalIndex + 1
       next_general_index[params.rangeId] = userNextGeneralIndexForRange
 
       // Are we done?
-      let totalremainingLines = 0;
+      let totalremainingLines = 0
 
       taskRanges.forEach(range => {
         let remainingLines = !isNaN(next_general_index[range.id])
@@ -453,22 +529,31 @@ export default {
         totalremainingLines += remainingLines
       })
 
-      const taskObj = { next_general_index: next_general_index, lines: userTaskLines, remainingLines: totalremainingLines }
+      const taskObj = {
+        next_general_index: next_general_index,
+        lines: userTaskLines,
+        remainingLines: totalremainingLines
+      }
       if (!updateParams.isAnonymous) {
         await userTaskDoc.ref.set(taskObj, { merge: true })
-      }
-      else {
-        localStorage.setItem(`task_${updateParams.task}`, JSON.stringify(taskObj))
+      } else {
+        localStorage.setItem(
+          `task_${updateParams.task}`,
+          JSON.stringify(taskObj)
+        )
       }
     }
 
     if (!updateParams.isAnonymous) {
       // Update the manuscript record on the user profile - point to the next line in the manuscript - this progresses even if the line was skipped
-      await StoreDB.doc(`users/${updateParams.uid}/manuscripts/${updateParams.manuscript}`)
-        .set({ next_general_index: params.generalIndex + 1 }, { merge: true })
+      await StoreDB.doc(
+        `users/${updateParams.uid}/manuscripts/${updateParams.manuscript}`
+      ).set({ next_general_index: params.generalIndex + 1 }, { merge: true })
 
       // Add another line to the user lines collection and mark the action
-      await StoreDB.doc(`users/${updateParams.uid}/lines/${updateParams.lineId}`).set(
+      await StoreDB.doc(
+        `users/${updateParams.uid}/lines/${updateParams.lineId}`
+      ).set(
         {
           action: updateParams.skipped ? 'skip' : 'done'
         },
@@ -476,18 +561,22 @@ export default {
       )
     }
 
-
     return false
-
   },
   updateTranslation(translation) {
     return this.updateDocument('translations', translation.id, translation)
   },
   async getReplies(path) {
     return new Promise(async (resolve, reject) => {
-      const repliesSnap = await StoreDB.collection('messages').where('replyTo', '==', path).get()
+      const repliesSnap = await StoreDB.collection('messages')
+        .where('replyTo', '==', path)
+        .get()
       const replies = repliesSnap.docs.map(m => {
-        return Object.assign(m.data(), { id: m.id, showReplyLine: false, path: m.ref.path })
+        return Object.assign(m.data(), {
+          id: m.id,
+          showReplyLine: false,
+          path: m.ref.path
+        })
       })
 
       resolve(replies)
@@ -498,18 +587,36 @@ export default {
    */
   async getMessages(params) {
     return new Promise(async (resolve, reject) => {
-      const path = params.path;
-      const context = params.context;
-      const snap = path ? await StoreDB.doc(path).get() :
-        context ? await StoreDB.collection('messages').where('replyTo', '==', null).where('context', '==', context).orderBy('createdOn', 'desc').get() :
-          await StoreDB.collection('messages').where('replyTo', '==', null).orderBy('createdOn', 'desc').get()
-      let messages;
+      const path = params.path
+      const context = params.context
+      const snap = path
+        ? await StoreDB.doc(path).get()
+        : context
+          ? await StoreDB.collection('messages')
+              .where('replyTo', '==', null)
+              .where('context', '==', context)
+              .orderBy('createdOn', 'desc')
+              .get()
+          : await StoreDB.collection('messages')
+              .where('replyTo', '==', null)
+              .orderBy('createdOn', 'desc')
+              .get()
+      let messages
       if (path) {
-        messages = [Object.assign(snap.data(), { id: snap.id, showReplyLine: false, path: snap.ref.path })]
-      }
-      else {
+        messages = [
+          Object.assign(snap.data(), {
+            id: snap.id,
+            showReplyLine: false,
+            path: snap.ref.path
+          })
+        ]
+      } else {
         messages = snap.docs.map(m => {
-          return Object.assign(m.data(), { id: m.id, showReplyLine: false, path: m.ref.path })
+          return Object.assign(m.data(), {
+            id: m.id,
+            showReplyLine: false,
+            path: m.ref.path
+          })
         })
       }
 
@@ -523,13 +630,14 @@ export default {
   },
   async getUserTask(taskId, uid, isAnonymous) {
     return new Promise(async (resolve, reject) => {
-      let userTask;
+      let userTask
 
       if (!isAnonymous) {
-        const userTaskDoc = await StoreDB.doc(`users/${uid}/tasks/${taskId}`).get()
+        const userTaskDoc = await StoreDB.doc(
+          `users/${uid}/tasks/${taskId}`
+        ).get()
         userTask = userTaskDoc && userTaskDoc.data()
-      }
-      else {
+      } else {
         const userTaskJSON = localStorage.getItem(`task_${taskId}`)
         userTask = userTaskJSON && JSON.parse(userTaskJSON)
       }
