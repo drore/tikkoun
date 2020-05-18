@@ -52,6 +52,8 @@ export default () => {
       'nav.back':'Back',
       'close':"Fermer",
       'main.data_area.alphabet': 'Alphabet',
+      'main.line_well_done':'Well Done! You succesfully transcribed this line',
+      'main.take_me_to_new_line':'Take me to where I\'m needed',
       'main.data_area.special': 'Caract\u00E8res sp\u00E9ciaux',
       'main.data_area.editing': 'marquage \u00E9ditorial',
       'main.data_area.help': 'Aide',

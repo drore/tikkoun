@@ -78,6 +78,8 @@ export default () => {
       'main.new_interface_pre':'אנחנו עובדים על הדור הבא של תיקון ומעוניינים בחוות דעתכם -',
       'main.new_interface_button':'קחו אותי לממשק החדש',
       'main.work_area.video_text': 'סרטון הדרכה',
+      'main.line_well_done':'כל הכבוד - שורה זו כבר נעשתה על ידך',
+      'main.take_me_to_new_line':'קחו אותי לשורה שעוד לא ראיתי',
       'nav.research_questionnaire': 'השתתף במחקר',
       'conversation.disclaimer': 'ברוכים הבאים לפורום "תיקון סופרים" - אנא שימו לב כי הודעות שנכתבות כאן חשופות לכלל משתמשי האתר הרשומים',
       'main.work_area.intro_line_1':

@@ -221,7 +221,8 @@ export const actions = {
             promise = manuscriptsManager.getLine(
               state.manuscript.id,
               state.manuscript.next_page,
-              state.manuscript.next_line
+              state.manuscript.next_line, 
+              params.uid
             )
           }
         } else {
@@ -232,7 +233,8 @@ export const actions = {
             const lineObj = await api.getLine(
               state.manuscript.id,
               lastUserLine.page,
-              lastUserLine.line
+              lastUserLine.line, 
+              params.uid
             )
 
             const res = await api.getLineByGeneralIndex(
@@ -250,14 +252,16 @@ export const actions = {
               promise = manuscriptsManager.getLine(
                 state.manuscript.id,
                 state.manuscript.next_page,
-                state.manuscript.next_line
+                state.manuscript.next_line, 
+                params.uid
               )
             }
           } else {
             promise = manuscriptsManager.getLine(
               state.manuscript.id,
               state.manuscript.next_page,
-              state.manuscript.next_line
+              state.manuscript.next_line, 
+              params.uid
             )
           }
         }
@@ -345,8 +349,9 @@ export const actions = {
     }
   },
   getLine({ commit, dispatch, state }, params) {
+    debugger
     manuscriptsManager
-      .getLine(params.msId, params.page, params.line)
+      .getLine(params.msId, params.page, params.line, params.uid)
       .then(res => {
         dispatch('updateLineViewing', {
           lineId: res.id,

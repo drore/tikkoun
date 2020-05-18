@@ -58,6 +58,8 @@ export default () => {
       'close': "Close",
       'main.new_interface_pre':'We are testing out a new user interface - ',
       'main.new_interface_button':'Take me there!',
+      'main.line_well_done':'Well Done! You succesfully transcribed this line',
+      'main.take_me_to_new_line':'Take me to where I\'m needed',
       'main.data_area.conversation': 'Comments',
       'main.work_area.video': 'https://www.youtube.com/watch?v=Gwb751U6MVk',
       'main.work_area.video_hover': 'Video Tutorial',

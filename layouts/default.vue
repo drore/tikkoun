@@ -27,7 +27,7 @@ export default {
     const new_interface = localStorage.getItem('new_interface')
     if (new_interface) {
       console.log('navigate to new interface')
-      window.location.replace('https://tikkoun-demo.firebaseapp.com')
+      //window.location.replace('https://tikkoun-demo.firebaseapp.com')
     }
 
     // Check the cache buster - if It's different then the one on the localStorage, remove all localStorage

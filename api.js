@@ -260,7 +260,18 @@ export default {
       msContentItem
     )
   },
-  async getLine(msId, page, line) {
+
+  async getUserLineTranscription(uid, lineDocId){
+    return new Promise((resolve, reject) => {
+      StoreDB.doc(`users/${uid}/lines/${lineDocId}`)
+      .get().then(res => {
+        resolve(res.data())
+      })
+    })
+    
+  },
+
+  async getLine(msId, page, line, uid) {
     // Unforuntelly, BNF has line 0 lines... quick fix
     if (line == 0) {
       line++
@@ -272,10 +283,12 @@ export default {
         .where('line', '==', line)
         .limit(1)
         .get()
-        .then(res => {
+        .then(async res => {
           if (res.size) {
             const lineSnap = res.docs[0]
-            resolve({ data: lineSnap.data(), id: lineSnap.id })
+            const lineData = lineSnap.data();
+            const userLineStatus = await this.getUserLineTranscription(uid, lineSnap.id)
+            resolve({ data: Object.assign(lineData,{userLineStatus}), id: lineSnap.id })
           } else {
             reject()
           }
@@ -524,7 +537,7 @@ export default {
       resolve(userTask)
     })
   },
-  getPrevLine(msId, current_index) {
+  getPrevLine(msId, current_index, userId) {
     return new Promise((resolve, reject) => {
       StoreDB.collection(`manuscripts/${msId}/lines`)
         .where('general_index', '<', current_index)
@@ -538,7 +551,7 @@ export default {
         })
     })
   },
-  getNextLine(msId, current_index) {
+  getNextLine(msId, current_index, userId) {
     return new Promise((resolve, reject) => {
       StoreDB.collection(`manuscripts/${msId}/lines`)
         .where('general_index', '>', current_index)

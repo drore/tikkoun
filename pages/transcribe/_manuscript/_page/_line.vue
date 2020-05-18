@@ -5,15 +5,15 @@
         <!-- Column Two work area -->
         <div id="transcribe-section">
           <div class="link-to-new-site">
-              {{$t('main.new_interface_pre')}}
-              <a href="javascript:;" @click="goToNewInterface">
-                {{$t('main.new_interface_button')}}
-               
-              </a>
-            </div>
+            {{$t('main.new_interface_pre')}}
+            <a
+              href="javascript:;"
+              @click="goToNewInterface"
+            >{{$t('main.new_interface_button')}}</a>
+          </div>
           <div id="work-page" class="container">
             <WeeklyTask class="mb-4"></WeeklyTask>
-            
+
             <div class="header mb-4 row">
               <div class="col-md-10 col-8">
                 {{ $t('main.work_area.intro_line_1') }}
@@ -36,6 +36,15 @@
         </div>
       </b-col>
       <b-col md="4">
+        <div
+          class="line-already-done"
+          v-if="line && line.userLineStatus && line.userLineStatus.action === 'done'"
+        >
+          <div>{{$t('main.line_well_done')}}</div>
+          <a
+            :href="localePath({name:'transcribe-manuscript-page-line'})"
+          >{{$t('main.take_me_to_new_line')}}</a>
+        </div>
         <InfoTabs id="map-section" class="d-flex flex-column" />
       </b-col>
     </b-row>
@@ -104,6 +113,7 @@ export default {
       }
     }
   },
+
   // Maybe watch on line from store
   async mounted() {
     await this.$store.dispatch('transcribe/GET_TASK')
@@ -123,7 +133,8 @@ export default {
         this.$store.dispatch('transcribe/getLine', {
           msId: this.$store.state.transcribe.manuscript.id,
           page: +routeParams.page,
-          line: +routeParams.line
+          line: +routeParams.line,
+          uid: user.uid
         })
       } else {
         this.$store.dispatch('transcribe/getNextLine', {
@@ -177,5 +188,11 @@ export default {
       border: 1px solid black;
     }
   }
+}
+.line-already-done {
+  padding: 5px;
+  border: 1px solid black;
+  margin-bottom: 10px;
+  background-color: #f0fff0;
 }
 </style>
