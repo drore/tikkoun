@@ -23,7 +23,7 @@
         type="text"
         name="transcribed"
         autocomplete="off"
-        style="font-family:Corsive;font-size: 1.7rem;"
+        :style="`font-family:Corsive;font-size: ${this.fontSize}rem;`"
         class="w-100 p-2"
         :value="transcription"
         @keyup="change"
@@ -107,7 +107,7 @@
           :title="$t('main.work_area.hovers.over_alef_minus')"
           class="btn btn-tikkoun btn-sm"
           type="button"
-          @click="changeFontSize(0.1)"
+          @click="changeFontSize(-0.1)"
         >
           <span style="font-size: smaller;">
             <b>א-</b>
@@ -117,7 +117,7 @@
           :title="$t('main.work_area.hovers.over_alef_plus')"
           class="btn btn-tikkoun btn-sm"
           type="button"
-          @click="changeFontSize(-0.1)"
+          @click="changeFontSize(0.1)"
         >
           <span style="font-size: larger;">
             <b>א+</b>
@@ -235,7 +235,7 @@ export default {
     return {
       nextLine: null,
       prevLine: null,
-      fitTextFactor: 2.5,
+      fontSize:1.7,
       imagefilters: { contrast: 1, brightness: 1, invert: 0 },
       polygon: {},
       color_img_file_name: null,
@@ -286,7 +286,10 @@ export default {
   },
 
   methods: {
-    changeFontSize(by) {},
+    changeFontSize(by) {
+this.fontSize+=by
+      
+    },
     expertRule(rule) {
       this.$store.dispatch('transcribe/markUserTranscription', {
         transcriptionId: transcriptionId,
