@@ -1,10 +1,7 @@
 <template>
   <div>
     <div class="link-to-new-site">
-      <a
-        href="javascript:;"
-        @click="goToOldInterface"
-      >{{$t('main.new_interface_button')}}</a>
+      <a href="javascript:;" @click="goToOldInterface">{{$t('main.new_interface_button')}}</a>
     </div>
 
     <img :src="lineURL" style="width:100%" />
@@ -15,7 +12,7 @@
         type="text"
         name="transcribed"
         autocomplete="off"
-        style="font-size: 1.7rem;font-weight:bold"
+        :style="`font-size: ${fontSize}rem;font-weight:bold`"
         class="w-100 p-2"
         :value="transcription"
         @keyup="change"
@@ -93,7 +90,14 @@
           <span>{{$t('main.work_area.button_5')}}</span>
         </button>
       </div>
-
+      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
+        <button title="-" class="btn btn-tikkoun" type="button" @click="changeFontSize(-0.1)">
+          <span>-</span>
+        </button>
+        <button title="+" class="btn btn-tikkoun" type="button" @click="changeFontSize(0.1)">
+          <span>+</span>
+        </button>
+      </div>
     </div>
 
     <div id="activity" class="mt-2 align-self-center w-60">
@@ -140,7 +144,7 @@ export default {
     return {
       nextLine: null,
       prevLine: null,
-      fitTextFactor: 2.5,
+      fontSize: +localStorage.getItem('line_font_size') || 1.7,
       imagefilters: { contrast: 1, brightness: 1, invert: 0 },
       polygon: {},
       color_img_file_name: null,
@@ -168,10 +172,10 @@ export default {
       if (res) {
         // Send analytics show line event
         this.$gtag.event('show_line', {
-            eventCategory: 'Site_Actions',
-            eventAction: 'show_line',
-            eventLabel: this.manuscript.id
-          })
+          eventCategory: 'Site_Actions',
+          eventAction: 'show_line',
+          eventLabel: this.manuscript.id
+        })
 
         this.$store.dispatch('transcribe/updateTranscription', res.AT)
 
@@ -182,8 +186,14 @@ export default {
   },
 
   methods: {
+    changeFontSize(by) {
+      this.fontSize += by
+      localStorage.setItem('line_font_size', this.fontSize)
+    },
     goToOldInterface() {
-      window.location.replace('http://tikkoun-sofrim.firebaseapp.com?from_demo=true')
+      window.location.replace(
+        'http://tikkoun-sofrim.firebaseapp.com?from_demo=true'
+      )
       return false
     },
     getLineURL(res) {
@@ -324,9 +334,9 @@ export default {
 }
 </script>
 <style lang="scss">
-.btn-tikkoun{
-  font-size:1.4rem;
-  background-color:#efefef;
+.btn-tikkoun {
+  font-size: 1.4rem;
+  background-color: #efefef;
 }
 #trw {
   direction: rtl;
