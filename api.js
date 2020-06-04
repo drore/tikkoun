@@ -389,7 +389,7 @@ export default {
 
   async addTranscription(params) {
     // Write to the user obj
-    const updateParams = Object.assign({}, params)
+    const updateParams = Object.assign({new_design:true}, params)
     updateParams.uid = updateParams.isAnonymous ? 'guest' : updateParams.uid
     delete updateParams.generalIndex
     ///

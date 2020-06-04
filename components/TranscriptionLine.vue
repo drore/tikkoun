@@ -3,7 +3,10 @@
     <div class="link-to-new-site">
       <a href="javascript:;" @click="goToOldInterface">{{$t('main.new_interface_button')}}</a>
     </div>
-
+    <div>
+      <div>{{$t('main.work_area.finish_line_1')}}</div>
+      <div>{{$t('main.work_area.finish_line_2')}}</div>
+    </div>
     <img :src="lineURL" style="width:100%" />
 
     <div style="margin-top:20px">
@@ -22,7 +25,27 @@
     </div>
 
     <!-- Transcribe toolbar -->
-    <div class="mt-3 p-10 row" dir="ltr">
+    <div class="mt-3 p-10 row">
+      
+      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
+        <button title="-" class="btn btn-tikkoun" type="button" @click="changeFontSize(-0.1)">
+          <span>-</span>
+        </button>
+        <button title="+" class="btn btn-tikkoun" type="button" @click="changeFontSize(0.1)">
+          <span>+</span>
+        </button>
+      </div>
+      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
+        <button
+          :title="$t('main.work_area.hovers.over_reset')"
+          class="btn btn-tikkoun"
+          type="button"
+          @click="reset"
+        >
+          <span>{{$t('main.work_area.button_5')}}</span>
+        </button>
+      </div>
+
       <div class="btn-group col mt-2" role="group" aria-label="First group" dir="ltr">
         <div class="dropdown">
           <button
@@ -80,52 +103,28 @@
           :t_content="getSpecialChar('divine_name')"
         />
       </div>
-      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
+      
+      
+      <div id="activity" class="btn-group col mt-2">
         <button
-          :title="$t('main.work_area.hovers.over_reset')"
-          class="btn btn-tikkoun"
-          type="button"
-          @click="reset"
-        >
-          <span>{{$t('main.work_area.button_5')}}</span>
-        </button>
-      </div>
-      <div class="btn-group col mt-2" role="group" aria-label="Second group" dir="ltr">
-        <button title="-" class="btn btn-tikkoun" type="button" @click="changeFontSize(-0.1)">
-          <span>-</span>
-        </button>
-        <button title="+" class="btn btn-tikkoun" type="button" @click="changeFontSize(0.1)">
-          <span>+</span>
-        </button>
-      </div>
-    </div>
-
-    <div id="activity" class="mt-2 align-self-center w-60">
-      <div>{{$t('main.work_area.finish_line_1')}}</div>
-      <div>{{$t('main.work_area.finish_line_2')}}</div>
-
-      <div id="activity-buttons" class="mt-2 d-flex justify-content-between">
-        <div>
-          <button
             type="submit"
             class="btn btn-warning"
             name="status"
             value="Skip"
             @click="skip"
           >{{$t('main.work_area.finish_button_2')}}</button>
-        </div>
-
-        <div>
           <button
             type="submit"
             class="btn btn-success"
             name="status"
             value="Done"
             @click="done"
-          >{{$t('main.work_area.finish_button_1')}}</button>
-        </div>
+          >{{$t('main.work_area.finish_button_1')}} ✓</button>
+          
+        
       </div>
     </div>
+
     <div>
       <Conversation
         v-if="manuscript && line"
