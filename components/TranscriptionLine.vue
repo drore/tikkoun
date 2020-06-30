@@ -133,6 +133,7 @@
           v-for="userTranscription in userTranscriptions"
           :key="userTranscription.id"
         >
+         <div class="transcription">{{userTranscription.transcription}}</div>
           <div class="actions d-flex">
             <a
               href="javascript:;"
@@ -146,9 +147,11 @@
             >&#10004;</a>
           </div>
           <!-- <div class="user-data">{{userTranscription.uid}}</div> -->
-          <div class="transcription">{{userTranscription.transcription}}</div>
+         
         </div>
       </div>
+      <div class="suggested-line" v-if="line.suggestedLine">{{line.suggestedLine}}</div>
+      <div class="suggested-line" v-if="!line.suggestedLine">No suggested line yet</div>
       <hr />
       <div id="activity-buttons" class="mt-2 d-flex justify-content-between">
         <div>
@@ -230,6 +233,7 @@ import ManipulationButton from '~/components/ManipulationButton'
 import Conversation from '~/components/Conversation'
 import { setTimeout } from 'timers'
 import axios from 'axios'
+import { resolve } from 'url'
 export default {
   data() {
     return {
@@ -299,6 +303,35 @@ this.fontSize+=by
     goToPreviousLine() {},
     goToNextLine() {},
     markUserTranscription(transcriptionId, mark) {
+      // If mark === true
+      
+        const _userTranscriptions = this.userTranscriptions
+        // Update all other lines with the same text to true
+        
+        // Get text from the specific transcription
+        const thisLineTranscription = _userTranscriptions.find(ut => ut.id === transcriptionId)
+        // Grab all other lines with the same text
+        const _filtered = _userTranscriptions.filter(ut => ut.transcription === thisLineTranscription.transcription)
+        // Assmble promises to mark all as true
+        const promises = []
+
+        _filtered.forEach((f) => {
+          promises.push(new Promise((resolve, reject) => {
+            this.$store.dispatch('transcribe/markUserTranscription', {
+              transcriptionId: f.id,
+              mark: mark
+            })
+
+            resolve()
+          }))
+        })
+
+        Promise.all(promises).then(res=> {
+          alert("updated all matching lines")
+        })
+      
+
+
       this.$store.dispatch('transcribe/markUserTranscription', {
         transcriptionId: transcriptionId,
         mark: mark
@@ -449,6 +482,18 @@ this.fontSize+=by
 }
 </script>
 <style lang="scss" scoped>
+.user-transcriptions {
+  max-height: 200px;
+    overflow-y: auto;
+}
+.user-transcription {
+    margin-bottom: 20px;
+}
+.suggested-line{
+  padding:5px;
+  border:1px solid black;
+  background-color:palegoldenrod;
+}
 #trw {
   direction: rtl;
 }
