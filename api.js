@@ -306,11 +306,22 @@ export default {
     })
   },
 
-  async markUserTranscription(transcriptionId, correct){
+  async setExpertLine(manuscriptId, lineId, expertLine) {
     return new Promise((resolve, reject) => {
-      StoreDB.doc(`transcriptions/${transcriptionId}`).update({correct:correct}).then(res => {
-        resolve(res)
-      })
+      StoreDB.doc(`manuscripts/${manuscriptId}/lines/${lineId}`)
+        .update({ expertLine: expertLine })
+        .then(res => {
+          resolve(res)
+        })
+    })
+  },
+  async markUserTranscription(transcriptionId, correct) {
+    return new Promise((resolve, reject) => {
+      StoreDB.doc(`transcriptions/${transcriptionId}`)
+        .update({ correct: correct })
+        .then(res => {
+          resolve(res)
+        })
     })
   },
 
@@ -322,7 +333,7 @@ export default {
         .where('line', '==', params.line)
         .get()
         .then(res => {
-          const lines = res.docs.map(d => Object.assign(d.data(),{id:d.id}))
+          const lines = res.docs.map(d => Object.assign(d.data(), { id: d.id }))
           resolve(lines)
         })
     })

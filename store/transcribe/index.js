@@ -107,6 +107,10 @@ export const mutations = {
   gotManuscript(state, payload) {
     state.manuscript = payload
   },
+
+  setExpertLine(state, payload){
+    state.selected_line = Object.assign(state.selected_line, {expertLine: payload.transcription})
+  },
   markUserTranscription(state, payload) {
     const userTranscriptions = state.user_transcriptions.concat([])
     const specificTranscription = userTranscriptions.find(
@@ -412,6 +416,11 @@ export const actions = {
 
         commit('gotLine', Object.assign({ id: res.id }, res.data))
       })
+  },
+  setExpertLine({ commit }, params) {
+    api.setExpertLine(params.manuscriptId, params.lineId, params.transcription).then(res => {
+      commit('setExpertLine', params)
+    })
   },
   markUserTranscription({ commit }, params) {
     api.markUserTranscription(params.transcriptionId, params.mark).then(res => {

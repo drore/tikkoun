@@ -150,8 +150,20 @@
          
         </div>
       </div>
-      <div class="suggested-line" v-if="line.suggestedLine">{{line.suggestedLine}}</div>
-      <div class="suggested-line" v-if="!line.suggestedLine">No suggested line yet</div>
+      <!---- Suggested Line --->
+      <div class="suggested-line-wrapper">
+        <div class="suggested-line" v-if="line.suggestedLine">{{line.suggestedLine}}</div>
+        <div class="suggested-line" v-if="!line.suggestedLine">No suggested line yet</div>
+      </div>
+      <hr />
+      <!---- Expert Line ---->
+      <div class="expert-line-wrapper">
+        <div class="expert-line" v-if="expertLine">
+          <input type="text" :value="expertLine" style="width:100%" @keyup="changeExpertLine" />
+        </div>
+        <div class="expert-line" v-if="!expertLine">No expert line yet</div>
+      </div>
+
       <hr />
       <div id="activity-buttons" class="mt-2 d-flex justify-content-between">
         <div>
@@ -243,7 +255,8 @@ export default {
       imagefilters: { contrast: 1, brightness: 1, invert: 0 },
       polygon: {},
       color_img_file_name: null,
-      lineURL: ''
+      lineURL: '',
+      expertLine: null
     }
   },
   components: {
@@ -285,26 +298,41 @@ export default {
 
         // Parse local presentation setup vars and assemble the IIIF URL for the line image
         this.lineURL = this.getLineURL(res)
+        
+        this.expertLine = res.expertLine
       }
     }
   },
 
   methods: {
     changeFontSize(by) {
-this.fontSize+=by
-      
+      this.fontSize+=by
+    },
+    changeExpertLine(e){
+      this.expertLine  = e.target.value
     },
     expertRule(rule) {
-      this.$store.dispatch('transcribe/markUserTranscription', {
-        transcriptionId: transcriptionId,
-        mark: mark
+      const _line = this.line
+      const _manuscriptId = this.$store.state.transcribe.manuscript.id
+      const _expertLine = this.expertLine
+
+       this.$store.dispatch('transcribe/setExpertLine', {
+          manuscriptId: _manuscriptId,
+          lineId: _line.id,
+          transcription: _expertLine
       })
     },
     goToPreviousLine() {},
-    goToNextLine() {},
+    goToNextLine() {
+      const self = this
+      this.$store.dispatch('transcribe/getNextLine', {
+          uid:self.$store.state.auth.user.uid
+      })
+    },
     markUserTranscription(transcriptionId, mark) {
       // If mark === true
-      
+        const _line = this.line
+        const _manuscriptId = this.$store.state.transcribe.manuscript.id
         const _userTranscriptions = this.userTranscriptions
         // Update all other lines with the same text to true
         
@@ -327,15 +355,24 @@ this.fontSize+=by
         })
 
         Promise.all(promises).then(res=> {
-          alert("updated all matching lines")
+          // Mark the specific transcription as {mark}
+          this.$store.dispatch('transcribe/markUserTranscription', {
+            transcriptionId: transcriptionId,
+            mark: mark
+          })
+
+          // mark === true
+          if(mark){
+            // Update "expert line"
+            this.$store.dispatch('transcribe/setExpertLine', {
+              manuscriptId: _manuscriptId,
+              lineId: _line.id,
+              transcription: thisLineTranscription.transcription
+            })
+
+            this.expertLine = thisLineTranscription.transcription
+          }
         })
-      
-
-
-      this.$store.dispatch('transcribe/markUserTranscription', {
-        transcriptionId: transcriptionId,
-        mark: mark
-      })
     },
     getUserTranscriptions() {
       this.$store.dispatch('transcribe/getLineUserTranscriptions', {
@@ -456,6 +493,7 @@ this.fontSize+=by
         })
         .then(res => {
           this.$store.dispatch('auth/updateUserLinesTranscribed')
+          /** Analytics */
           this.$gtag.event('done_line', {
             eventCategory: 'Transcribe_Actions',
             eventAction: 'done_line',
@@ -489,10 +527,13 @@ this.fontSize+=by
 .user-transcription {
     margin-bottom: 20px;
 }
-.suggested-line{
+.expert-line, .suggested-line{
   padding:5px;
   border:1px solid black;
   background-color:palegoldenrod;
+}
+.expert-line{
+  background-color:palegreen;
 }
 #trw {
   direction: rtl;
